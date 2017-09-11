@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DictionariesMapper">
+	
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update  sys_dictionaries
+			set NAME    = #{NAME},
+				ORDY_BY = #{ORDY_BY},
+				BIANMA  = #{BIANMA},
+				P_BM	  = #{P_BM}
+			where 
+				ZD_ID = #{ZD_ID}
+	</update>
+	<!-- ======通过PARENT_ID查找用户组sf===== -->
+	<select id="findByPId" parameterType="pd" resultType="pd">
+	select 
+			ZD_ID,
+			NAME,
+			BIANMA,
+			ORDY_BY,
+			PARENT_ID,
+			JB,
+			P_BM
+		from 
+			sys_dictionaries
+		where PARENT_ID=#{PARENT_ID}
+	</select>
+	<!-- 通过id获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+			ZD_ID,
+			NAME,
+			BIANMA,
+			ORDY_BY,
+			PARENT_ID,
+			JB,
+			P_BM
+		from 
+			sys_dictionaries
+		where 
+			ZD_ID = #{ZD_ID}
+	</select>
+	
+	<!-- 查找字典里的所有省份直辖市自治区-->
+	<select id="findProvinceAll" resultType="pd">
+		select 
+			ZD_ID,
+			NAME,
+			BIANMA,
+			ORDY_BY,
+			PARENT_ID,
+			JB,
+			P_BM
+		from 
+			sys_dictionaries
+		 WHERE bianma LIKE 'P00%' ORDER BY bianma
+	</select>
+	<!-- 查找字典里的承包类型-->
+	<select id="findDictionariesByBianma" resultType="pd">
+		SELECT 
+		  ZD_ID,
+		  NAME,
+		  BIANMA,
+		  ORDY_BY,
+		  PARENT_ID,
+		  JB,
+		  P_BM 
+		FROM
+		  sys_dictionaries s
+		WHERE s.PARENT_ID=(SELECT s.ZD_ID FROM sys_dictionaries s WHERE s.BIANMA=#{TYPE})
+		ORDER BY s.bianma 
+	</select>
+	
+	<!-- 根据编码 查询详情 -->
+		<select id="findDictionariesByBianmaLX" resultType="pd" parameterType="String">
+		SELECT 
+		  ZD_ID,
+		  NAME,
+		  BIANMA,
+		  ORDY_BY,
+		  PARENT_ID,
+		  JB,
+		  P_BM 
+		FROM
+		  sys_dictionaries s
+		WHERE  s.BIANMA=#{TYPE}
+		
+	</select>
+	
+	
+	
+	<select id="findDictionariesByParentId" resultType="Integer" parameterType="String">
+		SELECT 
+	  MAX(d.`ORDY_BY`) + 1 AS ORDY_BY 
+	FROM
+	  `sys_dictionaries` d 
+	WHERE d.`PARENT_ID` = 
+	  (SELECT 
+	    d.`ZD_ID` 
+	  FROM
+	    `sys_dictionaries` d 
+	  WHERE d.`BIANMA` = #{TYPE})
+	
+	
+	</select>
+	
+		<!-- 根据省份查找市-->
+	<select id="findCityAll" resultType="pd" parameterType="pd">
+		SELECT 
+			ZD_ID,
+			NAME,
+			BIANMA,
+			ORDY_BY,
+			PARENT_ID,
+			JB,
+			P_BM FROM sys_dictionaries
+		 WHERE P_BM like #{P_BM} ORDER BY bianma
+	</select>
+	
+	<!-- 新增 -->
+	<insert id="save" parameterType="pd">
+		insert into sys_dictionaries (
+			ZD_ID,
+			NAME,
+			BIANMA,
+			ORDY_BY,
+			PARENT_ID,
+			JB,
+			P_BM,
+			IS_SYS
+			
+		) values (
+			#{ZD_ID},
+			#{NAME},
+			#{BIANMA},
+			#{ORDY_BY},
+			#{PARENT_ID},
+			#{JB},
+			#{P_BM},
+			#{IS_SYS}
+		)
+	</insert>
+	
+	<!-- 列表 -->
+	<select id="dictlistPage" parameterType="page" resultType="pd">
+		select  z1.ZD_ID,
+				z1.NAME,
+				z1.BIANMA,
+				z1.ORDY_BY,
+				z1.PARENT_ID,
+				z1.JB,
+				z1.P_BM,
+				z1.IS_SYS,
+				z2.NAME PNAME
+		from sys_dictionaries z1
+		left join
+			sys_dictionaries z2 
+		on  z1.PARENT_ID = z2.ZD_ID 
+		where 
+		    z1.PARENT_ID = #{pd.PARENT_ID}
+		<if test="pd.NAME != null and pd.NAME != ''">
+			and z1.NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+		</if>
+		order by z1.ORDY_BY
+	</select>
+	<!-- 查询系统角色下面的人员 -->
+	<select id="findSysjs" parameterType="pd" resultType="pd">
+	
+  SELECT 
+ 			 ZD_ID,
+				NAME,
+			BIANMA,
+				ORDY_BY,
+				PARENT_ID,
+			JB,
+				P_BM
+   FROM `sys_dictionaries` t WHERE t.`P_BM` like #{P_BM} 
+   AND t.`BIANMA` NOT IN 
+  (SELECT 
+    IFNULL(role_code,0) 
+  FROM
+    sys_role ROLE_CODE 
+  WHERE PARENT_ID = #{PARENT_ID} 
+    AND STRUCT_ID = #{STRUCT_ID}
+ GROUP BY role_code) 
+   
+   ORDER BY ORDY_BY
+	
+	</select>
+	
+	<!-- 查询集团id -->
+	 <select id="findStructId" resultType="java.lang.String" >
+  
+  SELECT STRUCT_ID FROM `sys_structinfo` WHERE STRUCTST_AGE='0'
+  
+  </select>
+	
+	
+	<!-- 查询总数 -->
+	<select id="findCount" parameterType="pd" resultType="pd">
+		select 
+			count(ZD_ID) ZS
+		from 
+			sys_dictionaries
+		where 
+			PARENT_ID = #{ZD_ID}
+	</select>
+	
+	<!-- 查询某编码 -->
+	<select id="findBmCount" parameterType="pd" resultType="pd">
+		select 
+			ZD_ID
+		from 
+			sys_dictionaries
+		where 
+			BIANMA = #{BIANMA}
+		<if test="ZD_ID != null and ZD_ID != ''">
+			and ZD_ID != #{ZD_ID} 
+		</if>
+	</select>
+	
+	<!-- 删除用户 -->
+	<delete id="delete" parameterType="pd">
+		delete from sys_dictionaries 
+		where 
+			ZD_ID = #{ZD_ID}
+	</delete>
+	
+	
+	<!-- 查找字典里的所有省份直辖市自治区-->
+	<select id="findDictionaryByCode" resultType="pd" parameterType="String">
+		SELECT 
+		ZD_ID,
+		NAME,
+		BIANMA,
+		ORDY_BY,
+		PARENT_ID,
+		JB,
+		P_BM
+		FROM 
+		sys_dictionaries
+		WHERE P_BM LIKE  CONCAT(#{code},'_%') 
+		ORDER BY bianma
+		
+	</select>
+	
+	<!-- 查找字典里的论坛列表-->
+	<select id="findInfoToTree" parameterType="pd"  resultType="com.ssc.entity.system.TreeList" >
+		SELECT 
+  zd_id AS id,
+  NAME AS TEXT,
+  PARENT_ID AS parentId,
+  P_BM AS pBm,
+  '1' AS LEVEL 
+FROM
+  `sys_dictionaries` 
+WHERE P_BM = #{P_BM}
+UNION
+SELECT 
+  zd_id AS id,
+  NAME AS TEXT,
+  PARENT_ID AS parentId,
+  P_BM AS pBm,
+  '2' AS LEVEL 
+FROM
+  sys_dictionaries 
+WHERE `PARENT_ID` = 
+  (SELECT 
+    zd_id 
+  FROM
+    `sys_dictionaries` 
+  WHERE P_BM = #{P_BM}) 
+  UNION
+  SELECT 
+    zd_id AS id,
+    NAME AS TEXT,
+    PARENT_ID AS parentId,
+    P_BM AS pBm,
+    '3' AS LEVEL 
+  FROM
+    sys_dictionaries 
+  WHERE 
+  PARENT_ID IN 
+    (SELECT 
+      zd_id 
+    FROM
+      sys_dictionaries 
+    WHERE `PARENT_ID` = 
+      (SELECT 
+        zd_id 
+      FROM
+        `sys_dictionaries` 
+      WHERE P_BM = #{P_BM})) AND P_BM!='QYQ_PSSP'
+		
+	</select>
+	<!-- 根据省的名称查询编码 -->
+	 <select id="findPersonalandProvince" resultType="pd" parameterType="String">
+		 SELECT ZD_ID,NAME,BIANMA,ORDY_BY,PARENT_ID,JB,P_BM,IS_SYS FROM `sys_dictionaries` d  WHERE d.`NAME` LIKE  CONCAT(CONCAT(#{province}),'%') 
+	  </select>
+	  
+	  <select id="findPersonalandCity" resultType="pd" parameterType="pd">
+		SELECT ZD_ID,NAME,BIANMA,ORDY_BY,PARENT_ID,JB,P_BM,IS_SYS FROM `sys_dictionaries` d  WHERE d.`NAME` LIKE  CONCAT(CONCAT(#{city}),'%')
+		  AND d.`P_BM` LIKE CONCAT(CONCAT(#{provinceBianma}),'%')
+	  
+	  </select>
+	  
+	    <!-- 离职 -->
+	  <update id="updateJobOut" parameterType="pd" >
+  		 UPDATE   `sys_user` SET IS_JOB=1,LZ_DATE = #{LZ_DATE}  WHERE USER_ID = #{USER_ID}
+	  </update>
+	  
+	   <!--在职 -->
+	  <update id="updateJobIn" parameterType="pd" >
+  		 UPDATE   `sys_user` SET IS_JOB=0,LZ_DATE =NULL  WHERE USER_ID = #{USER_ID}
+	  </update>
+	  
+		<!-- 查询审批类型-->
+	<select id="findSPLXDictionaryByCode" resultType="com.ssc.entity.system.TtReviewGroupType" parameterType="String">
+		SELECT 
+		BIANMA as type_id,
+		NAME as type_name 
+		FROM 
+		sys_dictionaries
+		WHERE P_BM LIKE  CONCAT(#{code},'_%') 
+		ORDER BY bianma
+		
+	</select>  
+	  
+	  
+	  
+</mapper>
