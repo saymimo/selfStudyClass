@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="lwExecutionMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.lwExecution" >
+    <id column="LW_EXECUTION_ID" property="lwExecutionId" jdbcType="VARCHAR" />
+    <result column="PACT_ID" property="pactId" jdbcType="VARCHAR" />
+    <result column="TASK_ID" property="taskId" jdbcType="VARCHAR" />
+    <result column="IS_WAGE" property="isWage" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    LW_EXECUTION_ID, PACT_ID, TASK_ID,IS_WAGE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_lw_execution
+    where LW_EXECUTION_ID = #{lwExecutionId,jdbcType=VARCHAR}
+  </select>
+<update id="upConfirm" parameterType="pd">
+UPDATE 
+  tt_out_task t 
+SET
+  t.`CONFIRM_STATE` = #{confirmState,jdbcType=INTEGER},
+  t.`CONFIRM_USER` = #{confirmUser,jdbcType=VARCHAR} 
+WHERE t.`OUT_STORAGE_ID` = #{outStorageId,jdbcType=VARCHAR} 
+  AND t.`OUT_STORAGE_OBJ` = #{PACT_ID,jdbcType=VARCHAR} 
+</update>
+  <select id="getItemReviewId" parameterType="pd" resultType="java.lang.String">
+  SELECT 
+  r.`ITEM_REVIEW_ID` 
+FROM
+  tt_item_review r 
+WHERE r.`FOREIGN_KEY_ID` = 
+  (SELECT 
+    s.`LW_SANCTION_ID` 
+  FROM
+    tt_lw_sanction s 
+  WHERE s.`WAGE_VOUCHER` = #{TASK_WAGE_ID,jdbcType=VARCHAR})
+  </select>
+  
+  <select id="findByPK" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_lw_execution
+    where LW_EXECUTION_ID = #{LW_EXECUTION_ID,jdbcType=VARCHAR}
+  </select>
+  
+   <select id="findTaskInfo" resultType="pd" parameterType="pd" useCache="false">
+SELECT 
+  CASE
+    WHEN t.TASK_STATE = 3 
+    AND WAGE_APPROVAL = 2 
+    THEN '可结算' 
+    WHEN  t.TASK_STATE != 3 
+    OR WAGE_APPROVAL != 2 
+    THEN '不可结算' 
+  END AS TYPE  ,t.TASK_STATE,t.WAGE_APPROVAL
+FROM
+  tt_taskinfo t 
+
+   WHERE t.`UID`= #{TASK_ID,jdbcType=VARCHAR}
+  </select>
+  
+  
+
+  
+  
+  <!-- 更改劳务合同结算情况 -->
+  <update id="updateTaskInfo" parameterType="pd" flushCache="true">
+  UPDATE tt_taskinfo t 
+SET t.`PACT_SETTLEMENT`=1 , 
+t.`UPDATE_BY`=#{userId,jdbcType=VARCHAR} ,
+t.`UPDATE_DATE`=#{updateDate,jdbcType=TIMESTAMP},
+t.WAGE_VOUCHER=#{taskWageId,jdbcType=VARCHAR} <!-- tt_task_wage主键 -->
+WHERE t.`UID`=#{TASK_ID,jdbcType=VARCHAR}
+  
+  </update>
+  
+  
+ 
+  
+  
+  
+  
+  <!-- 查询列表 -->
+  <select id="listPagelwTaskinfo" resultType="pd" parameterType="page">
+    SELECT 
+  LW_TASKINFO_ID lwTaskinfoId,
+  LW_PERSONALINFO_ID lwPersonalinfoId,
+  TASK_ID taskId,
+  STATUS status,
+  STATUS_OUTDATE statusOutdate,
+  ALLOCATION_METHOD allocationMethod ,
+  TRUNCATE(IFNULL(ALLOCATION_COEFFICIENT,0),1) allocationCoefficient,
+  IFNULL(WORK_UNIT,0) workUnit,
+  FIXED_AMOUNT fixedAmount,
+  IFNULL(AVG_AMONNT,0) avgAmonnt,
+  IFNULL(AMOUNT,0) amount,
+  TRUNCATE(IFNULL(TOTAL_UNIT,0),1) totalUnit,
+  IFNULL(ATTENDANCE_DAYS,0) attendanceDays,
+  IS_DEL isDel,
+  CREATE_DATE createDate,
+  (SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`=l.CREATE_BY) createBy,
+  UPDATE_DATE updateDate,
+  UPDATE_BY updateBy,
+  taskName(TASK_ID) taskName,
+  (SELECT p.`LW_NAME` FROM `tt_lw_personalinfo` p WHERE p.`LW_PERSONALINFO_ID`=l.`LW_PERSONALINFO_ID`) lwName
+FROM
+  tt_lw_taskinfo  l
+WHERE  
+FIND_IN_SET(TASK_ID,
+  (SELECT 
+    `findTaskListByPid` (#{pd.TASK_ID,jdbcType=VARCHAR}))) 
+   
+order by IS_DEL
+  </select>
+  
+  
+  <select id="listPageAll" resultType="pd" parameterType="page" useCache="false">
+   SELECT t.`APPROVAL_STATE`,t.`LW_TOTAL_AMOUNT`,t.`TASK_STATE`,WAGE_APPROVAL,LW_EXECUTION_ID,PACT_SETTLEMENT,
+      (SELECT NAME FROM tt_taskinfo  WHERE UID=e.TASK_ID) AS TASK_NAME,e.PACT_ID,e.TASK_ID,
+   CASE
+    WHEN t.PACT_SETTLEMENT = 1 
+    THEN '已结算' 
+    WHEN t.TASK_STATE = 3 
+    AND WAGE_APPROVAL = 2 
+    THEN '可结算' 
+    WHEN t.TASK_STATE != 3 
+    OR WAGE_APPROVAL != 2 
+    THEN '不可结算' 
+  END AS TYPE,
+      (SELECT s.`NAME` FROM `sys_user`  s WHERE s.`USER_ID`=t.CREATE_BY) 
+   		AS CREATE_NAME, CREATE_BY, UPDATE_DATE, UPDATE_BY
+    FROM tt_taskinfo t,tt_lw_execution e
+    WHERE  t.`UID`=e.`TASK_ID`  and  
+   e.`PACT_ID`=#{pd.PACT_ID,jdbcType=VARCHAR}
+    <if test="pd.NAME!=null and pd.NAME!=''">
+      and t.NAME like #{pd.NAME2,jdbcType=VARCHAR} 
+    </if>
+     
+  </select>
+  
+  <!-- 同时查询父级任务 -->
+  <select id="listAll" resultType="pd" parameterType="pd" useCache="false">
+    SELECT t.`UID`,
+      IFNULL((SELECT taskName(t.UID) ),'') AS TASK_NAME
+    FROM tt_taskinfo t,tt_lw_execution e
+    WHERE  t.`UID`=e.`TASK_ID`   and  
+    t.`UID` IN( SELECT l.`TASK_ID` FROM tt_lw_execution l WHERE l.`PACT_ID`=#{PACT_ID,jdbcType=VARCHAR})
+    GROUP BY e.`TASK_ID`
+  </select>
+  <!-- 同时查询父级任务 -->
+  
+  
+  <!-- 劳务工资信息显示 -->
+   <select id="exelistPageAll" resultType="pd" parameterType="page" useCache="false">
+SELECT 
+  child.* 
+FROM
+  (SELECT 
+  (SELECT 
+    NAME 
+  FROM
+    sys_user u 
+  WHERE u.USER_ID = w.`CREATE_BY`) AS CREATE_NAME, w.`TYPE`,
+  w.`CREATE_DATE`,
+  w.WAGE_VOUCHER,
+  w.FINANCE_STATE,
+  w.WAGE_TYPE,
+  w.`REMARK`,
+  w.TASK_WAGE_ID,
+  w.`WAGE_DATE`,
+  t.`PROJECTUID` AS ITEM_ID,
+  w.`IS_POST`,
+  e.`PACT_ID`,
+  (SELECT 
+    PACT_NAME 
+  FROM
+    tt_pactinfo p 
+  WHERE p.PACT_ID = e.`PACT_ID` 
+  AND e.`IS_WAGE`=1) AS PACT_NAME,
+  SUM(t.LW_TOTAL_AMOUNT) AS AMOUNT_MONEY 
+FROM
+  tt_taskinfo t,
+  tt_lw_execution e,
+  tt_task_wage w 
+WHERE t.`UID` = e.`TASK_ID` 
+AND e.`IS_WAGE`=1
+  AND w.`TASK_WAGE_ID` = t.`WAGE_VOUCHER` 
+  AND t.`UID` IN 
+  (SELECT 
+    tt.UID 
+  FROM
+    tt_taskinfo tt 
+  WHERE tt.`PROJECTUID` = #{pd.ITEM_ID,jdbcType=VARCHAR} 
+    AND t.PACT_SETTLEMENT = 1 
+  GROUP BY tt.UID) 
+GROUP BY t.`WAGE_VOUCHER` 
+UNION
+SELECT 
+ (SELECT 
+    NAME 
+  FROM
+    sys_user u 
+  WHERE u.USER_ID = w.`CREATE_BY`) AS CREATE_NAME, w.`TYPE`,
+  w.`CREATE_DATE`,
+  w.`WAGE_VOUCHER`,
+  w.`FINANCE_STATE`,
+  w.`WAGE_TYPE`,
+  w.`REMARK`,
+  w.`TASK_WAGE_ID`,
+  w.`WAGE_DATE`,
+  w.`ITEM_ID`,
+  w.`IS_POST`,
+  '' AS PACT_ID,
+  IFNULL(
+      taskName (
+        (SELECT 
+          ls.`TASK_ID` 
+        FROM
+          tt_lw_sanction ls 
+        WHERE ls.`WAGE_VOUCHER` = w.`TASK_WAGE_ID`)
+      ),
+      ''
+    ) AS PACT_NAME,
+  (SELECT 
+      CASE
+      WHEN w.`TYPE` = 0 
+      THEN SUM(m.`WAGE_MONEY`) 
+      WHEN w.`TYPE` = 1 
+      THEN SUM(m.LOAN_MONEY)
+      WHEN w.`TYPE` = 2 
+      THEN SUM(m.`WAGE_MONEY`)
+      WHEN w.`TYPE` = 3 
+      THEN 0-SUM(m.`WAGE_MONEY`)
+      END AS moneys 
+  FROM
+    tt_wage_detail_manual m 
+  WHERE m.`TASK_WAGE_ID` = w.`TASK_WAGE_ID`) AS MONEY 
+FROM
+  tt_task_wage w 
+WHERE w.`ITEM_ID` = #{pd.ITEM_ID,jdbcType=VARCHAR} and w.WAGE_TYPE!=0
+ ) AS child 
+WHERE 1=1  
+ <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 		AND child.`CREATE_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND child.`CREATE_DATE` &lt;=#{pd.LASTLOGINSTART2} 
+		 		</if>
+		 		</if>
+   <if test="pd.NAME !=null and pd.NAME != '' ">
+     AND ( child.`PACT_NAME` LIKE #{pd.NAME2,jdbcType=VARCHAR} or child.`REMARK` LIKE #{pd.NAME2,jdbcType=VARCHAR})
+   </if>
+ORDER BY CREATE_DATE  DESC
+  </select>
+    <!-- 劳务工资信息显示 -->
+    
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_lw_execution
+    where LW_EXECUTION_ID = #{LW_EXECUTION_ID,jdbcType=VARCHAR}
+  </delete>
+  
+  <!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String" flushCache="false">
+		delete from tt_lw_execution
+		 where LW_EXECUTION_ID in 
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+  
+  <delete id="toDelete" parameterType="pd" >
+    delete from tt_lw_execution
+    where PACT_ID=#{PACT_ID,jdbcType=VARCHAR}
+  </delete>
+  
+  <delete id="toDeByTaskID" parameterType="pd" >
+    delete from tt_lw_execution
+    where TASK_ID=#{taskId,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="insert" parameterType="com.ssc.entity.system.lwExecution" >
+    insert into tt_lw_execution (LW_EXECUTION_ID, PACT_ID, TASK_ID
+      )
+    values (#{lwExecutionId,jdbcType=VARCHAR}, #{pactId,jdbcType=VARCHAR}, #{taskId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_lw_execution
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="lwExecutionId != null" >
+        LW_EXECUTION_ID,
+      </if>
+      <if test="pactId != null" >
+        PACT_ID,
+      </if>
+      <if test="taskId != null" >
+        TASK_ID,
+      </if>
+      <if test="isWage != null" >
+        IS_WAGE,
+      </if>
+       
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="lwExecutionId != null" >
+        #{lwExecutionId,jdbcType=VARCHAR},
+      </if>
+      <if test="pactId != null" >
+        #{pactId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="isWage != null" >
+        #{isWage,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.lwExecution" >
+    update tt_lw_execution
+    <set >
+      <if test="pactId != null" >
+        PACT_ID = #{pactId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        TASK_ID = #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="isWage != null" >
+        IS_WAGE = #{isWage,jdbcType=INTEGER},
+      </if>
+    </set>
+    where LW_EXECUTION_ID = #{lwExecutionId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.lwExecution" >
+    update tt_lw_execution
+    set PACT_ID = #{pactId,jdbcType=VARCHAR},
+      TASK_ID = #{taskId,jdbcType=VARCHAR},
+      IS_WAGE = #{isWage,jdbcType=INTEGER}
+    where LW_EXECUTION_ID = #{lwExecutionId,jdbcType=VARCHAR}
+  </update>
+</mapper>

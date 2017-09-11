@@ -1,0 +1,1624 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="OutputInvoiceMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.OutputInvoice" >
+    <id column="OUTPUT_INVOICE_ID" property="outputInvoiceId" jdbcType="VARCHAR" />
+    <result column="BILL_APPLY_ID" property="billApplyId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="FINANCE_NO" property="financeNo" jdbcType="VARCHAR" />
+    <result column="INVOICE_CODE" property="invoiceCode" jdbcType="VARCHAR" />
+    <result column="INVOICE_NO" property="invoiceNo" jdbcType="VARCHAR" />
+    <result column="INVOICE_TYPE" property="invoiceType" jdbcType="INTEGER" />
+    <result column="BUYER_NAME" property="buyerName" jdbcType="VARCHAR" />
+    <result column="BUYER_NUMBER" property="buyerNumber" jdbcType="VARCHAR" />
+    <result column="BUYER_ADDRESS" property="buyerAddress" jdbcType="VARCHAR" />
+    <result column="BUYER_PHONE" property="buyerPhone" jdbcType="VARCHAR" />
+    <result column="BUYER_BANK_ACCOUNT" property="buyerBankAccount" jdbcType="VARCHAR" />
+    <result column="COMMODITY_NAME" property="commodityName" jdbcType="VARCHAR" />
+    <result column="TAX_DATE" property="taxDate" jdbcType="TIMESTAMP" />
+    <result column="PURCHASE_NAME" property="purchaseName" jdbcType="VARCHAR" />
+    <result column="PURCHASE_IDENTIFY_NUMBER" property="purchaseIdentifyNumber" jdbcType="VARCHAR" />
+    <result column="PURCHASE_ADDRESS" property="purchaseAddress" jdbcType="VARCHAR" />
+    <result column="PURCHASE_PHONE" property="purchasePhone" jdbcType="VARCHAR" />
+    <result column="PURCHASE_ACCOUNT_NUMBER" property="purchaseAccountNumber" jdbcType="VARCHAR" />
+    <result column="SALES_NAME" property="salesName" jdbcType="VARCHAR" />
+    <result column="SALES_IDENTIFY_NUMBER" property="salesIdentifyNumber" jdbcType="VARCHAR" />
+    <result column="SALES_ADDRESS" property="salesAddress" jdbcType="VARCHAR" />
+    <result column="SALES_PHONE" property="salesPhone" jdbcType="VARCHAR" />
+    <result column="SALES_ACCOUNT_NUMBER" property="salesAccountNumber" jdbcType="VARCHAR" />
+    <result column="INVOICE_MONEY" property="invoiceMoney" jdbcType="DECIMAL" />
+    <result column="TAX_MONEY" property="taxMoney" jdbcType="DECIMAL" />
+    <result column="COLLECT_NAME" property="collectName" jdbcType="VARCHAR" />
+    <result column="CHECK_NAME" property="checkName" jdbcType="VARCHAR" />
+    <result column="OPEN_NAME" property="openName" jdbcType="VARCHAR" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="TAX_RATE" property="taxRate" jdbcType="DECIMAL" />
+    <result column="DEL_REMARK" property="delRemark" jdbcType="VARCHAR" />
+    <result column="INVOICE_EXCHANGE" property="invoiceExchange" jdbcType="INTEGER" />
+    <result column="WL_COMPANY" property="wlCompany" jdbcType="VARCHAR" />
+    <result column="EXPRESS_NO" property="expressNo" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    OUTPUT_INVOICE_ID, BILL_APPLY_ID, FINANCE_NO, INVOICE_CODE, INVOICE_NO, INVOICE_TYPE, 
+    BUYER_NAME, BUYER_NUMBER, BUYER_ADDRESS, BUYER_PHONE, BUYER_BANK_ACCOUNT, COMMODITY_NAME, 
+    TAX_DATE, PURCHASE_NAME, PURCHASE_IDENTIFY_NUMBER, PURCHASE_ADDRESS, PURCHASE_PHONE, 
+    PURCHASE_ACCOUNT_NUMBER, SALES_NAME, SALES_IDENTIFY_NUMBER, SALES_ADDRESS, SALES_PHONE, 
+    SALES_ACCOUNT_NUMBER, INVOICE_MONEY, TAX_MONEY, COLLECT_NAME, CHECK_NAME, OPEN_NAME, 
+    REMARK, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, TAX_RATE,DEL_REMARK,
+    ITEM_ID,INVOICE_EXCHANGE,WL_COMPANY,EXPRESS_NO
+  </sql>
+<select id="structId" parameterType="pd" resultType="String">
+SELECT 
+  tb.`STRUCT_ID` 
+FROM
+  tt_bill_apply tb 
+WHERE tb.`BILL_APPLY_ID` = #{billApplyId,jdbcType=VARCHAR}
+</select>
+
+<select id="listpageForBillChoose" parameterType="page" resultType="pd">
+SELECT 
+  t.*,
+  s.`NAME` CREATE_NAME 
+FROM
+  tt_bill_apply t 
+  LEFT JOIN sys_user s 
+    ON t.`CREATE_BY` = s.`USER_ID` 
+WHERE t.`IS_DEL` = 0 
+  AND t.`STATE` >= 6 
+  AND t.`ITEM_ID`= #{pd.itemId,jdbcType=VARCHAR}
+  <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  	t.BILL_NO  LIKE #{pd.ITEMCOLLECTNAME2}
+  	or t.REMARK LIKE #{pd.ITEMCOLLECTNAME2}
+  	or s.`NAME` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>  
+ <if test="pd.SEACH_NUM != null">
+  or t.BILL_MONEY = #{pd.SEACH_NUM}
+ </if>
+ <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(t.`CREATE_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND t.`CREATE_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  </if>
+</if> 
+</select>
+
+<select id="inputItemName" parameterType="pd" resultType="pd">
+SELECT 
+  t.`ITEM_NAME` 
+FROM
+  tt_iteminfo t 
+WHERE t.`IS_DEL` = 0 
+  AND t.`APPROVAL_STATUS` = 1 
+</select>
+<select id="checkToUpState" parameterType="pd" resultType="pd">
+SELECT 
+  CASE
+    WHEN t.`BILL_MONEY` >= 
+    (SELECT 
+      SUM(toi.INVOICE_MONEY) 
+    FROM
+      tt_output_invoice toi 
+    WHERE toi.IS_DEL = 0 
+      AND toi.BILL_APPLY_ID = t.BILL_APPLY_ID) 
+    THEN 'no' 
+    ELSE 'yes' 
+  END UP_STATE,
+  (SELECT COUNT(*) FROM tt_output_invoice toi WHERE toi.IS_DEl=0 AND toi.BILL_APPLY_ID =t.BILL_APPLY_ID) NUM 
+FROM
+  tt_bill_apply t 
+WHERE t.`BILL_APPLY_ID` = #{billApplyId,jdbcType=VARCHAR} 
+  AND t.`IS_DEL` = 0 
+
+</select>
+
+<select id="getItemInfo" parameterType="pd" resultType="pd">
+SELECT 
+  t.`ITEM_NAME`,
+  t.IDENTIFY_NUMBER,
+  t.DETAILS_ADDRESS,
+  t.OTHER_PHONE,
+  t.OTHER_NUMBER,
+  t.OTHER_UNIT,
+  t.`ITEM_ID`,
+  CASE
+    t.TAXATION_TYPE 
+    WHEN 0 
+    THEN '一般征收' 
+    WHEN 1 
+    THEN '简易征收' 
+  END TAXATION_TYPE_NAME ,
+  t.OTHER_ADDRESS,
+  t.TAXATION_TYPE
+FROM
+  tt_iteminfo t 
+WHERE t.`ITEM_ID` = #{itemId,jdbcType=VARCHAR} 
+  AND t.`IS_DEL` = 0
+</select>
+<select id="slCounts" parameterType="String" resultType="Integer">
+SELECT 
+  COUNT(1) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`BILL_APPLY_ID` = #{billApplyId,jdbcType=VARCHAR} 
+  AND tt.`IS_DEL` = 0  
+</select>
+<select id="listPageItem" resultType="pd" parameterType="page">
+SELECT 
+  t.`ITEM_NAME`,
+  t.`ITEM_NUMBER`,
+  t.`ITEM_MONEY`,
+  t.`ITEM_ID`,
+  t.`CREATE_DATE`,
+  su.`NAME` CREATE_NMAE,
+  t.END_DATE,
+  (SELECT 
+    sd.NAME 
+  FROM
+    sys_dictionaries sd 
+  WHERE sd.BIANMA = t.`ITEM_PROVINCE`) PROVINCE_NAME,
+  (SELECT 
+    sd.NAME 
+  FROM
+    sys_dictionaries sd 
+  WHERE sd.BIANMA = t.`ITEM_CITY`) CITY_NAME,
+  ss.`STRUCT_NAME`,
+  t.ENFORCESTATE,
+  t.TAXATION_TYPE 
+FROM
+  tt_iteminfo t,
+  sys_user su,
+  sys_structinfo ss 
+WHERE t.`APPROVAL_STATUS` = 1 
+  AND ss.`STRUCT_ID` = t.`STRUCT_ID` 
+  AND su.`USER_ID` = t.`CREATE_BY` 
+  AND t.`IS_DEL` = 0 
+<if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME !=''">
+  AND (
+    su.`NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+    OR t.`ITEM_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+    OR t.ITEM_NUMBER LIKE #{pd.ITEMCOLLECTNAME2} 
+  )
+</if>
+<if test="pd.LASTLOGINSTART1!=null and pd.LASTLOGINSTART1!=''">
+	<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2!=''">
+	 AND t.`CREATE_DATE` > #{pd.LASTLOGINSTART1}  
+ 	 AND #{pd.LASTLOGINSTART2}  > t.`CREATE_DATE` 
+	</if>
+</if>
+</select>
+
+<select id="listWeixinItem" resultType="pd" >
+SELECT 
+  t.`ITEM_NAME`,
+  t.`ITEM_NUMBER`,
+  t.`ITEM_MONEY`,
+  t.`ITEM_ID`,
+  t.`CREATE_DATE`,
+  su.`NAME` CREATE_NMAE,
+  t.END_DATE,
+  (SELECT 
+    sd.NAME 
+  FROM
+    sys_dictionaries sd 
+  WHERE sd.BIANMA = t.`ITEM_PROVINCE`) PROVINCE_NAME,
+  (SELECT 
+    sd.NAME 
+  FROM
+    sys_dictionaries sd 
+  WHERE sd.BIANMA = t.`ITEM_CITY`) CITY_NAME,
+  ss.`STRUCT_NAME`,
+  t.ENFORCESTATE,
+  t.TAXATION_TYPE 
+FROM
+  tt_iteminfo t,
+  sys_user su,
+  sys_structinfo ss 
+WHERE t.`APPROVAL_STATUS` = 1 
+  AND ss.`STRUCT_ID` = t.`STRUCT_ID` 
+  AND su.`USER_ID` = t.`CREATE_BY` 
+  AND t.`IS_DEL` = 0 
+<if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME !=''">
+  AND (
+    su.`NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+    OR t.`ITEM_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+    OR t.ITEM_NUMBER LIKE #{pd.ITEMCOLLECTNAME2} 
+  )
+</if>
+
+</select>
+
+
+
+
+<select id="structList" resultType="pd">
+SELECT 
+  st.`STRUCT_ID`,
+  st.`STRUCT_NAME` 
+FROM
+  sys_structinfo st 
+WHERE st.`IS_DEL` = 0 
+</select>
+
+<select id="listPageAllToEdit" parameterType="page" resultType="pd">
+SELECT 
+  sa.* 
+FROM
+  (SELECT 
+    o.*,
+    (SELECT 
+      u.NAME 
+    FROM
+      sys_user u 
+    WHERE u.USER_ID = o.CREATE_BY) AS CREATE_NAME 
+  FROM
+    tt_output_invoice o 
+  WHERE 1 = 1 
+    AND (
+      o.`BILL_APPLY_ID` IS NULL 
+      OR o.`BILL_APPLY_ID` = ''
+    ) 
+    AND o.`ITEM_ID` = 
+    (SELECT 
+      ba.`ITEM_ID` 
+    FROM
+      tt_bill_apply ba 
+    WHERE ba.`BILL_APPLY_ID` = #{pd.billApplyId,jdbcType=VARCHAR}) 
+  ORDER BY o.`CREATE_DATE` DESC) AS sa 
+WHERE 1 = 1 
+  AND sa.IS_DEL = 0 
+  <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR sa.`FINANCE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.INVOICE_CODE LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.`INVOICE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`TAX_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`TAX_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+</if> 
+</select>
+ 
+  <select id="checkNo" parameterType="pd" resultType="java.lang.Integer">
+  SELECT 
+  COUNT(1) 
+FROM
+  tt_output_invoice o 
+WHERE o.`INVOICE_CODE`= #{invoiceCode,jdbcType=VARCHAR}
+  AND o.`INVOICE_NO` = #{invoiceNo,jdbcType=VARCHAR}
+  AND o.IS_DEL = 0 
+  <if test="outputInvoiceId != null and outputInvoiceId != ''">
+    AND o.`OUTPUT_INVOICE_ID` != #{outputInvoiceId,jdbcType=VARCHAR} 
+   </if>
+  </select>
+ <select id="checkFinNo" parameterType="pd" resultType="Integer">
+  SELECT 
+  COUNT(1) 
+FROM
+  tt_output_invoice o 
+  
+WHERE o.`FINANCE_NO` = #{financeNo,jdbcType=VARCHAR} 
+AND IS_DEL = 0
+ <if test="outputInvoiceId != null and outputInvoiceId != ''">
+  AND o.`OUTPUT_INVOICE_ID` != #{outputInvoiceId,jdbcType=VARCHAR} 
+  </if>
+  </select>
+  
+  <select id="checkWeixinBillNum" parameterType="pd" resultType="java.lang.Integer">
+  SELECT 
+  COUNT(1) 
+FROM
+  tt_output_invoice o 
+WHERE o.`INVOICE_CODE`= #{invoiceCode,jdbcType=VARCHAR}
+  AND o.`INVOICE_NO` = #{invoiceNo,jdbcType=VARCHAR}
+  AND o.IS_DEL = 0 
+  </select>
+  
+  
+  <!--  两个页面共用一个 sql 开票申请 销项票 子级页面  主页面   销票管理显示 -->
+<select id="listPageAll" parameterType="page" resultType="pd">
+SELECT 
+  OUTPUT_INVOICE_ID,
+  INVOICE_EXCHANGE,
+  BILL_APPLY_ID,
+  FINANCE_NO,
+  INVOICE_CODE,
+  INVOICE_NO,
+  INVOICE_TYPE,
+  BUYER_NAME,
+  BUYER_NUMBER,
+  BUYER_ADDRESS,
+  BUYER_PHONE,
+  BUYER_BANK_ACCOUNT,
+  COMMODITY_NAME,
+  TAX_DATE,
+  PURCHASE_NAME,
+  PURCHASE_IDENTIFY_NUMBER,
+  PURCHASE_ADDRESS,
+  PURCHASE_PHONE,
+  PURCHASE_ACCOUNT_NUMBER,
+  SALES_NAME,
+  SALES_IDENTIFY_NUMBER,
+  SALES_ADDRESS,
+  SALES_PHONE,
+  SALES_ACCOUNT_NUMBER,
+  INVOICE_MONEY,
+  TAX_MONEY,
+  COLLECT_NAME,
+  CHECK_NAME,
+  OPEN_NAME,
+  REMARK,
+  t.CREATE_DATE,
+  t.CREATE_BY,
+  TAX_RATE,
+  DEL_REMARK,
+  t.ITEM_ID,
+  su.`NAME` CREATE_NAME,
+  ti.`ITEM_NAME`,
+  t.IS_DEL,
+  WL_COMPANY,
+  EXPRESS_NO,
+  CASE 
+  WHEN (t.`BILL_APPLY_ID` IS NULL OR t.`BILL_APPLY_ID` ='')
+  THEN 'no'
+  ELSE 'yes'
+  END IS_SELCET 
+FROM
+  tt_output_invoice t,
+  sys_user su,
+  tt_iteminfo ti 
+WHERE t.`CREATE_BY` = su.`USER_ID` 
+  AND t.`ITEM_ID` = ti.`ITEM_ID`    AND t.IS_DEL=0
+<if test="pd.billApplyId != null and pd.billApplyId != ''">
+  AND t.`BILL_APPLY_ID` = #{pd.billApplyId} 
+
+</if>
+<if test="pd.STRUCT_ID != null and pd.STRUCT_ID != ''">
+  AND t.BILL_APPLY_ID IN 
+  (SELECT 
+    ba.BILL_APPLY_ID 
+  FROM
+    tt_bill_apply ba 
+  WHERE ba.STRUCT_ID = #{pd.STRUCT_ID}) 
+</if>
+<if test="pd.HAS_BILL =='INVOICED'">
+  AND( t.`BILL_APPLY_ID` IS NOT NULL  AND t.`BILL_APPLY_ID`!='')
+</if>
+<if test="pd.HAS_BILL =='UNBILLED'">
+  AND( t.`BILL_APPLY_ID` IS NULL  OR t.`BILL_APPLY_ID` ='')
+</if>
+<if test="pd.ITEM_ID !=null and pd.ITEM_ID!=''">
+  and t.ITEM_ID = #{pd.ITEM_ID}
+</if>
+  <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  su.`NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR t.`FINANCE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR t.INVOICE_CODE LIKE #{pd.ITEMCOLLECTNAME2}
+  OR t.`INVOICE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(
+  (t.`TAX_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND t.`TAX_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+</if>
+ORDER BY t.`CREATE_DATE` DESC   
+</select>
+
+
+<select id="listAllToExcel" parameterType="pd" resultType="pd">
+SELECT 
+ sa.* 
+FROM
+  (SELECT 
+  o.*,
+  (SELECT 
+    u.NAME 
+  FROM
+    sys_user u 
+  WHERE u.USER_ID = o.CREATE_BY) AS CREATE_NAME,
+  CASE
+    (SELECT 
+      COUNT(*) 
+    FROM
+      tt_bill_apply ba 
+    WHERE ba.BILL_APPLY_ID = o.`BILL_APPLY_ID` 
+      AND ba.IS_DEL = 0) 
+    WHEN 0 
+    THEN 'yes' 
+    ELSE 'no' 
+  END isAdd ,
+  (SELECT 
+    ti.ITEM_NAME 
+  FROM
+    tt_iteminfo ti 
+  WHERE ti.ITEM_ID = 
+    (SELECT 
+      ba.ITEM_ID 
+    FROM
+      tt_bill_apply ba 
+    WHERE ba.BILL_APPLY_ID = o.BILL_APPLY_ID)) ITEM_NAME,
+  (SELECT 
+    ss.STRUCT_NAME 
+  FROM
+    sys_structinfo ss 
+  WHERE ss.STRUCT_ID = 
+    (SELECT 
+      ba.STRUCT_ID 
+    FROM
+      tt_bill_apply ba 
+    WHERE ba.BILL_APPLY_ID = o.BILL_APPLY_ID)) STRUCT_NAME,
+  CASE
+    o.IS_DEL 
+    WHEN 0 
+    THEN '有效' 
+    ELSE '作废' 
+  END DEL_TYPE   
+FROM
+  tt_output_invoice o 
+WHERE 1=1  and o.IS_DEL=0
+<if test="STRUCT_ID != null and STRUCT_ID != ''">
+AND o.BILL_APPLY_ID IN 
+  (SELECT 
+    ba.BILL_APPLY_ID 
+  FROM
+    tt_bill_apply ba 
+  WHERE ba.STRUCT_ID = #{STRUCT_ID})
+</if>
+<if test="ITEM_ID !=null and ITEM_ID!=''">
+  and o.ITEM_ID = #{ITEM_ID}
+</if>
+<if test="HAS_BILL =='INVOICED'">
+  AND( o.`BILL_APPLY_ID` IS NOT NULL  AND o.`BILL_APPLY_ID`!='')
+</if>
+<if test="HAS_BILL =='UNBILLED'">
+  AND( o.`BILL_APPLY_ID` IS NULL  OR o.`BILL_APPLY_ID` ='')
+</if>
+ORDER BY o.`CREATE_DATE` DESC ) AS sa 
+  WHERE 1 = 1 
+  <if test="ITEMCOLLECTNAME != null and ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{ITEMCOLLECTNAME2} 
+  OR sa.`FINANCE_NO` LIKE #{ITEMCOLLECTNAME2}
+  OR sa.INVOICE_CODE LIKE #{ITEMCOLLECTNAME2}
+  OR sa.`INVOICE_NO` LIKE #{ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="LASTLOGINSTART1 !=null and LASTLOGINSTART1 != '' ">
+  <if test="LASTLOGINSTART2 !=null and LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`TAX_DATE`  &gt;=#{LASTLOGINSTART1} AND sa.`TAX_DATE` &lt;=#{LASTLOGINSTART2})
+  )
+  </if>
+</if>  
+</select>  
+
+<select id="totalMoneyForManagerList" parameterType="pd" resultType="pd">
+SELECT 
+  SUM(IFNULL(sa.INVOICE_MONEY+TAX_MONEY, 0)) ALL_INVOICE_MONEY,
+  SUM(IFNULL(sa.INVOICE_MONEY, 0)) ALL_TAX_NO_INCLUDED,
+  SUM(IFNULL(sa.TAX_MONEY, 0)) ALL_TAX_MONEY
+FROM
+  (SELECT 
+  o.*,
+  (SELECT 
+    u.NAME 
+  FROM
+    sys_user u 
+  WHERE u.USER_ID = o.CREATE_BY) AS CREATE_NAME
+FROM
+  tt_output_invoice o 
+WHERE 1=1  and o.IS_DEL=0
+<if test="STRUCT_ID != null and STRUCT_ID != ''">
+AND o.BILL_APPLY_ID IN 
+  (SELECT 
+    ba.BILL_APPLY_ID 
+  FROM
+    tt_bill_apply ba 
+  WHERE ba.STRUCT_ID = #{STRUCT_ID})
+</if>
+<if test="ITEM_ID !=null and ITEM_ID!=''">
+  and o.ITEM_ID = #{ITEM_ID}
+</if>
+<if test="HAS_BILL =='INVOICED'">
+  AND( o.`BILL_APPLY_ID` IS NOT NULL  AND o.`BILL_APPLY_ID`!='')
+</if>
+<if test="HAS_BILL =='UNBILLED'">
+  AND( o.`BILL_APPLY_ID` IS NULL  OR o.`BILL_APPLY_ID` ='')
+</if>
+ORDER BY o.`CREATE_DATE` DESC ) AS sa 
+  WHERE 1 = 1 
+  <if test="ITEMCOLLECTNAME != null and ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{ITEMCOLLECTNAME2} 
+  OR sa.`FINANCE_NO` LIKE #{ITEMCOLLECTNAME2}
+  OR sa.INVOICE_CODE LIKE #{ITEMCOLLECTNAME2}
+  OR sa.`INVOICE_NO` LIKE #{ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="LASTLOGINSTART1 !=null and LASTLOGINSTART1 != '' ">
+  <if test="LASTLOGINSTART2 !=null and LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`TAX_DATE`  &gt;=#{LASTLOGINSTART1} AND sa.`TAX_DATE` &lt;=#{LASTLOGINSTART2})
+  )
+  </if>
+</if>
+</select>
+
+<select id="totalMoneyToExcel" parameterType="pd" resultType="pd">
+SELECT 
+  SUM(IFNULL(sa.INVOICE_MONEY+TAX_MONEY, 0)) ALL_INVOICE_MONEY,
+  SUM(IFNULL(sa.INVOICE_MONEY, 0)) ALL_TAX_NO_INCLUDED,
+  SUM(IFNULL(sa.TAX_MONEY, 0)) ALL_TAX_MONEY
+FROM
+  (SELECT 
+    o.*,
+    (SELECT 
+      NAME 
+    FROM
+      sys_user su 
+    WHERE su.USER_ID = o.`CREATE_BY`) CREATE_NAME 
+FROM
+  tt_output_invoice o 
+WHERE 1=1
+<if test="STRUCT_ID != null and STRUCT_ID != ''">
+AND o.BILL_APPLY_ID IN 
+  (SELECT 
+    ba.BILL_APPLY_ID 
+  FROM
+    tt_bill_apply ba 
+  WHERE ba.STRUCT_ID = #{STRUCT_ID})
+</if>
+<if test="ITEM_ID !=null and ITEM_ID!=''">
+  and o.ITEM_ID = #{ITEM_ID}
+</if>
+<if test="HAS_BILL =='INVOICED'">
+  AND( o.`BILL_APPLY_ID` IS NOT NULL  AND o.`BILL_APPLY_ID`!='')
+</if>
+<if test="HAS_BILL =='UNBILLED'">
+  AND( o.`BILL_APPLY_ID` IS NULL  OR o.`BILL_APPLY_ID` ='')
+</if>
+) AS sa 
+  WHERE  1=1
+  <if test="ITEMCOLLECTNAME != null and ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{ITEMCOLLECTNAME2} 
+  OR sa.`FINANCE_NO` LIKE #{ITEMCOLLECTNAME2}
+  OR sa.INVOICE_CODE LIKE #{ITEMCOLLECTNAME2}
+  OR sa.`INVOICE_NO` LIKE #{ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="LASTLOGINSTART1 !=null and LASTLOGINSTART1 != '' ">
+  <if test="LASTLOGINSTART2 !=null and LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`TAX_DATE`  &gt;=#{LASTLOGINSTART1} AND sa.`TAX_DATE` &lt;=#{LASTLOGINSTART2})
+  )
+  </if>
+</if>  
+
+</select> 
+ <select id="listPageAllReadonlyForItem" parameterType="page" resultType="pd">
+    SELECT 
+  sa.* 
+FROM
+  (SELECT 
+    o.*,
+    (SELECT 
+      NAME 
+    FROM
+      sys_user 
+    WHERE USER_ID = o.`CREATE_BY`) AS CREATE_NAME,
+    (SELECT 
+      STRUCT_NAME 
+    FROM
+      sys_structinfo s 
+    WHERE s.STRUCT_ID = b.`STRUCT_ID`) STRUCT_NAME,
+    (SELECT 
+      ITEM_NAME 
+    FROM
+      tt_iteminfo ti 
+    WHERE ti.ITEM_ID = b.`ITEM_ID`) ITEM_NAME 
+  FROM
+    tt_output_invoice o,
+    tt_bill_apply b 
+  WHERE o.`IS_DEL` = 0 
+    AND o.`BILL_APPLY_ID` = b.`BILL_APPLY_ID`
+    AND b.`ITEM_ID`=#{pd.ITEM_ID}
+   ORDER BY o.`CREATE_DATE` DESC ) AS sa 
+WHERE 1 = 1 
+ <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR sa.`FINANCE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.INVOICE_CODE LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.`INVOICE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`TAX_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`TAX_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+</if> 
+    </select>
+  
+  <select id="listPageAllReadonly" parameterType="page" resultType="pd">
+SELECT 
+  t.OUTPUT_INVOICE_ID,
+  t.INVOICE_EXCHANGE,
+  t.BILL_APPLY_ID,
+  t.FINANCE_NO,
+  t.INVOICE_CODE,
+  t.INVOICE_NO,
+  t.INVOICE_TYPE,
+  BUYER_NAME,
+  BUYER_NUMBER,
+  BUYER_ADDRESS,
+  BUYER_PHONE,
+  BUYER_BANK_ACCOUNT,
+  COMMODITY_NAME,
+  TAX_DATE,
+  PURCHASE_NAME,
+  PURCHASE_IDENTIFY_NUMBER,
+  PURCHASE_ADDRESS,
+  PURCHASE_PHONE,
+  PURCHASE_ACCOUNT_NUMBER,
+  SALES_NAME,
+  SALES_IDENTIFY_NUMBER,
+  SALES_ADDRESS,
+  SALES_PHONE,
+  SALES_ACCOUNT_NUMBER,
+  INVOICE_MONEY,
+  TAX_MONEY,
+  COLLECT_NAME,
+  CHECK_NAME,
+  OPEN_NAME,
+  t.REMARK,
+  t.CREATE_DATE,
+  t.CREATE_BY,
+  TAX_RATE,
+  DEL_REMARK,
+  su.`NAME` CREATE_NAME,
+  (SELECT 
+    STRUCT_NAME 
+  FROM
+    sys_structinfo s 
+  WHERE s.STRUCT_ID = b.`STRUCT_ID`) STRUCT_NAME,
+  ti.`ITEM_NAME`,
+  b.`STRUCT_ID`,
+  t.`ITEM_ID`,
+  (SELECT 
+    tpt.PAY_TAX_ID 
+  FROM
+    tt_pay_tax tpt 
+  WHERE tpt.BILL_APPLY_ID = t.`BILL_APPLY_ID` 
+    AND tpt.IS_DEL = 0) PAY_TAX_ID 
+FROM
+  tt_output_invoice t 
+  LEFT JOIN sys_user su 
+    ON t.`CREATE_BY` = su.`USER_ID` 
+  LEFT JOIN tt_iteminfo ti 
+    ON ti.`ITEM_ID` = t.`ITEM_ID` 
+  LEFT JOIN tt_bill_apply b 
+    ON t.`BILL_APPLY_ID` = b.`BILL_APPLY_ID` 
+WHERE t.`IS_DEL` = 0 
+<if test="pd.isManagerAge == 'no'">
+AND b.`STRUCT_ID`= #{pd.structId,jdbcType=VARCHAR}
+</if>
+  <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  su.`NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR t.`FINANCE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR t.INVOICE_CODE LIKE #{pd.ITEMCOLLECTNAME2}
+  OR t.`INVOICE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(
+  (t.`TAX_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND t.`TAX_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+</if>  
+ORDER BY t.`CREATE_DATE` DESC 
+</select>
+
+<select id="totalMoneyForReadonly" parameterType="pd" resultType="pd">
+SELECT 
+  SUM(IFNULL(INVOICE_MONEY+TAX_MONEY, 0)) ALL_INVOICE_MONEY,
+  SUM(IFNULL(INVOICE_MONEY, 0)) ALL_TAX_NO_INCLUDED,
+  SUM(IFNULL(TAX_MONEY, 0)) ALL_TAX_MONEY
+FROM
+  tt_output_invoice t 
+  LEFT JOIN sys_user su 
+    ON t.`CREATE_BY` = su.`USER_ID` 
+  LEFT JOIN tt_iteminfo ti 
+    ON ti.`ITEM_ID` = t.`ITEM_ID` 
+  LEFT JOIN tt_bill_apply b 
+    ON t.`BILL_APPLY_ID` = b.`BILL_APPLY_ID` 
+WHERE t.`IS_DEL` = 0 
+<if test="isManagerAge == 'no'">
+AND b.`STRUCT_ID`= #{structId,jdbcType=VARCHAR}
+</if>
+  <if test="ITEMCOLLECTNAME != null and ITEMCOLLECTNAME != ''">
+  and (
+  su.`NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR t.`FINANCE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR t.INVOICE_CODE LIKE #{pd.ITEMCOLLECTNAME2}
+  OR t.`INVOICE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="LASTLOGINSTART1 !=null and LASTLOGINSTART1 != '' ">
+  <if test="LASTLOGINSTART2 !=null and LASTLOGINSTART2 != '' ">
+  AND(
+  (t.`TAX_DATE`  &gt;=#{LASTLOGINSTART1} AND t.`TAX_DATE` &lt;=#{LASTLOGINSTART2})
+  )
+  </if>
+</if>  
+</select>  
+  
+<select id="selectByPrimaryKey" resultType="pd" parameterType="pd" >
+SELECT 
+  t.*,
+  ti.`ITEM_NAME`,
+  CASE
+    ti.TAXATION_TYPE 
+    WHEN 0 
+    THEN '一般征收' 
+    WHEN 1 
+    THEN '简易征收' 
+  END TAXATION_TYPE_NAME 
+FROM
+  tt_output_invoice t,
+  tt_iteminfo ti 
+WHERE t.`ITEM_ID` = ti.`ITEM_ID` 
+  AND t.`OUTPUT_INVOICE_ID` = #{outputInvoiceId,jdbcType=VARCHAR}
+</select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+UPDATE 
+  tt_output_invoice 
+SET
+  IS_DEL = 1 
+    where OUTPUT_INVOICE_ID = #{outputInvoiceId,jdbcType=VARCHAR}
+  </delete>
+  
+<delete id="dlBillId" parameterType="pd">
+UPDATE 
+  tt_output_invoice op 
+SET
+  op.`BILL_APPLY_ID` = '' 
+WHERE op.`OUTPUT_INVOICE_ID` = #{outputInvoiceId,jdbcType=VARCHAR}
+</delete>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.OutputInvoice" >
+    insert into tt_output_invoice
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="outputInvoiceId != null" >
+        OUTPUT_INVOICE_ID,
+      </if>
+      <if test="billApplyId != null" >
+        BILL_APPLY_ID,
+      </if>
+      <if test="financeNo != null" >
+        FINANCE_NO,
+      </if>
+      <if test="invoiceCode != null" >
+        INVOICE_CODE,
+      </if>
+      <if test="invoiceNo != null" >
+        INVOICE_NO,
+      </if>
+      <if test="invoiceType != null" >
+        INVOICE_TYPE,
+      </if>
+      <if test="buyerName != null" >
+        BUYER_NAME,
+      </if>
+      <if test="buyerNumber != null" >
+        BUYER_NUMBER,
+      </if>
+      <if test="buyerAddress != null" >
+        BUYER_ADDRESS,
+      </if>
+      <if test="buyerPhone != null" >
+        BUYER_PHONE,
+      </if>
+      <if test="buyerBankAccount != null" >
+        BUYER_BANK_ACCOUNT,
+      </if>
+      <if test="commodityName != null" >
+        COMMODITY_NAME,
+      </if>
+      <if test="taxDate != null" >
+        TAX_DATE,
+      </if>
+      <if test="purchaseName != null" >
+        PURCHASE_NAME,
+      </if>
+      <if test="purchaseIdentifyNumber != null" >
+        PURCHASE_IDENTIFY_NUMBER,
+      </if>
+      <if test="purchaseAddress != null" >
+        PURCHASE_ADDRESS,
+      </if>
+      <if test="purchasePhone != null" >
+        PURCHASE_PHONE,
+      </if>
+      <if test="purchaseAccountNumber != null" >
+        PURCHASE_ACCOUNT_NUMBER,
+      </if>
+      <if test="salesName != null" >
+        SALES_NAME,
+      </if>
+      <if test="salesIdentifyNumber != null" >
+        SALES_IDENTIFY_NUMBER,
+      </if>
+      <if test="salesAddress != null" >
+        SALES_ADDRESS,
+      </if>
+      <if test="salesPhone != null" >
+        SALES_PHONE,
+      </if>
+      <if test="salesAccountNumber != null" >
+        SALES_ACCOUNT_NUMBER,
+      </if>
+      <if test="invoiceMoney != null and invoiceMoney !=''" >
+        INVOICE_MONEY,
+      </if>
+      <if test="taxMoney != null and taxMoney !=''" >
+        TAX_MONEY,
+      </if>
+      <if test="collectName != null" >
+        COLLECT_NAME,
+      </if>
+      <if test="checkName != null" >
+        CHECK_NAME,
+      </if>
+      <if test="openName != null" >
+        OPEN_NAME,
+      </if>
+      <if test="remark != null" >
+        REMARK,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="taxRate != null and taxRate != ''" >
+        TAX_RATE,
+      </if>
+      <if test="delRemark != null" >
+        DEL_REMARK,
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="invoiceExchange !=null">
+        INVOICE_EXCHANGE,
+      </if>
+      <if test="expressNo !=null">
+        EXPRESS_NO,
+      </if>
+      <if test="wlCompany !=null">
+        WL_COMPANY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="outputInvoiceId != null" >
+        #{outputInvoiceId,jdbcType=VARCHAR},
+      </if>
+      <if test="billApplyId != null" >
+        #{billApplyId,jdbcType=VARCHAR},
+      </if>
+      <if test="financeNo != null" >
+        #{financeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceCode != null" >
+        #{invoiceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceNo != null" >
+        #{invoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceType != null" >
+        #{invoiceType,jdbcType=INTEGER},
+      </if>
+      <if test="buyerName != null" >
+        #{buyerName,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerNumber != null" >
+        #{buyerNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerAddress != null" >
+        #{buyerAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerPhone != null" >
+        #{buyerPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerBankAccount != null" >
+        #{buyerBankAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="commodityName != null" >
+        #{commodityName,jdbcType=VARCHAR},
+      </if>
+      <if test="taxDate != null" >
+        #{taxDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="purchaseName != null" >
+        #{purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseIdentifyNumber != null" >
+        #{purchaseIdentifyNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseAddress != null" >
+        #{purchaseAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="purchasePhone != null" >
+        #{purchasePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseAccountNumber != null" >
+        #{purchaseAccountNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="salesName != null" >
+        #{salesName,jdbcType=VARCHAR},
+      </if>
+      <if test="salesIdentifyNumber != null" >
+        #{salesIdentifyNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="salesAddress != null" >
+        #{salesAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="salesPhone != null" >
+        #{salesPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="salesAccountNumber != null" >
+        #{salesAccountNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceMoney != null and invoiceMoney !=''" >
+        #{invoiceMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="taxMoney != null and taxMoney !=''" >
+        #{taxMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="collectName != null" >
+        #{collectName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkName != null" >
+        #{checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="openName != null" >
+        #{openName,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="taxRate != null  and taxRate != ''" >
+        #{taxRate,jdbcType=DECIMAL},
+      </if>
+      <if test="delRemark != null" >
+        #{delRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceExchange !=null">
+        #{invoiceExchange,jdbcType=INTEGER},
+      </if>
+      <if test="expressNo !=null">
+        #{expressNo,jdbcType=VARCHAR},
+      </if>
+      <if test="wlCompany !=null">
+        #{wlCompany,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.OutputInvoice" >
+    update tt_output_invoice
+    <set >
+      <if test="billApplyId != null" >
+        BILL_APPLY_ID = #{billApplyId,jdbcType=VARCHAR},
+      </if>
+      <if test="financeNo != null" >
+        FINANCE_NO = #{financeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceCode != null" >
+        INVOICE_CODE = #{invoiceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceNo != null" >
+        INVOICE_NO = #{invoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceType != null" >
+        INVOICE_TYPE = #{invoiceType,jdbcType=INTEGER},
+      </if>
+      <if test="buyerName != null" >
+        BUYER_NAME = #{buyerName,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerNumber != null" >
+        BUYER_NUMBER = #{buyerNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerAddress != null" >
+        BUYER_ADDRESS = #{buyerAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerPhone != null" >
+        BUYER_PHONE = #{buyerPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="buyerBankAccount != null" >
+        BUYER_BANK_ACCOUNT = #{buyerBankAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="commodityName != null" >
+        COMMODITY_NAME = #{commodityName,jdbcType=VARCHAR},
+      </if>
+      <if test="taxDate != null" >
+        TAX_DATE = #{taxDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="purchaseName != null" >
+        PURCHASE_NAME = #{purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseIdentifyNumber != null" >
+        PURCHASE_IDENTIFY_NUMBER = #{purchaseIdentifyNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseAddress != null" >
+        PURCHASE_ADDRESS = #{purchaseAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="purchasePhone != null" >
+        PURCHASE_PHONE = #{purchasePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseAccountNumber != null" >
+        PURCHASE_ACCOUNT_NUMBER = #{purchaseAccountNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="salesName != null" >
+        SALES_NAME = #{salesName,jdbcType=VARCHAR},
+      </if>
+      <if test="salesIdentifyNumber != null" >
+        SALES_IDENTIFY_NUMBER = #{salesIdentifyNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="salesAddress != null" >
+        SALES_ADDRESS = #{salesAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="salesPhone != null" >
+        SALES_PHONE = #{salesPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="salesAccountNumber != null" >
+        SALES_ACCOUNT_NUMBER = #{salesAccountNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceMoney != null and invoiceMoney !=''" >
+        INVOICE_MONEY = #{invoiceMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="taxMoney != null and taxMoney !=''" >
+        TAX_MONEY = #{taxMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="collectName != null" >
+        COLLECT_NAME = #{collectName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkName != null" >
+        CHECK_NAME = #{checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="openName != null" >
+        OPEN_NAME = #{openName,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        REMARK = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="taxRate != null  and taxRate != ''" >
+        TAX_RATE = #{taxRate,jdbcType=DECIMAL},
+      </if>
+      <if test="delRemark != null" >
+        DEL_REMARK = #{delRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceExchange !=null">
+        INVOICE_EXCHANGE = #{invoiceExchange,jdbcType=INTEGER},
+      </if>
+      <if test="expressNo !=null">
+        EXPRESS_NO = #{expressNo,jdbcType=VARCHAR},
+      </if>
+      <if test="wlCompany !=null">
+        WL_COMPANY = #{wlCompany,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where OUTPUT_INVOICE_ID = #{outputInvoiceId,jdbcType=VARCHAR}
+  </update>
+<!-- 计算其他 合并字符串 -->
+<select id="countOthers" parameterType="pd" resultType="String">
+SELECT 
+  GROUP_CONCAT(sa.MONEY) 
+FROM
+  (SELECT 
+  IFNULL(SUM(tt.`INVOICE_MONEY`), 0) MONEY 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` NOT IN 
+<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+  #{item}
+</foreach> 
+  AND tt.`INVOICE_MONEY` > 0 
+  AND tt.`IS_DEL` = 1 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`INVOICE_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` NOT IN 
+<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+  #{item}
+</foreach> 
+  AND tt.`INVOICE_MONEY` > 0 
+  AND tt.`IS_DEL` = 0 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`INVOICE_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` NOT IN 
+<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+  #{item}
+</foreach> 
+  AND tt.`INVOICE_MONEY`  &lt;   0 
+  AND tt.`IS_DEL` = 1 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`INVOICE_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` NOT IN 
+<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+  #{item}
+</foreach> 
+  AND tt.`INVOICE_MONEY`  &lt;   0 
+  AND tt.`IS_DEL` = 0 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`INVOICE_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` NOT IN 
+<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+  #{item}
+</foreach> 
+  AND tt.`IS_DEL` = 0 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` NOT IN 
+<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+  #{item}
+</foreach> 
+  AND tt.`INVOICE_MONEY` > 0 
+  AND tt.`IS_DEL` = 1 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` NOT IN 
+<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+  #{item}
+</foreach> 
+  AND tt.`INVOICE_MONEY` > 0 
+  AND tt.`IS_DEL` = 0 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` NOT IN 
+<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+  #{item}
+</foreach>
+  AND tt.`INVOICE_MONEY`  &lt;   0 
+  AND tt.`IS_DEL` = 1 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` NOT IN 
+<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+  #{item}
+</foreach>
+  AND tt.`INVOICE_MONEY`  &lt;   0 
+  AND tt.`IS_DEL` = 0 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` NOT IN 
+<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+  #{item}
+</foreach> 
+  AND tt.`IS_DEL` = 0 ) sa 
+</select>
+<!-- 查询各个固定列数据 -->
+<select id="countSingle" parameterType="pd" resultType="String">
+SELECT 
+  GROUP_CONCAT(sa.MONEY) 
+FROM
+  (SELECT 
+  IFNULL(SUM(tt.`INVOICE_MONEY`), 0) MONEY 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` = #{taxRate}  
+  AND tt.`INVOICE_MONEY` > 0 
+  AND tt.`IS_DEL` = 1 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`INVOICE_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` = #{taxRate} 
+  AND tt.`INVOICE_MONEY` > 0 
+  AND tt.`IS_DEL` = 0 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`INVOICE_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` = #{taxRate} 
+  AND tt.`INVOICE_MONEY`  &lt;   0 
+  AND tt.`IS_DEL` = 1 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`INVOICE_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` = #{taxRate}  
+  AND tt.`INVOICE_MONEY`  &lt;   0 
+  AND tt.`IS_DEL` = 0 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`INVOICE_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` = #{taxRate} 
+  AND tt.`IS_DEL` = 0 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` = #{taxRate} 
+  AND tt.`INVOICE_MONEY` > 0 
+  AND tt.`IS_DEL` = 1 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` = #{taxRate} 
+  AND tt.`INVOICE_MONEY` > 0 
+  AND tt.`IS_DEL` = 0 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` = #{taxRate} 
+  AND tt.`INVOICE_MONEY`  &lt;   0 
+  AND tt.`IS_DEL` = 1 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` = #{taxRate} 
+  AND tt.`INVOICE_MONEY`  &lt;   0 
+  AND tt.`IS_DEL` = 0 
+UNION
+ALL 
+SELECT 
+  IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+FROM
+  tt_output_invoice tt 
+WHERE tt.`TAX_RATE` = #{taxRate} 
+  AND tt.`IS_DEL` = 0 ) sa 
+</select>
+<!-- 合计行数据 -->
+<select id="countAll" resultType="String">
+SELECT 
+  GROUP_CONCAT(sa.MONEY) 
+FROM
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) MONEY 
+  FROM
+    tt_output_invoice tt 
+  WHERE tt.`INVOICE_MONEY` > 0 
+    AND tt.`IS_DEL` = 1 
+  UNION
+  ALL 
+  SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) 
+  FROM
+    tt_output_invoice tt 
+  WHERE tt.`INVOICE_MONEY` > 0 
+    AND tt.`IS_DEL` = 0 
+  UNION
+  ALL 
+  SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) 
+  FROM
+    tt_output_invoice tt 
+  WHERE tt.`INVOICE_MONEY`  &lt;   0 
+    AND tt.`IS_DEL` = 1 
+  UNION
+  ALL 
+  SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) 
+  FROM
+    tt_output_invoice tt 
+  WHERE tt.`INVOICE_MONEY`  &lt;   0 
+    AND tt.`IS_DEL` = 0 
+  UNION
+  ALL 
+  SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) 
+  FROM
+    tt_output_invoice tt 
+  WHERE tt.`IS_DEL` = 0 
+  UNION
+  ALL 
+  SELECT 
+    IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+  FROM
+    tt_output_invoice tt 
+  WHERE tt.`INVOICE_MONEY` > 0 
+    AND tt.`IS_DEL` = 1 
+  UNION
+  ALL 
+  SELECT 
+    IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+  FROM
+    tt_output_invoice tt 
+  WHERE tt.`INVOICE_MONEY` > 0 
+    AND tt.`IS_DEL` = 0 
+  UNION
+  ALL 
+  SELECT 
+    IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+  FROM
+    tt_output_invoice tt 
+  WHERE tt.`INVOICE_MONEY`  &lt;   0 
+    AND tt.`IS_DEL` = 1 
+  UNION
+  ALL 
+  SELECT 
+    IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+  FROM
+    tt_output_invoice tt 
+  WHERE tt.`INVOICE_MONEY`  &lt;   0 
+    AND tt.`IS_DEL` = 0 
+  UNION
+  ALL 
+  SELECT 
+    IFNULL(SUM(tt.`TAX_MONEY`), 0) 
+  FROM
+    tt_output_invoice tt 
+  WHERE tt.`IS_DEL` = 0) sa 
+</select>
+
+
+<!--  固定资产（不含不动产）进项税额抵扣情况表-->
+<select id="fixedAssetsExcel" parameterType="pd" resultType="pd">
+SELECT 
+  (SELECT 
+     IFNULL(SUM(it.`D_MONEY`),0) 
+  FROM
+    tt_invoice_type it 
+    LEFT JOIN tt_in_invoice ii 
+      ON it.`IN_INVOICE_ID` = ii.`IN_INVOICE_ID` 
+  WHERE ii.`IS_ESTATE` = 1 
+    AND DATE_FORMAT(it.D_DATE, '%Y-%m') = #{startMonth}
+     <if test="STRUCT_ID != null and STRUCT_ID !=''" >
+       AND ii.`STRUCT_ID`=#{STRUCT_ID}
+      </if>
+    ) AS shuie, 
+ 
+ (SELECT 
+    IFNULL(SUM(it.`D_MONEY`) ,0)
+  FROM
+    tt_invoice_type it 
+    LEFT JOIN tt_in_invoice ii 
+      ON it.`IN_INVOICE_ID` = ii.`IN_INVOICE_ID` 
+  WHERE ii.`IS_ESTATE` = 1 
+    AND DATE_FORMAT(it.D_DATE, '%Y') = LEFT(#{startMonth},4 )
+    <if test="STRUCT_ID != null and STRUCT_ID !=''" >
+       AND ii.`STRUCT_ID`=#{STRUCT_ID}
+      </if>
+    ) AS zongshuie
+</select>
+
+<!--  应税服务减免项目清单表-->
+<select id="taxableServiceExcel" parameterType="pd" resultType="pd">
+SELECT 
+ p.IDENTIFY_NUMBER AS va1,p.OTHER_UNIT AS va2,ii.INVOICE_CODE AS va4, ii.INVOICE_NO AS va5,t.`ITEM_NAME` AS va6,IFNULL(ii.INVOICE_MONEY,0) AS va7
+FROM
+  tt_invoice_type it 
+  LEFT JOIN tt_in_invoice ii 
+    ON it.`IN_INVOICE_ID` = ii.`IN_INVOICE_ID` 
+  LEFT JOIN `tt_pactinfo` p 
+    ON p.`PACT_ID` = ii.`FOREIGN_KEY`  
+    LEFT JOIN `tt_iteminfo` t ON t.`ITEM_ID`=ii.`ITEM_ID`
+WHERE ii.`SOURCE` = 1 AND DATE_FORMAT(it.D_DATE, '%Y-%m') = #{startMonth}
+ <if test="STRUCT_ID != null and STRUCT_ID !=''" >
+       AND ii.`STRUCT_ID`=#{STRUCT_ID}
+      </if>
+</select>
+<!--  本期抵扣进项税额结构明细表-->
+<select id="currentOffsetExcel" parameterType="pd" resultType="pd">
+SELECT 
+ IFNULL(SUM(ii.`INVOICE_MONEY`),0.00) AS va1,IFNULL(SUM(it.`D_MONEY`),0.00) AS va2,ii.`TAX_RATE`
+FROM
+  tt_invoice_type it 
+  LEFT JOIN tt_in_invoice ii 
+    ON it.`IN_INVOICE_ID` = ii.`IN_INVOICE_ID` 
+WHERE ii.`IS_ESTATE`=0 AND DATE_FORMAT(it.D_DATE, '%Y-%m') = #{startMonth}
+   and ii.`TAX_RATE`=#{taxrate}
+   <if test="STRUCT_ID != null and STRUCT_ID !=''" >
+       AND ii.`STRUCT_ID`=#{STRUCT_ID}
+      </if>
+</select>
+
+<!--  增值税纳税申报表附列资料(五)-->
+<select id="valueAddedTaxExcel" parameterType="pd" resultType="pd">
+SELECT 
+  ROUND(
+    IFNULL(
+      (SELECT 
+        SUM(IFNULL(ii.TAX_MONEY, 0) * 0.4) AS va1 
+      FROM
+        tt_in_invoice ii 
+        LEFT JOIN tt_invoice_type it 
+          ON ii.`IN_INVOICE_ID` = it.`IN_INVOICE_ID` 
+      WHERE ii.`IS_ESTATE` = 1 
+        AND ii.`STATE` &gt;= 1 
+        AND (TO_DAYS(NOW()) - TO_DAYS(ii.TAX_DATE)) &lt;= 365 
+        AND DATE_FORMAT(ii.RZ_DATE, '%Y-%m-%d') &lt;= #{lastDayOfMonth}),
+      0
+    ),
+    2
+  ) AS var1,
+  ROUND(
+    IFNULL(
+      (SELECT 
+        SUM(
+          CASE
+            WHEN (TO_DAYS(NOW()) - TO_DAYS(ii.TAX_DATE)) &gt; 365 
+            THEN IFNULL(ii.TAX_MONEY, 0) - IFNULL(it.D_MONEY, 0) 
+            WHEN (TO_DAYS(NOW()) - TO_DAYS(ii.TAX_DATE)) &lt;= 365 
+            THEN IFNULL(ii.TAX_MONEY, 0) * 0.6- IFNULL(it.D_MONEY, 0) 
+          END
+        ) AS var2 
+      FROM
+        tt_in_invoice ii 
+        LEFT JOIN tt_invoice_type it 
+          ON ii.`IN_INVOICE_ID` = it.`IN_INVOICE_ID` 
+      WHERE ii.`IS_ESTATE` = 1 
+        AND ii.`STATE` &gt;= 1 
+        AND DATE_FORMAT(ii.RZ_DATE, '%Y-%m-%d') &lt;= #{lastDayOfMonth}),
+      0
+    ),
+    2
+  ) AS var2,
+  ROUND(
+    IFNULL(
+      (SELECT 
+        SUM(IFNULL(ii.TAX_MONEY, 0) * 0.6) AS var2 
+      FROM
+        tt_in_invoice ii 
+        LEFT JOIN tt_invoice_type it 
+          ON ii.`IN_INVOICE_ID` = it.`IN_INVOICE_ID` 
+      WHERE ii.`IS_ESTATE` = 1 
+        AND ii.`STATE` &gt;= 1 
+        AND DATE_FORMAT(ii.RZ_DATE, '%Y-%m') = #{startMonth} 
+        AND (TO_DAYS(NOW()) - TO_DAYS(ii.TAX_DATE)) &lt; 180),
+      0
+    ),
+    2
+  ) AS var3,
+  ROUND(
+    IFNULL(
+      (SELECT 
+        SUM(IFNULL(ii.TAX_MONEY, 0) * 0.4) AS var2 
+      FROM
+        tt_in_invoice ii 
+        LEFT JOIN tt_invoice_type it 
+          ON ii.`IN_INVOICE_ID` = it.`IN_INVOICE_ID` 
+      WHERE ii.`IS_ESTATE` = 1 
+        AND ii.`STATE` &gt;= 1 
+        AND (
+          TO_DAYS(#{lastmonth}) - TO_DAYS(ii.TAX_DATE)
+        ) &lt; (365+#{day})),
+      0
+    ),
+    2
+  ) AS var4,
+  ROUND(
+    IFNULL(
+      (SELECT 
+        IFNULL(SUM(it.`D_MONEY`), 0) AS va5 
+      FROM
+        tt_in_invoice ii 
+        LEFT JOIN tt_invoice_type it 
+          ON it.`IN_INVOICE_ID` = ii.`IN_INVOICE_ID` 
+      WHERE IS_ESTATE = 1 
+        AND DATE_FORMAT(it.`D_DATE`, '%Y-%m') = #{startMonth}),
+      0
+    ),
+    2
+  ) AS va6 
+</select>
+</mapper>

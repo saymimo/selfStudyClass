@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtTaskDeclareMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtTaskDeclare" >
+    <id column="TASK_DECLARE_ID" property="taskDeclareId" jdbcType="VARCHAR" />
+    <result column="TASK_ID" property="taskId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="TASK_QUOTA_DETAIL_ID" property="taskQuotaDetailId" jdbcType="VARCHAR" />
+    <result column="PURCHASE_ID" property="purchaseId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    TASK_DECLARE_ID, TASK_ID, TASK_QUOTA_DETAIL_ID, PURCHASE_ID,ITEM_ID
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_task_declare
+    where TASK_DECLARE_ID = #{taskDeclareId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_task_declare
+    where TASK_DECLARE_ID = #{taskDeclareId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtTaskDeclare" >
+    insert into tt_task_declare (TASK_DECLARE_ID, TASK_ID, TASK_QUOTA_DETAIL_ID, 
+      PURCHASE_ID,ITEM_ID)
+    values (#{taskDeclareId,jdbcType=VARCHAR}, #{taskId,jdbcType=VARCHAR}, #{taskQuotaDetailId,jdbcType=VARCHAR}, 
+      #{purchaseId,jdbcType=VARCHAR}, #{itemId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_task_declare
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="taskDeclareId != null" >
+        TASK_DECLARE_ID,
+      </if>
+      <if test="taskId != null" >
+        TASK_ID,
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="taskQuotaDetailId != null" >
+        TASK_QUOTA_DETAIL_ID,
+      </if>
+      <if test="purchaseId != null" >
+        PURCHASE_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="taskDeclareId != null" >
+        #{taskDeclareId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+       <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskQuotaDetailId != null" >
+        #{taskQuotaDetailId,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseId != null" >
+        #{purchaseId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtTaskDeclare" >
+    update tt_task_declare
+    <set >
+      <if test="taskId != null" >
+        TASK_ID = #{taskId,jdbcType=VARCHAR},
+      </if>
+       <if test="itemId != null" >
+        ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskQuotaDetailId != null" >
+        TASK_QUOTA_DETAIL_ID = #{taskQuotaDetailId,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseId != null" >
+        PURCHASE_ID = #{purchaseId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where TASK_DECLARE_ID = #{taskDeclareId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtTaskDeclare" >
+    update tt_task_declare
+    set TASK_ID = #{taskId,jdbcType=VARCHAR},
+      TASK_QUOTA_DETAIL_ID = #{taskQuotaDetailId,jdbcType=VARCHAR},
+      PURCHASE_ID = #{purchaseId,jdbcType=VARCHAR}
+    where TASK_DECLARE_ID = #{taskDeclareId,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 通过采购id查询 项目id -->
+    <select id="findTaskDeclaseByPurchaseId" resultType="pd" parameterType="pd" >
+  	 SELECT 
+  		(SELECT i.`ITEM_NAME` FROM `tt_iteminfo` i  WHERE i.`ITEM_ID`=d.`ITEM_ID`) AS itemName,ITEM_ID AS itemId 
+    FROM tt_task_declare d 
+    where d.PURCHASE_ID = #{purchaseId,jdbcType=VARCHAR}  GROUP BY d.`ITEM_ID`
+  </select>
+</mapper>

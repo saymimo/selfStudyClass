@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtSealReviewMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtSealReview" >
+    <id column="SEAL_REVIEW_ID" property="sealReviewId" jdbcType="VARCHAR" />
+    <result column="SEAL_ID" property="sealId" jdbcType="VARCHAR" />
+    <result column="TITLE" property="title" jdbcType="VARCHAR" />
+    <result column="CONTENT" property="content" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+   <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+   <result column="STATE" property="state" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    SEAL_REVIEW_ID, SEAL_ID, TITLE, CONTENT, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,IS_DEL,STATE
+  </sql>
+  <select id="selectByPrimaryKey" resultType="pd" parameterType="pd" >
+    SELECT TRIBUNE_ID as SEAL_REVIEW_ID,
+    TRIBUNE_TITLE as TITLE,
+    TRIBUNE_CONTENT as CONTENT
+     FROM `tt_tribune`WHERE TRIBUNE_ID= #{sealReviewId,jdbcType=VARCHAR}
+  </select>
+   
+  
+  <select id="findSealReviewByReviewId" resultMap="BaseResultMap" parameterType="pd">
+  
+    select 
+    SEAL_REVIEW_ID, SEAL_ID, TITLE, CONTENT, CREATE_DATE,(SELECT s.`NAME` FROM `sys_user` s WHERE s.`USER_ID`=t.CREATE_BY) as CREATE_BY, UPDATE_DATE, UPDATE_BY,IS_DEL,STATE
+    from tt_seal_review t
+     where SEAL_REVIEW_ID = #{sealReviewId,jdbcType=VARCHAR}
+  </select>
+
+<select id="findPayTaxInfo" parameterType="pd" resultType="pd">
+SELECT 
+  t.*,
+  IFNULL(
+    (SELECT 
+      SUM(tit.D_MONEY) 
+    FROM
+      tt_invoice_type tit 
+    WHERE tit.BILL_APPLY_ID = t.`BILL_APPLY_ID` 
+      AND tit.IS_SUBPACKAGE = 0),
+    0
+  ) PACT_MONEY,
+  tt.`TYPE` 
+FROM
+  tt_pay_tax t,
+  tt_tribune tt 
+WHERE t.`PAY_TAX_ID` = tt.`REVIEW_OBJ_ID` 
+  AND tt.`TRIBUNE_ID` = #{tribuneId,jdbcType=VARCHAR} 
+</select>  
+  
+  
+<select id="findSealReviewByTribuneId" resultType="pd" parameterType="pd">
+SELECT 
+  t.`TRIBUNE_ID` AS SEAL_REVIEW_ID,
+  t.`REVIEW_OBJ_ID` AS SEAL_ID,
+  t.`TRIBUNE_TITLE` AS TITLE,
+  t.`TRIBUNE_CONTENT` AS CONTENT,
+  t.`CREATE_DATE` AS CREATE_DATE,
+  (SELECT 
+    s.`NAME` 
+  FROM
+    `sys_user` s 
+  WHERE s.`USER_ID` = t.CREATE_BY) AS CREATE_BY,
+   (SELECT 
+   CONCAT( s.`NAME`,s.USERNAME)
+  FROM
+    `sys_user` s 
+  WHERE s.`USER_ID` = t.CREATE_BY) AS TOUSER,
+  UPDATE_DATE,
+  UPDATE_BY,
+  STATE,
+  t.`TYPE`,
+  t.`REVIEW_OBJ_ID`
+FROM
+  `tt_tribune` t 
+ WHERE TRIBUNE_ID = #{sealReviewId,jdbcType=VARCHAR}
+  </select>
+  
+<select id="findItemReviewByTribuneId" resultType="pd" parameterType="pd">
+
+SELECT 
+  t.`ITEM_REVIEW_ID` AS SEAL_REVIEW_ID,
+  t.`FOREIGN_KEY_ID` AS SEAL_ID,
+  t.`TITLE` AS TITLE,
+  t.`CONTENT` AS CONTENT,
+  t.`CREATE_DATE` AS CREATE_DATE,
+  (SELECT 
+    s.`NAME` 
+  FROM
+    `sys_user` s 
+  WHERE s.`USER_ID` = t.CREATE_BY) AS CREATE_BY,
+   (SELECT 
+   CONCAT( s.`NAME`,s.USERNAME)
+  FROM
+    `sys_user` s 
+  WHERE s.`USER_ID` = t.CREATE_BY) AS TOUSER,
+  UPDATE_DATE,
+  UPDATE_BY,
+  STATE,
+  t.`TYPE`,
+  t.FOREIGN_KEY_ID AS REVIEW_OBJ_ID
+FROM
+  `tt_item_review` t 
+ WHERE ITEM_REVIEW_ID = #{tribuneId,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <update id="updateByState" parameterType="pd">
+  		 update tt_tribune   set   STATE = #{state,jdbcType=INTEGER} where TRIBUNE_ID=#{sealReviewId}
+	  </update>
+  
+  <select id="listPageAllSealReviewBySealId" resultType="pd" parameterType="pd" >
+    
+SELECT 
+  TRIBUNE_ID AS SEAL_REVIEW_ID,
+  REVIEW_OBJ_ID AS SEAL_ID,
+  TRIBUNE_TITLE AS TITLE,
+  TRIBUNE_CONTENT AS CONTENT,
+  CREATE_DATE,
+  (SELECT 
+    s.`NAME` 
+  FROM
+    `sys_user` s 
+  WHERE s.`USER_ID` = k.CREATE_BY) AS CREATE_BY,
+  UPDATE_DATE,
+  UPDATE_BY,
+  STATE
+FROM
+  `tt_tribune` k 
+WHERE REVIEW_OBJ_ID =#{pd.sealId,jdbcType=VARCHAR} 
+AND k.`TYPE`=1
+  AND (
+    k.`CREATE_BY` = #{pd.userid}
+   
+  OR k.`TRIBUNE_ID` IN 
+  (SELECT 
+    l.`TRIBUNE_ID` 
+  FROM
+    `tt_tribune_user` l 
+  WHERE l.`USER_ID` = #{pd.userid} 
+    AND l.`TRIBUNE_ID` = k.`TRIBUNE_ID`AND REVIEW_OBJ_ID =#{pd.sealId,jdbcType=VARCHAR}) )
+    <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 TITLE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 or 
+					 CONTENT LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+				)
+		</if>
+		ORDER BY CREATE_DATE DESC
+  </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_seal_review
+    where SEAL_REVIEW_ID = #{sealReviewId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtSealReview" >
+    insert into tt_seal_review (SEAL_REVIEW_ID, SEAL_ID, TITLE, 
+      CONTENT, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY)
+    values (#{sealReviewId,jdbcType=VARCHAR}, #{sealId,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, 
+      #{content,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_seal_review
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="sealReviewId != null" >
+        SEAL_REVIEW_ID,
+      </if>
+      <if test="sealId != null" >
+        SEAL_ID,
+      </if>
+      <if test="title != null" >
+        TITLE,
+      </if>
+      <if test="content != null" >
+        CONTENT,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+       <if test="isDel != null" >
+        IS_DEL,
+      </if>
+       <if test="state != null" >
+        state,
+      </if>
+      
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="sealReviewId != null" >
+        #{sealReviewId,jdbcType=VARCHAR},
+      </if>
+      <if test="sealId != null" >
+        #{sealId,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+       <if test="isDel != null" >
+         #{isDel},
+     
+      </if>
+        <if test="state != null" >
+        #{state},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_seal_review
+    <set >
+      <if test="sealId != null" >
+        SEAL_ID = #{sealId,jdbcType=VARCHAR},
+      </if>
+      <if test="title != null" >
+        TITLE = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        CONTENT = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where SEAL_REVIEW_ID = #{sealReviewId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtSealReview" >
+    update tt_seal_review
+    set SEAL_ID = #{sealId,jdbcType=VARCHAR},
+      TITLE = #{title,jdbcType=VARCHAR},
+      CONTENT = #{content,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where SEAL_REVIEW_ID = #{sealReviewId,jdbcType=VARCHAR}
+  </update>
+  
+  	<!-- 删除 -->
+	  <delete id="updateByIsDel" parameterType="pd">
+	  delete from tt_tribune   where TRIBUNE_ID =#{sealReviewId,jdbcType=VARCHAR}
+	  </delete>
+	  
+	  <!-- 发送 -->
+	  <update id="sent" parameterType="pd">
+	 update tt_tribune  set STATE=1 where TRIBUNE_ID =#{sealReviewId,jdbcType=VARCHAR}
+	  </update>
+	  
+	    <delete id="updateUser" parameterType="pd">
+	  delete from tt_tribune_user   where TRIBUNE_ID =#{sealReviewId,jdbcType=VARCHAR}
+	  </delete>
+	  <!-- 批量删除 -->
+	<delete id="deleteAllSealReview" parameterType="String" flushCache="false">
+		update tt_seal_review
+		 set
+			IS_DEL =1 where SEAL_REVIEW_ID in 
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+  
+  
+</mapper>

@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtQualityListMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtQualityList" >
+    <id column="QUALITY_LIST_ID" property="qualityListId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="QUALITY_TITLE" property="qualityTitle" jdbcType="VARCHAR" />
+    <result column="QUALITY_CONTENT" property="qualityContent" jdbcType="VARCHAR" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    QUALITY_LIST_ID, STRUCT_ID, QUALITY_TITLE, QUALITY_CONTENT, TYPE, IS_DEL, CREATE_BY, 
+    CREATE_DATE, UPDATE_BY, UPDATE_DATE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_quality_list
+    where QUALITY_LIST_ID = #{qualityListId,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="taskWindowQuality" resultType="pd" parameterType="pd" >
+  SELECT   QUALITY_LIST_ID, STRUCT_ID, QUALITY_TITLE, QUALITY_CONTENT, 
+	  CASE WHEN TYPE ='0' THEN '标准' WHEN TYPE ='1' THEN '规范'   WHEN TYPE ='2' THEN '制度' END AS TYPE, IS_DEL, CREATE_BY, 
+    CREATE_DATE, UPDATE_BY, UPDATE_DATE FROM tt_quality_list WHERE (struct_id =(SELECT struct_id FROM `sys_structinfo` WHERE STRUCTST_AGE=0) OR struct_id=(SELECT struct_id FROM `tt_iteminfo` WHERE item_id=#{ITEM_ID,jdbcType=VARCHAR})) AND is_del=0;
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_quality_list
+    where QUALITY_LIST_ID = #{qualityListId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtQualityList" >
+    insert into tt_quality_list (QUALITY_LIST_ID, STRUCT_ID, QUALITY_TITLE, 
+      QUALITY_CONTENT, TYPE, IS_DEL, 
+      CREATE_BY, CREATE_DATE, UPDATE_BY, 
+      UPDATE_DATE)
+    values (#{qualityListId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{qualityTitle,jdbcType=VARCHAR}, 
+      #{qualityContent,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{isDel,jdbcType=INTEGER}, 
+      #{createBy,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.TtQualityList" >
+    insert into tt_quality_list
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="qualityListId != null" >
+        QUALITY_LIST_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="qualityTitle != null" >
+        QUALITY_TITLE,
+      </if>
+      <if test="qualityContent != null" >
+        QUALITY_CONTENT,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="qualityListId != null" >
+        #{qualityListId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="qualityTitle != null" >
+        #{qualityTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="qualityContent != null" >
+        #{qualityContent,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtQualityList" >
+    update tt_quality_list
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="qualityTitle != null" >
+        QUALITY_TITLE = #{qualityTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="qualityContent != null" >
+        QUALITY_CONTENT = #{qualityContent,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        TYPE = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where QUALITY_LIST_ID = #{qualityListId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtQualityList" >
+    update tt_quality_list
+    set STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      QUALITY_TITLE = #{qualityTitle,jdbcType=VARCHAR},
+      QUALITY_CONTENT = #{qualityContent,jdbcType=VARCHAR},
+      TYPE = #{type,jdbcType=INTEGER},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP}
+    where QUALITY_LIST_ID = #{qualityListId,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 质量清单主页查询 -->
+  <select id="listPageList" parameterType="page" resultMap="BaseResultMap"  useCache="false">
+ SELECT t.`QUALITY_LIST_ID`,t.`STRUCT_ID`,t.`QUALITY_TITLE`,t.`QUALITY_CONTENT`,
+t.`TYPE`,t.`IS_DEL`,
+(SELECT  NAME 
+      FROM
+        sys_user s 
+      WHERE s.`USER_ID` = t.CREATE_BY) AS CREATE_BY,
+ t.`CREATE_DATE` FROM `tt_quality_list` t
+ where 1=1
+   <if test="pd.age !=0">
+ AND  t.`STRUCT_ID` IN 
+  (SELECT 
+    s.STRUCT_ID 
+  FROM
+    sys_structinfo s 
+  WHERE s.`STRUCTST_AGE` = 0 
+    OR s.`STRUCT_ID` = #{pd.STRUCT_ID,jdbcType=VARCHAR})
+    </if>
+ <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+	AND	(QUALITY_TITLE LIKE #{pd.NAME2}
+	OR QUALITY_CONTENT LIKE #{pd.NAME2})
+		</if>
+		<if test="pd.ITEMCOLLECTTYPE!=null and pd.ITEMCOLLECTTYPE != ''   and pd.ITEMCOLLECTTYPE !=4">
+		 	and (TYPE= #{pd.ITEMCOLLECTTYPE})
+		</if>
+		<if test="pd.ITEMCOLLECTTYPE2!=null and pd.ITEMCOLLECTTYPE2 != ''   and pd.ITEMCOLLECTTYPE2 !=4">
+		 	and (IS_DEL= #{pd.ITEMCOLLECTTYPE2})
+		</if>
+ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  <!-- 查询一个 -->
+  <select id="selectById" parameterType="pd" resultType="pd">
+ SELECT t.`QUALITY_LIST_ID`,t.`STRUCT_ID`,t.`QUALITY_TITLE`,t.`QUALITY_CONTENT`,
+t.`TYPE`,t.`IS_DEL`,t.`CREATE_BY`,t.`CREATE_DATE` FROM `tt_quality_list` t 
+WHERE  t.`QUALITY_LIST_ID` = #{qualityListId,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 作废 -->
+ <update id="changeById" parameterType="pd" >
+		 UPDATE tt_quality_list SET IS_DEL=1  WHERE QUALITY_LIST_ID=#{qualityListId,jdbcType=VARCHAR}
+ </update>
+ 
+  <!-- 批量删除 -->
+<update id="updateAll" parameterType="String" flushCache="false">
+	update tt_quality_list SET IS_DEL=1
+	 where QUALITY_LIST_ID in 
+ 			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+            </foreach>
+</update>
+
+
+  <select id="listPagefindDetails" resultType="pd" parameterType="pd" >
+    
+SELECT 
+TASK_LIST_ID as TASK_ID,
+  (SELECT 
+    CONSTRUCTION_USER 
+  FROM
+    `tt_taskinfo` 
+  WHERE `tt_taskinfo`.`UID` = 
+    (SELECT 
+      `findPTaskOneByCId` (t.`TASK_LIST_ID`))) AS P_CONSTRUCTION_USER,
+  (SELECT 
+    s.`NAME` 
+  FROM
+    `sys_user` s 
+  WHERE s.`USER_ID` = P_CONSTRUCTION_USER) AS P_CONSTRUCTION_NAME,
+  (SELECT 
+    START 
+  FROM
+    `tt_taskinfo` 
+  WHERE `tt_taskinfo`.`UID` = t.`TASK_LIST_ID`) AS START_TIME,
+  IFNULL(
+    (SELECT 
+      taskName (t.`TASK_LIST_ID`)),
+    ''
+  ) AS TASK_NAME,
+  (SELECT 
+    PROJECTUID 
+  FROM
+    `tt_taskinfo` 
+  WHERE `tt_taskinfo`.`UID` = t.`TASK_LIST_ID`) AS ITEM_ID,
+  (SELECT 
+    ITEM_NAME 
+  FROM
+    `tt_iteminfo` i 
+  WHERE i.ITEM_ID = (SELECT 
+    PROJECTUID 
+  FROM
+    `tt_taskinfo` 
+  WHERE `tt_taskinfo`.`UID` = t.`TASK_LIST_ID`)) AS ITEM_NAME,
+  (SELECT 
+    STRUCT_NAME 
+  FROM
+    `sys_structinfo` s 
+  WHERE s.STRUCT_ID = 
+    (SELECT 
+      STRUCT_ID 
+    FROM
+      `tt_iteminfo` i 
+    WHERE i.ITEM_ID = (SELECT 
+    PROJECTUID 
+  FROM
+    `tt_taskinfo` 
+  WHERE `tt_taskinfo`.`UID` = t.`TASK_LIST_ID`))) AS STRUST_NAME 
+FROM `tt_task_list` t  WHERE LIST_ID=#{pd.qualityListId,jdbcType=VARCHAR}
+  </select>
+</mapper>

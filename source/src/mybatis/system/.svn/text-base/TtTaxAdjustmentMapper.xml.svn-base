@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtTaxAdjustmentMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtTaxAdjustment" >
+    <id column="TAX_ADJUSTMENT_ID" property="taxAdjustmentId" jdbcType="VARCHAR" />
+    <result column="CREDENTIALS_CODE" property="credentialsCode" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="APPLY_ITEM" property="applyItem" jdbcType="VARCHAR" />
+    <result column="APPLY_CAUSE" property="applyCause" jdbcType="VARCHAR" />
+    <result column="MONEY" property="money" jdbcType="DECIMAL" />
+    <result column="TAX" property="tax" jdbcType="DECIMAL" />
+     <result column="RATE" property="rate" jdbcType="DECIMAL" />
+    <result column="APPLY_TYPE" property="applyType" jdbcType="INTEGER" />
+    <result column="APPROVAL_DATE" property="approvalDate" jdbcType="DATE" />
+    <result column="APPROVAL_BY" property="approvalBy" jdbcType="VARCHAR" />
+    <result column="STATE" property="state" jdbcType="INTEGER" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="DK_STATE" property="dkState" jdbcType="INTEGER" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="USERINFOID" property="userinfoId" jdbcType="VARCHAR" />
+    
+  </resultMap>
+  <sql id="Base_Column_List" >
+    TAX_ADJUSTMENT_ID, CREDENTIALS_CODE, CREATE_DATE, CREATE_BY, APPLY_ITEM, APPLY_CAUSE, 
+    MONEY, TAX, APPLY_TYPE, APPROVAL_DATE, APPROVAL_BY, STATE, STRUCT_ID,IS_DEL,RATE
+  </sql>
+  
+   <select id="findTaxAdjustinfo" resultType="pd" parameterType="pd" >
+    select 
+     TAX_ADJUSTMENT_ID,
+  CREDENTIALS_CODE,
+  CREATE_DATE,
+  CREATE_BY,
+  APPLY_ITEM,
+  ( SELECT i.`ITEM_NAME` FROM `tt_iteminfo` i WHERE i.`ITEM_ID`=APPLY_ITEM) AS APPLY_ITEM_NAME,
+  APPLY_CAUSE,
+  MONEY,
+  TAX,
+  APPLY_TYPE,
+  APPROVAL_DATE,
+  APPROVAL_BY,
+  STATE,
+  STRUCT_ID,
+  IS_DEL,
+  RATE 
+    from tt_tax_adjustment
+    where TAX_ADJUSTMENT_ID = #{taxAdjustmentId,jdbcType=VARCHAR} and IS_DEL=0
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_tax_adjustment
+    where TAX_ADJUSTMENT_ID = #{taxAdjustmentId,jdbcType=VARCHAR} and IS_DEL=0
+  </select>
+  
+    <select id="findlistPageTaxAdjustMentByStructId" resultMap="BaseResultMap" parameterType="page" >
+    select 
+     TAX_ADJUSTMENT_ID,
+  CREDENTIALS_CODE,
+  CREATE_DATE,
+  (SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`= tt_tax_adjustment.CREATE_BY) AS CREATE_BY,
+  (SELECT i.`ITEM_NAME` FROM `tt_iteminfo` i WHERE i.`ITEM_ID`=tt_tax_adjustment.APPLY_ITEM) AS APPLY_ITEM,
+  APPLY_CAUSE,
+  MONEY,
+  TAX,
+  APPLY_TYPE,
+  APPROVAL_DATE,
+  (SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`=tt_tax_adjustment.APPROVAL_BY) AS APPROVAL_BY,
+  STATE,
+  STRUCT_ID,
+  IS_DEL,
+  RATE ,CREATE_BY as USERINFOID
+    from tt_tax_adjustment
+    where 1=1
+    <if test="pd.structAge !=0 ">
+			and STRUCT_ID = #{pd.structId,jdbcType=VARCHAR}
+	</if>
+     and IS_DEL=0
+     <if test="pd.NAME != null and pd.NAME != ''">
+    	 and
+				(
+					 CREDENTIALS_CODE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 or 
+					 APPLY_CAUSE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+				)
+		</if>
+  </select>
+  
+  
+  <select id="hasCredentialsCode" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			 <include refid="Base_Column_List" />
+		from 
+			tt_tax_adjustment
+		where 
+			STRUCT_ID=#{STRUCT_ID} and 
+			CREDENTIALS_CODE = #{credentialsCode} 
+		<if test="taxAdjustmentId != null and taxAdjustmentId != ''">
+			and TAX_ADJUSTMENT_ID != #{taxAdjustmentId} 
+		</if>
+	</select>
+	
+<select id="listPageItem" resultType="pd" parameterType="page">
+select * from (SELECT 
+  t.`ITEM_NAME`,
+  t.`ITEM_NUMBER`,
+  t.`ITEM_MONEY`,
+  t.`ITEM_ID`,
+  t.`CREATE_DATE`,
+  su.`NAME` CREATE_NMAE,
+  t.END_DATE,
+  (SELECT 
+    sd.NAME 
+  FROM
+    sys_dictionaries sd 
+  WHERE sd.BIANMA = t.`ITEM_PROVINCE`) PROVINCE_NAME,
+  (SELECT 
+    sd.NAME 
+  FROM
+    sys_dictionaries sd 
+  WHERE sd.BIANMA = t.`ITEM_CITY`) CITY_NAME,
+  ss.`STRUCT_NAME`,
+  t.ENFORCESTATE 
+FROM
+  tt_iteminfo t,
+  sys_user su,
+  sys_structinfo ss 
+WHERE t.`TAXATION_TYPE` = 0 
+  AND t.`STRUCT_ID` = #{pd.structId,jdbcType=VARCHAR}
+  AND ss.`STRUCT_ID` = t.`STRUCT_ID` 
+  AND su.`USER_ID` = t.`CREATE_BY` 
+  AND t.`IS_DEL` = 0 
+  )sa
+  WHERE 1=1
+<if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME !=''">
+  AND (
+    sa.`ITEM_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+    OR CITY_NAME LIKE #{pd.ITEMCOLLECTNAME2} 
+    OR PROVINCE_NAME LIKE #{pd.ITEMCOLLECTNAME2}
+    OR ITEM_NUMBER  LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+</if>
+
+</select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_tax_adjustment
+    where TAX_ADJUSTMENT_ID = #{taxAdjustmentId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtTaxAdjustment" >
+    insert into tt_tax_adjustment (TAX_ADJUSTMENT_ID, CREDENTIALS_CODE, 
+      CREATE_DATE, CREATE_BY, APPLY_ITEM, 
+      APPLY_CAUSE, MONEY, TAX, 
+      APPLY_TYPE, APPROVAL_DATE, APPROVAL_BY, 
+      STATE, STRUCT_ID)
+    values (#{taxAdjustmentId,jdbcType=VARCHAR}, #{credentialsCode,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{applyItem,jdbcType=VARCHAR}, 
+      #{applyCause,jdbcType=VARCHAR}, #{money,jdbcType=DECIMAL}, #{tax,jdbcType=DECIMAL}, 
+      #{applyType,jdbcType=INTEGER}, #{approvalDate,jdbcType=DATE}, #{approvalBy,jdbcType=VARCHAR}, 
+      #{state,jdbcType=INTEGER}, #{structId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_tax_adjustment
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="taxAdjustmentId != null" >
+        TAX_ADJUSTMENT_ID,
+      </if>
+      <if test="credentialsCode != null" >
+        CREDENTIALS_CODE,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="applyItem != null" >
+        APPLY_ITEM,
+      </if>
+      <if test="applyCause != null" >
+        APPLY_CAUSE,
+      </if>
+      <if test="money != null" >
+        MONEY,
+      </if>
+      <if test="tax != null" >
+        TAX,
+      </if>
+      <if test="applyType != null" >
+        APPLY_TYPE,
+      </if>
+      <if test="approvalDate != null" >
+        APPROVAL_DATE,
+      </if>
+      <if test="approvalBy != null" >
+        APPROVAL_BY,
+      </if>
+      <if test="state != null" >
+        STATE,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+       <if test="dkState != null" >
+        DK_STATE,
+      </if>
+      <if test="rate != null" >
+        RATE,
+      </if>
+      
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="taxAdjustmentId != null" >
+        #{taxAdjustmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="credentialsCode != null" >
+        #{credentialsCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="applyItem != null" >
+        #{applyItem,jdbcType=VARCHAR},
+      </if>
+      <if test="applyCause != null" >
+        #{applyCause,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        #{money,jdbcType=DECIMAL},
+      </if>
+      <if test="tax != null" >
+        #{tax,jdbcType=DECIMAL},
+      </if>
+      <if test="applyType != null" >
+        #{applyType,jdbcType=INTEGER},
+      </if>
+      <if test="approvalDate != null" >
+        #{approvalDate,jdbcType=DATE},
+      </if>
+      <if test="approvalBy != null" >
+        #{approvalBy,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel},
+      </if>
+       <if test="dkState != null" >
+        #{dkState},
+      </if>
+       <if test="rate != null" >
+        #{rate},
+      </if>
+      
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_tax_adjustment
+    <set >
+      <if test="credentialsCode != null" >
+        CREDENTIALS_CODE = #{credentialsCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="applyItem != null" >
+        APPLY_ITEM = #{applyItem,jdbcType=VARCHAR},
+      </if>
+      <if test="applyCause != null" >
+        APPLY_CAUSE = #{applyCause,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        MONEY = #{money,jdbcType=DECIMAL},
+      </if>
+      <if test="tax != null" >
+        TAX = #{tax,jdbcType=DECIMAL},
+      </if>
+      <if test="applyType != null" >
+        APPLY_TYPE = #{applyType,jdbcType=INTEGER},
+      </if>
+      <if test="approvalDate != null" >
+        APPROVAL_DATE = #{approvalDate,jdbcType=DATE},
+      </if>
+      <if test="approvalBy != null" >
+        APPROVAL_BY = #{approvalBy,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        STATE = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel},
+      </if>
+      <if test="dkState != null" >
+        DK_STATE = #{dkState},
+      </if>
+      <if test="rate != null" >
+        RATE = #{rate},
+      </if>
+      
+    </set>
+    where TAX_ADJUSTMENT_ID = #{taxAdjustmentId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtTaxAdjustment" >
+    update tt_tax_adjustment
+    set CREDENTIALS_CODE = #{credentialsCode,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      APPLY_ITEM = #{applyItem,jdbcType=VARCHAR},
+      APPLY_CAUSE = #{applyCause,jdbcType=VARCHAR},
+      MONEY = #{money,jdbcType=DECIMAL},
+      TAX = #{tax,jdbcType=DECIMAL},
+      APPLY_TYPE = #{applyType,jdbcType=INTEGER},
+      APPROVAL_DATE = #{approvalDate,jdbcType=DATE},
+      APPROVAL_BY = #{approvalBy,jdbcType=VARCHAR},
+      STATE = #{state,jdbcType=INTEGER},
+      STRUCT_ID = #{structId,jdbcType=VARCHAR}
+    where TAX_ADJUSTMENT_ID = #{taxAdjustmentId,jdbcType=VARCHAR}
+  </update>
+</mapper>

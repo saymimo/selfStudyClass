@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtReviewGroupTypeMapper" >
+	<resultMap id="BaseResultMap" type="com.ssc.entity.system.TtReviewGroupType" >
+	  <result column="TYPE_ID" property="type_id" jdbcType="INTEGER" />
+	  <result column="TYPE_NAME" property="type_name" jdbcType="VARCHAR" />
+	</resultMap>
+  
+	<select id="getReviewGroupTypeList" resultMap="BaseResultMap"  useCache="false">
+		SELECT type_id , type_name FROM `tt_review_group_type` ORDER BY type_id
+	</select>
+ </mapper>

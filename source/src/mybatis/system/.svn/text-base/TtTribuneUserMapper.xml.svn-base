@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtTribuneUserMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtTribuneUser" >
+    <id column="TRIBUNE_USER_ID" property="tribuneUserId" jdbcType="VARCHAR" />
+    <result column="TRIBUNE_ID" property="tribuneId" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="STATE" property="state" jdbcType="INTEGER" />
+    <result column="REVIEW_TYPE" property="reviewType" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    TRIBUNE_USER_ID, TRIBUNE_ID, USER_ID, STATE,REVIEW_TYPE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_tribune_user
+    where TRIBUNE_USER_ID = #{tribuneUserId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_tribune_user
+    where TRIBUNE_USER_ID = #{tribuneUserId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtTribuneUser" >
+    insert into tt_tribune_user (TRIBUNE_USER_ID, TRIBUNE_ID, USER_ID, 
+      STATE)
+    values (#{tribuneUserId,jdbcType=VARCHAR}, #{tribuneId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
+      #{state,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.TtTribuneUser" >
+    insert into tt_tribune_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tribuneUserId != null" >
+        TRIBUNE_USER_ID,
+      </if>
+      <if test="tribuneId != null" >
+        TRIBUNE_ID,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="state != null" >
+        STATE,
+      </if>
+      <if test="reviewType != null" >
+        REVIEW_TYPE,
+      </if>
+       <if test="level != null" >
+        LEVEL,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tribuneUserId != null" >
+        #{tribuneUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="tribuneId != null" >
+        #{tribuneId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="reviewType != null" >
+        #{reviewType,jdbcType=CHAR},
+      </if>
+       <if test="level != null" >
+        #{level},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtTribuneUser" >
+    update tt_tribune_user
+    <set >
+      <if test="tribuneId != null" >
+        TRIBUNE_ID = #{tribuneId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        STATE = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="reviewType != null" >
+        REVIEW_TYPE = #{reviewType,jdbcType=CHAR},
+      </if>
+    </set>
+    where TRIBUNE_USER_ID = #{tribuneUserId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtTribuneUser" >
+    update tt_tribune_user
+    set TRIBUNE_ID = #{tribuneId,jdbcType=VARCHAR},
+      USER_ID = #{userId,jdbcType=VARCHAR},
+      STATE = #{state,jdbcType=INTEGER},
+      REVIEW_TYPE = #{reviewType,jdbcType=CHAR}
+    where TRIBUNE_USER_ID = #{tribuneUserId,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 删除人员 根据主键 -->
+   <delete id="deleteAll" parameterType="pd" >
+    delete from tt_tribune_user
+   WHERE TRIBUNE_ID=#{TRIBUNE_ID,jdbcType=VARCHAR}
+  </delete>
+  
+  
+  <!-- 删除人员 根据主键yinzhang -->
+   <delete id="deleteSeal" parameterType="pd" >
+    delete from tt_tribune_user
+   WHERE TRIBUNE_ID=#{sealReviewId,jdbcType=VARCHAR}
+  </delete>
+  
+  <!-- 删除人员 根据主键toubiao -->
+   <delete id="deleteTender" parameterType="pd" >
+    delete from tt_tribune_user
+   WHERE TRIBUNE_ID=#{tenderReviewId,jdbcType=VARCHAR}
+  </delete>
+  
+  
+  <update id="updateState" parameterType="pd" >
+    update tt_tribune_user    set      STATE = 0
+    where TRIBUNE_ID = #{sealReviewId,jdbcType=VARCHAR} 
+  </update>
+  
+  <update id="updateStateLT" parameterType="pd" >
+    update tt_tribune_user    set      STATE = 0
+    where TRIBUNE_ID = #{TRIBUNE_ID,jdbcType=VARCHAR} 
+  </update>
+  
+  <!--根据主键查询参与该评审的人员  -->
+  <select id="findTribuneUser" resultType="pd" parameterType="pd" >
+ SELECT 
+  TRIBUNE_USER_ID,
+  TRIBUNE_ID,
+  USER_ID,
+  STATE ,
+  (SELECT 
+    i.NAME 
+  FROM
+    `sys_user` i 
+  WHERE i.`USER_ID` = t.`USER_ID`) NAME 
+FROM
+  `tt_tribune_user` t 
+  WHERE TRIBUNE_ID=#{TRIBUNE_ID,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 查询  总审批人 的人数和 审批通过的人数 -->
+   <select id="findUserByState" resultType="pd" parameterType="pd" >
+		  SELECT 
+			(SELECT IFNULL(SUM(1),0) FROM `tt_tribune_user`  t WHERE  s.`TRIBUNE_ID`=t.TRIBUNE_ID) AS zongshu,
+			(SELECT IFNULL(SUM(1),0) FROM `tt_tribune_user`  t WHERE   s.TRIBUNE_ID=t.TRIBUNE_ID AND  t.STATE=1) AS tongyishu,
+			(SELECT IFNULL(SUM(1),0) FROM `tt_tribune_user`  t WHERE   s.TRIBUNE_ID=t.TRIBUNE_ID AND  t.STATE!=0) AS pingjiashu 
+		 FROM `tt_tribune_user`  s 
+		 WHERE s.TRIBUNE_ID=#{tribuneId,jdbcType=VARCHAR} GROUP BY s.TRIBUNE_ID
+  </select>
+  
+   <update id="updateUser" parameterType="pd" >
+    update tt_tribune_user    set      STATE = #{state,jdbcType=INTEGER}
+    where TRIBUNE_ID =#{tribuneId,jdbcType=VARCHAR} and USER_ID=#{userId,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 查询已选人员 -->
+  <select id="selectCCId"  parameterType="pd" resultType="java.lang.String">
+  SELECT GROUP_CONCAT(t.`USER_ID`) FROM `tt_tribune_user` t WHERE t.`TRIBUNE_ID`=#{TRIBUNE_ID}
+  </select>
+  
+   <select id="findCostUserByCostApplyId" resultMap="BaseResultMap" parameterType="pd" >
+    SELECT t.`TRIBUNE_USER_ID`, t.`TRIBUNE_ID`, t.`STATE`, 
+    (SELECT s.NAME FROM sys_user s WHERE s.USER_ID=t.`USER_ID`) AS USER_ID    FROM `tt_tribune_user` t
+    WHERE t.`TRIBUNE_ID` = #{COST_APPLY_ID,jdbcType=VARCHAR}
+  </select>
+</mapper>

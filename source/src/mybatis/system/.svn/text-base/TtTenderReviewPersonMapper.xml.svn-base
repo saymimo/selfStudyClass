@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtTenderReviewPersonMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtTenderReviewPerson" >
+    <id column="TENDER_REVIEW_PERSON_ID" property="tenderReviewPersonId" jdbcType="VARCHAR" />
+    <result column="TENDERINFO_ID" property="tenderinfoId" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="REVIEW_STATE" property="reviewState" jdbcType="INTEGER" />
+    <result column="DUTYDEPICT" property="dutydepict" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    TENDER_REVIEW_PERSON_ID, TENDERINFO_ID, USER_ID, REVIEW_STATE, DUTYDEPICT
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_tender_review_person
+    where TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectByPrimaryKeyt" resultType="pd" parameterType="pd" >
+    SELECT TENDER_REVIEW_PERSON_ID, TENDERINFO_ID, m.USER_ID,u.NAME,u.EMAIL,PHONE,m.DUTYDEPICT,(SELECT i.STRUCT_NAME FROM `sys_structinfo` i WHERE i.STRUCT_ID=u.`STRUCT_ID` )AS SNAME FROM tt_tender_review_person m LEFT JOIN `sys_user` u ON u.`USER_ID`=m.`USER_ID`
+    where TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 查询评审表  显示名字 -->
+   <select id="findTenderReviewPersonByTenderidName" resultMap="BaseResultMap" parameterType="pd" >
+    SELECT 
+    r.`TRIBUNE_USER_ID`, r.`TRIBUNE_ID`, (SELECT s.`NAME` FROM `sys_user` s WHERE s.`USER_ID`=r.USER_ID) AS USER_ID, STATE
+    FROM `tt_tribune_user` r
+    WHERE r.`TRIBUNE_ID` = #{tenderinfoId,jdbcType=VARCHAR}
+  </select>
+     <select id="findTenderReviewPersonByState" resultType="pd" parameterType="pd" >
+		      SELECT 
+	  (SELECT 
+	    IFNULL(SUM(1), 0) 
+	  FROM
+	    `tt_tribune_user` t 
+	  WHERE s.`TRIBUNE_ID` = t.TRIBUNE_ID) AS zongshu,
+	  (SELECT 
+	    IFNULL(SUM(1), 0) 
+	  FROM
+	    `tt_tribune_user` t 
+	  WHERE s.TRIBUNE_ID = t.TRIBUNE_ID 
+	    AND t.STATE = 1) AS tongyishu,
+	  (SELECT 
+	    IFNULL(SUM(1), 0) 
+	  FROM
+	    `tt_tribune_user` t 
+	  WHERE s.TRIBUNE_ID = t.TRIBUNE_ID 
+	    AND t.STATE != 0) AS pingjiashu 
+	FROM
+	  `tt_tribune_user` s 
+	  WHERE s.TRIBUNE_ID=#{tenderinfoId,jdbcType=VARCHAR}
+	  GROUP BY s.`TRIBUNE_ID`
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_tender_review_person
+    where TENDER_REVIEW_PERSON_ID = #{tenderReviewPersonId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtTenderReviewPerson" >
+    insert into tt_tender_review_person (TENDER_REVIEW_PERSON_ID, TENDERINFO_ID, 
+      USER_ID, REVIEW_STATE, DUTYDEPICT
+      )
+    values (#{tenderReviewPersonId,jdbcType=VARCHAR}, #{tenderinfoId,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=VARCHAR}, #{reviewState,jdbcType=INTEGER}, #{dutydepict,jdbcType=VARCHAR}
+      )
+  </insert>
+  
+   <update id="updateTenderReviewPerson" parameterType="pd" >
+    UPDATE `tt_tribune_user`    SET      STATE = #{reviewState}
+    WHERE TRIBUNE_ID = #{tenderinfoId,jdbcType=VARCHAR} and USER_ID=#{userId,jdbcType=VARCHAR}
+  </update>
+  
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_tender_review_person
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tenderReviewPersonId != null" >
+        TENDER_REVIEW_PERSON_ID,
+      </if>
+      <if test="tenderinfoId != null" >
+        TENDERINFO_ID,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="reviewState != null" >
+        REVIEW_STATE,
+      </if>
+      <if test="dutydepict != null" >
+        DUTYDEPICT,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tenderReviewPersonId != null" >
+        #{tenderReviewPersonId,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderinfoId != null" >
+        #{tenderinfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewState != null" >
+        #{reviewState,jdbcType=INTEGER},
+      </if>
+      <if test="dutydepict != null" >
+        #{dutydepict,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtTenderReviewPerson" >
+    update tt_tender_review_person
+    <set >
+      <if test="tenderinfoId != null" >
+        TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewState != null" >
+        REVIEW_STATE = #{reviewState,jdbcType=INTEGER},
+      </if>
+      <if test="dutydepict != null" >
+        DUTYDEPICT = #{dutydepict,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where TENDER_REVIEW_PERSON_ID = #{tenderReviewPersonId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtTenderReviewPerson" >
+    update tt_tender_review_person
+    set TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR},
+      USER_ID = #{userId,jdbcType=VARCHAR},
+      REVIEW_STATE = #{reviewState,jdbcType=INTEGER},
+      DUTYDEPICT = #{dutydepict,jdbcType=VARCHAR}
+    where TENDER_REVIEW_PERSON_ID = #{tenderReviewPersonId,jdbcType=VARCHAR}
+  </update>
+  
+  
+   <delete id="deleteBySome" parameterType="pd" >
+    DELETE FROM `tt_tribune_user`
+    WHERE TRIBUNE_ID = #{tribuneID,jdbcType=VARCHAR}
+  </delete>
+</mapper>

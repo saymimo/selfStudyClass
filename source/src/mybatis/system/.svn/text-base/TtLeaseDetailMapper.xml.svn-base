@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtLeaseDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtLeaseDetail" >
+    <result column="LEASE_DETAIL_ID" property="leaseDetailId" jdbcType="VARCHAR" />
+    <result column="LEASE_GOODS_ID" property="leaseGoodsId" jdbcType="VARCHAR" />
+    <result column="DETAIL_DATE" property="detailDate" jdbcType="DATE" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+    <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+    <result column="UNIT_PRICE" property="unitPrice" jdbcType="DECIMAL" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  
+  <sql id="Base_Column_List" >
+   LEASE_DETAIL_ID,LEASE_GOODS_ID,DETAIL_DATE,TYPE,AMOUNT,UNIT_PRICE,IS_DEL,CREATE_DATE,CREATE_BY,UPDATE_DATE,UPDATE_BY
+  </sql>
+  
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_lease_detail
+    where LEASE_DETAIL_ID = #{leaseDetailId,jdbcType=VARCHAR}
+  </select>
+  
+   <select id="findLeaseDetailByAmonut" resultType="pd" parameterType="pd" >
+   SELECT 
+  (SELECT 
+    IFNULL(SUM(d.`AMOUNT`),0)  
+  FROM
+    tt_lease_detail d 
+  WHERE d.`TYPE` = 0 and  LEASE_GOODS_ID = #{leaseGoodsId,jdbcType=VARCHAR} and d.IS_DEL=0 ) AS jieru,
+  (SELECT 
+    IFNULL(SUM(d.`AMOUNT`),0)  
+  FROM
+    tt_lease_detail d 
+  WHERE d.`TYPE` = 1 and  LEASE_GOODS_ID = #{leaseGoodsId,jdbcType=VARCHAR} and d.IS_DEL=0) AS guihuan 
+  </select>
+  
+  
+  <!-- 删除 -->
+	  <update id="updateByIsDel" parameterType="pd">
+  		 update tt_lease_detail   set   IS_DEL = 1 where LEASE_DETAIL_ID=#{leaseDetailId}
+	  </update>
+  
+   <select id="findPactLeaseDetaillistPageByLeaseId" resultType="pd" parameterType="page" >
+SELECT d.*,g.`UNIT`, CASE WHEN g.`CHARGING_TYPE`=0
+  THEN 
+  IFNULL((DATEDIFF(NOW(),d.`DETAIL_DATE`)*d.UNIT_PRICE*AMOUNT),0)
+  WHEN g.`CHARGING_TYPE`=1
+  THEN IFNULL((d.UNIT_PRICE*AMOUNT),0)
+  END AS xiaoji
+ FROM `tt_lease_detail` d LEFT JOIN `tt_lease_goods` g ON d.`LEASE_GOODS_ID`=g.`LEASE_GOODS_ID`
+    where d.LEASE_GOODS_ID = #{pd.leaseGoodsId,jdbcType=VARCHAR} and d.IS_DEL=0
+  </select>
+  
+  
+  
+  <insert id="insert" parameterType="com.ssc.entity.system.TtLeaseDetail" >
+    insert into tt_lease_detail (LEASE_DETAIL_ID, LEASE_GOODS_ID, DETAIL_DATE, 
+      TYPE, AMOUNT, UNIT_PRICE, 
+      IS_DEL, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY)
+    values (#{leaseDetailId,jdbcType=VARCHAR}, #{leaseGoodsId,jdbcType=VARCHAR}, #{detailDate,jdbcType=DATE}, 
+      #{type,jdbcType=INTEGER}, #{amount,jdbcType=DECIMAL}, #{unitPrice,jdbcType=DECIMAL}, 
+      #{isDel,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_lease_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="leaseDetailId != null" >
+        LEASE_DETAIL_ID,
+      </if>
+      <if test="leaseGoodsId != null" >
+        LEASE_GOODS_ID,
+      </if>
+      <if test="detailDate != null" >
+        DETAIL_DATE,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+      <if test="amount != null" >
+        AMOUNT,
+      </if>
+      <if test="unitPrice != null" >
+        UNIT_PRICE,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="leaseDetailId != null" >
+        #{leaseDetailId,jdbcType=VARCHAR},
+      </if>
+      <if test="leaseGoodsId != null" >
+        #{leaseGoodsId,jdbcType=VARCHAR},
+      </if>
+      <if test="detailDate != null" >
+        #{detailDate,jdbcType=DATE},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="unitPrice != null" >
+        #{unitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+ <update id="updateByPrimaryKey" parameterType="pd" >
+    update tt_lease_detail
+    set DETAIL_DATE = #{detailDate},
+      TYPE = #{type},
+      AMOUNT = #{amount},
+      UNIT_PRICE = #{unitPrice},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where LEASE_DETAIL_ID = #{leaseDetailId,jdbcType=VARCHAR}
+  </update>
+  
+  
+</mapper>

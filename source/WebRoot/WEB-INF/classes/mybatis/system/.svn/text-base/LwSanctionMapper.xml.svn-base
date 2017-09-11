@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="LwSanctionMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.LwSanction" >
+    <id column="LW_SANCTION_ID" property="lwSanctionId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="TASK_ID" property="taskId" jdbcType="VARCHAR" />
+    <result column="SANCTION_GENRE" property="sanctionGenre" jdbcType="VARCHAR" />
+    <result column="SANCTION_TYPE" property="sanctionType" jdbcType="INTEGER" />
+    <result column="SANCTION_REMARK" property="sanctionRemark" jdbcType="VARCHAR" />
+    <result column="FINANCE_STATE" property="financeState" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="WAGE_VOUCHER" property="wageVoucher" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    LW_SANCTION_ID, ITEM_ID, TASK_ID, SANCTION_GENRE, SANCTION_TYPE, SANCTION_REMARK, 
+    FINANCE_STATE, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,WAGE_VOUCHER
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_lw_sanction
+    where LW_SANCTION_ID = #{lwSanctionId,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="selectByFk" parameterType="pd"  resultMap="BaseResultMap">
+  SELECT 
+  * 
+FROM
+  tt_lw_sanction s 
+WHERE s.`LW_SANCTION_ID` = 
+  (SELECT 
+    ir.`FOREIGN_KEY_ID` 
+  FROM
+    tt_item_review ir 
+  WHERE ir.`ITEM_REVIEW_ID` = #{itemReviewId,jdbcType=VARCHAR})
+  </select>
+   
+  <!-- 劳务清单 驳回的时候修改  状态为劳务驳回  3 -->
+  <update id="updateStateByFk" parameterType="pd">
+  UPDATE 
+  tt_lw_sanction s 
+SET
+  s.`FINANCE_STATE` = 3,
+  s.`WAGE_VOUCHER` = NULL 
+WHERE s.`WAGE_VOUCHER` = #{TASK_WAGE_ID,jdbcType=VARCHAR}  
+  </update>
+  <update id="updateState" parameterType="pd">
+  UPDATE 
+  tt_lw_sanction s 
+SET
+  s.`UPDATE_BY` = #{updateBy,jdbcType=VARCHAR},
+  s.`UPDATE_DATE` = #{updateDate,jdbcType=TIMESTAMP},
+  s.`FINANCE_STATE` = #{state,jdbcType=INTEGER},
+  s.WAGE_VOUCHER = #{wageVoucher,jdbcType=VARCHAR} 
+WHERE s.`LW_SANCTION_ID` =#{lwSanctionId,jdbcType=VARCHAR}
+  
+  </update>
+  
+  
+  <select id="CheckedPerson" parameterType="pd" resultType="pd">
+SELECT 
+  p.*,
+  (SELECT 
+    LW_NAME 
+  FROM
+    tt_lw_personalinfo lp 
+  WHERE lp.LW_PERSONALINFO_ID = p.LW_PERSONALINFO_ID) AS LW_NAME,
+  (SELECT 
+    LW_IDENTITYCODE 
+  FROM
+    tt_lw_personalinfo lp 
+  WHERE lp.LW_PERSONALINFO_ID = p.LW_PERSONALINFO_ID) AS LW_IDENTITYCODE,
+  (SELECT 
+    MOBILE_PHONE 
+  FROM
+    tt_lw_personalinfo lp 
+  WHERE lp.LW_PERSONALINFO_ID = p.LW_PERSONALINFO_ID) AS MOBILE_PHONE
+FROM
+  tt_lw_sanction_per p 
+WHERE p.`LW_SANCTION_ID` = #{LW_SANCTION_ID,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="findItemReviewId" parameterType="pd" resultType="java.lang.String">
+SELECT 
+  r.`ITEM_REVIEW_ID` 
+FROM
+  tt_item_review r 
+WHERE r.`FOREIGN_KEY_ID` = #{LW_SANCTION_ID,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="CheckedUser" parameterType="pd" resultType="pd">
+SELECT 
+  * 
+FROM
+  tt_item_review_user w 
+WHERE w.`ITEM_REVIEW_ID` = #{itemReviewId,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <select id="aSanction" resultType="pd" parameterType="pd" >
+SELECT 
+  s.*,
+  IFNULL(
+    (SELECT 
+      taskName (s.TASK_ID)),
+    '') AS TASK_NAME,
+  (SELECT 
+    NAME 
+  FROM
+    sys_user u 
+  WHERE u.USER_ID = s.`CREATE_BY`) AS CREATE_NAME,
+(SELECT 
+  NAME 
+FROM
+  sys_dictionaries d 
+WHERE d.P_BM = s.`SANCTION_GENRE`) AS SANCTION_NAME,
+  (SELECT 
+    STATE 
+  FROM
+    tt_tribune_user tu 
+  WHERE tu.TRIBUNE_ID = 
+    (SELECT 
+      ITEM_REVIEW_ID 
+    FROM
+      tt_item_review tr 
+    WHERE tr.FOREIGN_KEY_ID = s.`LW_SANCTION_ID`) 
+    AND tu.USER_ID = #{USER_ID,jdbcType=VARCHAR}) AS USER_STATE,
+  CASE
+    WHEN FIND_IN_SET(#{USER_ID,jdbcType=VARCHAR},(SELECT 
+          ti.USER_ID 
+        FROM
+          `tt_item_review` ti 
+        WHERE ti.FOREIGN_KEY_ID = s.LW_SANCTION_ID))
+    THEN 1 
+    ELSE 0 
+  END AS REVIEW_TYPE_STATE   
+FROM
+  tt_lw_sanction s 
+WHERE LW_SANCTION_ID =  #{LW_SANCTION_ID,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="pd" >
+    delete from tt_lw_sanction
+    where LW_SANCTION_ID = #{lwSanctionId,jdbcType=VARCHAR}
+  </delete>
+ <!-- 查询所有带分页 -->
+<select id="listPageAll" resultType="pd" parameterType="page">
+select * from 
+(SELECT 
+  LW_SANCTION_ID,
+  ITEM_ID,
+  TASK_ID,
+  IFNULL(
+    (SELECT 
+      taskName (TASK_ID)),
+    '') AS TASK_NAME,
+  (SELECT 
+    NAME 
+  FROM
+    sys_dictionaries d 
+  WHERE d.P_BM = SANCTION_GENRE) SANCTION_NAME,
+  SANCTION_GENRE,
+  WAGE_VOUCHER,
+  SANCTION_REMARK,
+  CASE
+    SANCTION_TYPE 
+    WHEN 1 
+    THEN '罚款' 
+    WHEN 0 
+    THEN '奖励' 
+  END AS SANCTION_TYPE_NAME,
+  (SELECT 
+    SUM(MONEY) 
+  FROM
+    tt_lw_sanction_per p 
+  WHERE p.LW_SANCTION_ID = s.LW_SANCTION_ID 
+  GROUP BY p.LW_SANCTION_ID) MONEY
+  ,SANCTION_TYPE,
+  FINANCE_STATE,
+  CREATE_DATE,
+  (SELECT 
+    NAME 
+  FROM
+    sys_user u 
+  WHERE u.USER_ID = s.CREATE_BY) AS CREATE_NAME,
+  CREATE_BY,
+  (SELECT 
+    ti.ITEM_REVIEW_ID 
+  FROM
+    tt_item_review ti 
+  WHERE ti.FOREIGN_KEY_ID = s.LW_SANCTION_ID) AS ITEM_REVIEW_ID,
+  (SELECT 
+    ti.STATE 
+  FROM
+    tt_item_review ti 
+  WHERE ti.FOREIGN_KEY_ID = s.LW_SANCTION_ID) STATE   
+FROM
+  tt_lw_sanction s 
+WHERE s.`ITEM_ID` = #{pd.ITEM_ID,jdbcType=VARCHAR}
+ORDER BY CREATE_DATE  DESC) as ch
+where 1=1
+ <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 		AND ch.CREATE_DATE  &gt;=#{pd.LASTLOGINSTART1} AND ch.CREATE_DATE &lt;=#{pd.LASTLOGINSTART2} 
+		 		</if>
+		 		</if>
+   <if test="pd.NAME !=null and pd.NAME != '' ">
+     AND ( ch.`SANCTION_REMARK` LIKE #{pd.NAME2,jdbcType=VARCHAR} 
+     or ch.CREATE_NAME like #{pd.NAME2,jdbcType=VARCHAR} 
+     or ch.SANCTION_NAME like #{pd.NAME2,jdbcType=VARCHAR}
+     or ch.TASK_NAME like #{pd.NAME2,jdbcType=VARCHAR}
+     or ch.SANCTION_TYPE_NAME like #{pd.NAME2,jdbcType=VARCHAR}
+     )
+   </if>
+</select> 
+
+<!-- 查询评审人员 -->
+<select id="userList" parameterType="pd" resultType="pd">
+SELECT 
+  USER_ID,
+  NAME,
+  EMAIL,
+  PHONE 
+FROM
+  sys_user u 
+WHERE is_del = 0 
+  AND u.`USER_ID` IN 
+  (SELECT 
+    tip.`USER_ID` 
+  FROM
+    tt_item_person tip 
+  WHERE tip.`ITEM_ID` = #{ITEM_ID,jdbcType=VARCHAR} ) 
+GROUP BY USER_ID 
+
+</select>
+ 
+  
+  
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.LwSanction" >
+    insert into tt_lw_sanction
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="lwSanctionId != null" >
+        LW_SANCTION_ID,
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="taskId != null" >
+        TASK_ID,
+      </if>
+      <if test="sanctionGenre != null" >
+        SANCTION_GENRE,
+      </if>
+      <if test="sanctionType != null" >
+        SANCTION_TYPE,
+      </if>
+      <if test="sanctionRemark != null" >
+        SANCTION_REMARK,
+      </if>
+      <if test="financeState != null" >
+        FINANCE_STATE,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="wageVoucher !=null">
+      	WAGE_VOUCHER,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="lwSanctionId != null" >
+        #{lwSanctionId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="sanctionGenre != null" >
+        #{sanctionGenre,jdbcType=VARCHAR},
+      </if>
+      <if test="sanctionType != null" >
+        #{sanctionType,jdbcType=INTEGER},
+      </if>
+      <if test="sanctionRemark != null" >
+        #{sanctionRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="financeState != null" >
+        #{financeState,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="wageVoucher !=null">
+      	#{wageVoucher,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.LwSanction" >
+    update tt_lw_sanction
+    <set >
+      <if test="itemId != null" >
+        ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        TASK_ID = #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="sanctionGenre != null" >
+        SANCTION_GENRE = #{sanctionGenre,jdbcType=VARCHAR},
+      </if>
+      <if test="sanctionType != null" >
+        SANCTION_TYPE = #{sanctionType,jdbcType=INTEGER},
+      </if>
+      <if test="sanctionRemark != null" >
+        SANCTION_REMARK = #{sanctionRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="financeState != null" >
+        FINANCE_STATE = #{financeState,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="wageVoucher !=null">
+      	WAGE_VOUCHER =	#{wageVoucher,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where LW_SANCTION_ID = #{lwSanctionId,jdbcType=VARCHAR}
+  </update>
+</mapper>

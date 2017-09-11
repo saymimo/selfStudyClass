@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtLwTaskinfoMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtLwTaskinfo" >
+    <id column="LW_TASKINFO_ID" property="lwTaskinfoId" jdbcType="VARCHAR" />
+    <result column="LW_PERSONALINFO_ID" property="lwPersonalinfoId" jdbcType="VARCHAR" />
+    <result column="TASK_ID" property="taskId" jdbcType="VARCHAR" />
+    <result column="STATUS" property="status" jdbcType="INTEGER" />
+    <result column="STATUS_OUTDATE" property="statusOutdate" jdbcType="DATE" />
+    <result column="ALLOCATION_METHOD" property="allocationMethod" jdbcType="INTEGER" />
+    <result column="ALLOCATION_COEFFICIENT" property="allocationCoefficient" jdbcType="DECIMAL" />
+    <result column="WORK_UNIT" property="workUnit" jdbcType="DECIMAL" />
+    <result column="FIXED_AMOUNT" property="fixedAmount" jdbcType="DECIMAL" />
+    <result column="AVG_AMONNT" property="avgAmonnt" jdbcType="DECIMAL" />
+    <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+    <result column="TOTAL_UNIT" property="totalUnit" jdbcType="DECIMAL" />
+    <result column="ATTENDANCE_DAYS" property="attendanceDays" jdbcType="INTEGER" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="DATE" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="DATE" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    LW_TASKINFO_ID, LW_PERSONALINFO_ID, TASK_ID, STATUS, STATUS_OUTDATE, ALLOCATION_METHOD, 
+    ALLOCATION_COEFFICIENT, WORK_UNIT, FIXED_AMOUNT, AVG_AMONNT, AMOUNT, TOTAL_UNIT, 
+    ATTENDANCE_DAYS, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY
+  </sql>
+  <!-- 通过itemId  查询  -->
+   <select id="findLwByItemId" resultMap="BaseResultMap" parameterType="pd">
+  SELECT 
+  t.`LW_TASKINFO_ID`,
+  t.`LW_PERSONALINFO_ID`,
+  t.`TASK_ID` 
+FROM
+  tt_lw_taskinfo t 
+WHERE t.`TASK_ID` IN 
+  (SELECT 
+    tt.`UID` 
+  FROM
+    tt_taskinfo tt 
+  WHERE tt.`PROJECTUID` = #{itemId,jdbcType=VARCHAR})
+  </select>
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_lw_taskinfo
+    where LW_TASKINFO_ID = #{lwTaskinfoId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_lw_taskinfo
+    where LW_TASKINFO_ID = #{lwTaskinfoId,jdbcType=VARCHAR}
+  </delete>
+  <update id="updateLwTaskinfoByAttendanceDay" parameterType="pd">
+  	update tt_lw_taskinfo set ATTENDANCE_DAYS=ATTENDANCE_DAYS+1 where LW_TASKINFO_ID=#{lwTaskinfoId}
+  </update>
+  <!-- 根据taskid查询 劳务管理id -->
+  <select id="findLwtaskinfoBYTaskid" resultType="pd" parameterType="pd">
+  	select  LW_TASKINFO_ID lwTaskinfoId from tt_lw_taskinfo where TASK_ID=#{TASK_ID} and IS_DEL=0
+  </select>
+  <!-- 修改所得金额 -->
+  <update id="updateLwTaskinfoSuodeMoney" parameterType="pd">
+ UPDATE tt_lw_taskinfo l, ( SELECT t.`WORK_UNIT`*
+ ( CASE
+    WHEN t.`ALLOCATION_COEFFICIENT` IS NULL 
+    THEN 1 
+    WHEN t.`ALLOCATION_COEFFICIENT` = 0 
+    THEN 1 
+    ELSE t.`ALLOCATION_COEFFICIENT` 
+  END )
+ *t.`TOTAL_UNIT` suodeMoney  FROM `tt_lw_taskinfo` t WHERE t.LW_TASKINFO_ID=#{lwTaskinfoId} and  
+ (SELECT 
+  COUNT(1) 
+FROM
+  tt_lw_attendance tl 
+WHERE tl.LW_TASKINFO_ID = t.LW_TASKINFO_ID 
+  AND (
+    tl.`LW_WORK_AM` IS NOT NULL AND tl.LW_WORK_AM!=0 
+    OR tl.`LW_WORK_OVER_TIME` IS NOT NULL AND tl.LW_WORK_OVER_TIME!=0 
+  ))
+ 
+ >0) a
+  SET amount =a.suodeMoney
+ WHERE l.`LW_TASKINFO_ID`=#{lwTaskinfoId}
+  
+  </update>
+  
+  <!-- 修改平均日工资等于0 -->
+  <update id="updateLwTaskinfoAvgMoneyByEql" parameterType="pd">
+		UPDATE 
+  tt_lw_taskinfo l
+SET
+  l.Avg_amonnt = 0
+WHERE l.`LW_TASKINFO_ID` = #{lwTaskinfoId}  
+
+AND (SELECT 
+      COUNT(1) 
+    FROM
+      tt_lw_attendance tl 
+    WHERE tl.LW_TASKINFO_ID = l.LW_TASKINFO_ID 
+      AND 
+      (
+    (tl.`LW_WORK_AM` IS  NULL OR   tl.LW_WORK_OVER_TIME = 0)
+    AND (tl.`LW_WORK_OVER_TIME` IS NULL OR tl.`LW_WORK_OVER_TIME`=0)
+  ))  >0
+
+
+  </update>
+  <!-- 修改平均日工资 -->
+  <update id="updateLwTaskinfoAvgMoney" parameterType="pd">
+  UPDATE 
+  tt_lw_taskinfo l,(SELECT 
+    TRUNCATE(t.`AMOUNT`/
+    (SELECT 
+  COUNT(1) 
+FROM
+  tt_lw_attendance tl 
+WHERE tl.LW_TASKINFO_ID = t.LW_TASKINFO_ID 
+  AND (
+    tl.`LW_WORK_AM` IS NOT NULL AND tl.LW_WORK_AM!=0 
+    OR tl.`LW_WORK_OVER_TIME` IS NOT NULL AND tl.LW_WORK_OVER_TIME!=0
+  ))
+    
+    
+    ,2) avgMoney 
+  FROM
+    `tt_lw_taskinfo` t 
+  WHERE t.LW_TASKINFO_ID = #{lwTaskinfoId}  and  
+  (SELECT 
+  COUNT(1) 
+FROM
+  tt_lw_attendance tl 
+WHERE tl.LW_TASKINFO_ID = t.LW_TASKINFO_ID 
+  AND (
+    tl.`LW_WORK_AM` IS NOT NULL AND tl.LW_WORK_AM!=0 
+    OR tl.`LW_WORK_OVER_TIME` IS NOT NULL AND tl.LW_WORK_OVER_TIME!=0
+  ))
+  
+  
+  >0) a
+SET
+  l.Avg_amonnt = a.avgMoney
+WHERE l.`LW_TASKINFO_ID` = #{lwTaskinfoId}
+  
+  </update>
+  
+  
+  	<!-- 删除 -->
+	  <update id="updateByIsDel" parameterType="pd">
+  		 update tt_lw_taskinfo   set   IS_DEL = #{ISDEL} where LW_TASKINFO_ID=#{lwTaskinfoId}
+	  </update>
+  <!-- 修改 劳务管理表的系数分配 的公分单价 -->
+  <update id="updateLwTaskinfobyAllocaionCoefficient" parameterType="pd">
+      UPDATE tt_lw_taskinfo  t,   
+( SELECT 
+(#{lwTotalAmount}-(SELECT IFNULL(SUM(t.`AMOUNT`),0) gudingAmoney FROM `tt_lw_taskinfo` t  WHERE t.`ALLOCATION_METHOD`=0 AND t.`TASK_ID`=#{TASK_ID}))
+/(SELECT SUM(t.`TOTAL_UNIT`*t.`ALLOCATION_COEFFICIENT`) FROM    tt_lw_taskinfo t WHERE t.`TASK_ID`=#{TASK_ID}  AND t.`ALLOCATION_METHOD`=1) AS work_unit) a
+ SET t.`WORK_UNIT`=a.work_unit WHERE t.`TASK_ID`=#{TASK_ID} AND t.`ALLOCATION_METHOD`=1
+  </update>
+  <!-- 修改任务表的 劳务总金额 固定分配总金额 系数分配总金额 -->
+  <update id="updateLwTaskinfobyTaskinfo" parameterType="pd">
+    UPDATE `tt_taskinfo` t ,
+   (SELECT SUM(t.`AMOUNT`) gudingAmoney FROM `tt_lw_taskinfo` t  WHERE t.`ALLOCATION_METHOD`=0 AND t.`TASK_ID`=#{TASK_ID}) a
+   SET t.`LW_COEFFICIENT_AMOUNT`= #{lwTotalAmount}-a.gudingAmoney,t.`LW_TOTAL_AMOUNT`=#{lwTotalAmount}  ,t.`LW_FIXED_AMOUNT`=a.gudingAmoney
+	WHERE t.`UID`=#{TASK_ID}	
+  </update>
+  <!-- 查询列表 -->
+  <select id="listPagelwTaskinfo" resultType="pd" parameterType="page">
+    SELECT 
+  LW_TASKINFO_ID lwTaskinfoId,
+  LW_PERSONALINFO_ID lwPersonalinfoId,
+  TASK_ID taskId,
+  STATUS status,
+  (SELECT ti.PACT_SETTLEMENT FROM tt_taskinfo ti WHERE ti.UID=l.`TASK_ID`) PACT_SETTLEMENT,
+  STATUS_OUTDATE statusOutdate,
+  ALLOCATION_METHOD allocationMethod ,
+  TRUNCATE(IFNULL(ALLOCATION_COEFFICIENT,0),1) allocationCoefficient,
+  IFNULL(WORK_UNIT,0) workUnit,
+  FIXED_AMOUNT fixedAmount,
+  IFNULL(AVG_AMONNT,0) avgAmonnt,
+  IFNULL(AMOUNT,0) amount,
+  TRUNCATE(IFNULL(TOTAL_UNIT,0),1) totalUnit,
+  (SELECT 
+  COUNT(1) 
+FROM
+  tt_lw_attendance tl 
+WHERE tl.LW_TASKINFO_ID = l.LW_TASKINFO_ID 
+  AND (
+   tl.`LW_WORK_AM` IS NOT NULL AND tl.LW_WORK_AM!=0 
+    OR tl.`LW_WORK_OVER_TIME` IS NOT NULL AND tl.LW_WORK_OVER_TIME!=0
+  )) attendanceDays,
+  IS_DEL isDel,
+  CREATE_DATE createDate,
+  (SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`=l.CREATE_BY) createBy,
+  UPDATE_DATE updateDate,
+  UPDATE_BY updateBy,
+  taskName(TASK_ID) taskName,
+  (SELECT 
+  ta.`NAME` 
+FROM
+  tt_taskinfo ta 
+WHERE ta.`UID` = l.TASK_ID) TASK_NAME,
+  (SELECT p.`LW_NAME` FROM `tt_lw_personalinfo` p WHERE p.`LW_PERSONALINFO_ID`=l.`LW_PERSONALINFO_ID`) lwName
+FROM
+  tt_lw_taskinfo  l
+WHERE  
+FIND_IN_SET(TASK_ID,
+  (SELECT 
+    `findTaskListByPid` (#{pd.TASK_ID,jdbcType=VARCHAR}))) 
+    <if test="pd.NAME != null and pd.NAME != ''" >
+     		AND LW_PERSONALINFO_ID IN
+    (SELECT 
+    p.LW_PERSONALINFO_ID
+  FROM
+    `tt_lw_personalinfo` p 
+  WHERE p.`LW_PERSONALINFO_ID` = l.`LW_PERSONALINFO_ID` AND LW_NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%'))
+     		
+      </if>
+order by IS_DEL
+    
+    
+  </select>
+  <!-- 查询 任务表的   固定分配总金额  系数分配总金额  劳务总金额 -->
+  <select id="findTaskInfoAndTaskinfoid" resultType="pd" parameterType="pd">
+SELECT 
+  ti.`LW_TOTAL_AMOUNT` lwTotalAmount,
+  ti.`LW_FIXED_AMOUNT` lwFixedAmount,
+  ti.`LW_COEFFICIENT_AMOUNT` lwCoefficientAmount,
+  ti.`PACT_SETTLEMENT`,
+  ti.TASK_STATE,
+  ti.`WAGE_APPROVAL`,
+    CASE
+    WAGE_APPROVAL 
+    WHEN 1 
+    THEN '审批中' 
+    WHEN 2 
+    THEN '已通过' 
+  END AS TYPE,
+  CASE
+    WHEN 
+    (SELECT 
+      CONSTRUCTION_USER 
+    FROM
+      tt_taskinfo tt 
+    WHERE tt.uid = findPTaskOneByCId (ti.uid)) = #{USER_ID,jdbcType=VARCHAR} 
+    THEN 1 
+    ELSE 0 
+  END AS CONSTRUCTION 
+FROM
+  `tt_taskinfo` ti 
+	WHERE ti.`UID` = #{TASK_ID}
+  
+  </select>
+  <!-- 修改总工分 -->
+  <update id="updateLwZonggongfen" parameterType="pd">
+  	update tt_lw_taskinfo set Total_unit=
+  	(SELECT SUM(IFNULL(a.`LW_WORK_AM`,0))+SUM(IFNULL(a.`LW_WORK_PM`,0))+SUM(IFNULL(a.`LW_WORK_TA`,0))+SUM(IFNULL(a.`LW_WORK_OVER_TIME`,0)) AS gongfen FROM `tt_lw_attendance` a WHERE a.`LW_TASKINFO_ID`=#{lwTaskinfoId})
+  	where LW_TASKINFO_ID=#{lwTaskinfoId}
+  
+  </update>
+  
+  <!--  修改系数分配 最后一条数据的所得金额-->
+  
+  <update id="updateLwTaskinfoAndAllocationByAmount" parameterType="pd">
+  UPDATE tt_lw_taskinfo lt,
+(SELECT SUM(t.`AMOUNT`) amount FROM `tt_lw_taskinfo` t WHERE t.`ALLOCATION_METHOD`=1 and t.`TASK_ID`=#{TASK_ID}  AND  t.`LW_TASKINFO_ID` !=
+(SELECT t.`LW_TASKINFO_ID` FROM `tt_lw_taskinfo` t WHERE t.`ALLOCATION_METHOD`=1 and t.`TASK_ID`=#{TASK_ID} ORDER BY t.`CREATE_DATE` DESC LIMIT 1))  a,
+(SELECT ti.`LW_COEFFICIENT_AMOUNT` LW_COEFFICIENT_AMOUNT  FROM `tt_taskinfo` ti WHERE ti.`UID`=#{TASK_ID})  b,
+(SELECT t.`LW_TASKINFO_ID` LW_TASKINFO_ID FROM `tt_lw_taskinfo` t WHERE t.`ALLOCATION_METHOD`=1 and t.`TASK_ID`=#{TASK_ID} ORDER BY t.`CREATE_DATE` DESC LIMIT 1) c
+SET lt.AMOUNT=IFNULL(b.LW_COEFFICIENT_AMOUNT-a.amount,b.LW_COEFFICIENT_AMOUNT)WHERE lt.LW_TASKINFO_ID=c.LW_TASKINFO_ID
+  
+  </update>
+  <!-- 查询考勤列表 -->
+  <select id="listPagelwTaskinfoAndAttendance" resultType="pd" parameterType="page">
+  SELECT 
+  l.LW_TASKINFO_ID lwTaskinfoId,
+  LW_PERSONALINFO_ID lwPersonalinfoId,
+  TASK_ID taskId,
+  STATUS STATUS,
+  STATUS_OUTDATE statusOutdate,
+  ALLOCATION_METHOD allocationMethod,
+  TRUNCATE(IFNULL(ALLOCATION_COEFFICIENT, 0),1) allocationCoefficient,
+  IFNULL(WORK_UNIT, 0) workUnit,
+  FIXED_AMOUNT fixedAmount,
+  IFNULL(AVG_AMONNT, 0) avgAmonnt,
+  IFNULL(AMOUNT, 0) amount,
+  TRUNCATE(IFNULL(TOTAL_UNIT, 0),1) totalUnit,
+  IFNULL(ATTENDANCE_DAYS, 0) attendanceDays,
+  IS_DEL isDel,
+  l.CREATE_DATE createDate,
+  (SELECT 
+    u.`NAME` 
+  FROM
+    `sys_user` u 
+  WHERE u.`USER_ID` = l.CREATE_BY) createBy,
+  l.UPDATE_DATE updateDate,
+  l.UPDATE_BY updateBy,
+  taskName(l.`TASK_ID`) taskName,
+  (SELECT 
+    p.`LW_NAME` 
+  FROM
+    `tt_lw_personalinfo` p 
+  WHERE p.`LW_PERSONALINFO_ID` = l.`LW_PERSONALINFO_ID`) lwName,
+  a.LW_ATTENDANCE_ID lwAttendanceId,
+  a.ATTENDANCE_DATE attendanceDate,
+  TRUNCATE(a.LW_WORK_AM,1) lwWorkAm,
+  TRUNCATE(a.LW_WORK_PM,1) lwWorkPm,
+  TRUNCATE(a.LW_WORK_TA,1) lwWorkTa,
+  TRUNCATE(a.LW_WORK_OVER_TIME,1) lwWorkOverTime,
+  a.ATTENDANCE_MACHINE attendanceMachine 
+FROM
+  tt_lw_taskinfo l 
+  LEFT JOIN  tt_lw_attendance a 
+    ON l.`LW_TASKINFO_ID` = a.LW_TASKINFO_ID 
+    
+    <if test="pd.nodedate != null and pd.nodedate != ''" >
+     		and  a.`ATTENDANCE_DATE`=#{pd.nodedate}
+      </if>
+WHERE 
+FIND_IN_SET(l.TASK_ID,
+  (SELECT 
+    `findTaskListByPid` (#{pd.TASK_ID,jdbcType=VARCHAR})))
+
+
+  AND l.IS_DEL = 0  AND a.`ATTENDANCE_MACHINE` = 1
+  <if test="pd.NAME != null and pd.NAME != ''" >
+     		AND l.LW_PERSONALINFO_ID IN
+    (SELECT 
+    p.LW_PERSONALINFO_ID
+  FROM
+    `tt_lw_personalinfo` p 
+  WHERE p.`LW_PERSONALINFO_ID` = l.`LW_PERSONALINFO_ID` AND LW_NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%'))
+     		
+      </if>
+  
+  
+       ORDER BY l.`CREATE_DATE` DESC
+  
+  
+  </select>
+  <!-- 复制 -->
+   <insert id="addLwTaskInfoFZ" parameterType="pd" >
+  
+  INSERT INTO tt_lw_taskinfo (
+  LW_TASKINFO_ID,
+  LW_PERSONALINFO_ID,
+  TASK_ID,
+  STATUS,
+  STATUS_OUTDATE,
+  ALLOCATION_METHOD,
+  ALLOCATION_COEFFICIENT,
+  WORK_UNIT,
+  FIXED_AMOUNT,
+  AVG_AMONNT,
+  AMOUNT,
+  TOTAL_UNIT,
+  ATTENDANCE_DAYS,
+  IS_DEL,
+  CREATE_DATE,
+  CREATE_BY,
+  UPDATE_DATE,
+  UPDATE_BY
+)
+SELECT 
+
+  UUID(),
+  LW_PERSONALINFO_ID,
+  #{taskSel},
+  STATUS,
+  STATUS_OUTDATE,
+  ALLOCATION_METHOD,
+  ALLOCATION_COEFFICIENT,
+  WORK_UNIT,
+  FIXED_AMOUNT,
+  AVG_AMONNT,
+  AMOUNT,
+  TOTAL_UNIT,
+  ATTENDANCE_DAYS,
+  IS_DEL,
+  CREATE_DATE,
+  CREATE_BY,
+  UPDATE_DATE,
+  UPDATE_BY
+ FROM tt_lw_taskinfo t WHERE t.`TASK_ID`=#{taskID};
+  
+   </insert>
+  
+  
+  
+  <!-- 查询考勤列表 微信端 部分页 shenwei2016/05/13 参考listPagelwTaskinfoAndAttendance -->
+  <select id="findLwTaskinfoAndAttendance" resultType="pd" parameterType="pd">
+  SELECT 
+  l.LW_TASKINFO_ID lwTaskinfoId,
+  LW_PERSONALINFO_ID lwPersonalinfoId,
+  (SELECT 
+    p.`LW_NAME` 
+  FROM
+    `tt_lw_personalinfo` p 
+  WHERE p.`LW_PERSONALINFO_ID` = l.`LW_PERSONALINFO_ID`) lwName,
+  a.LW_ATTENDANCE_ID lwAttendanceId,
+  a.ATTENDANCE_DATE attendanceDate,
+  TRUNCATE(a.LW_WORK_AM,1) lwWorkAm,
+  TRUNCATE(a.LW_WORK_PM,1) lwWorkPm,
+  TRUNCATE(a.LW_WORK_TA,1) lwWorkTa,
+  TRUNCATE(a.LW_WORK_OVER_TIME,1) lwWorkOverTime,
+  a.ATTENDANCE_MACHINE attendanceMachine 
+FROM
+  tt_lw_taskinfo l 
+  LEFT JOIN  tt_lw_attendance a 
+    ON l.`LW_TASKINFO_ID` = a.LW_TASKINFO_ID 
+    
+     		and  a.`ATTENDANCE_DATE`=#{nodedate}
+WHERE 
+FIND_IN_SET(l.TASK_ID,
+  (SELECT 
+    `findTaskListByPid` (#{TASK_ID,jdbcType=VARCHAR})))
+  AND l.IS_DEL = 0  AND a.`ATTENDANCE_MACHINE` = 1
+       ORDER BY l.`CREATE_DATE` DESC
+  </select>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_lw_taskinfo
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="lwTaskinfoId != null" >
+        LW_TASKINFO_ID,
+      </if>
+      <if test="lwPersonalinfoId != null" >
+        LW_PERSONALINFO_ID,
+      </if>
+      <if test="taskId != null" >
+        TASK_ID,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+      <if test="statusOutdate != null" >
+        STATUS_OUTDATE,
+      </if>
+      <if test="allocationMethod != null" >
+        ALLOCATION_METHOD,
+      </if>
+      <if test="allocationCoefficient != null" >
+        ALLOCATION_COEFFICIENT,
+      </if>
+      <if test="workUnit != null" >
+        WORK_UNIT,
+      </if>
+      <if test="fixedAmount != null" >
+        FIXED_AMOUNT,
+      </if>
+      <if test="avgAmonnt != null" >
+        AVG_AMONNT,
+      </if>
+      <if test="amount != null" >
+        AMOUNT,
+      </if>
+      <if test="totalUnit != null" >
+        TOTAL_UNIT,
+      </if>
+      <if test="attendanceDays != null" >
+        ATTENDANCE_DAYS,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="lwTaskinfoId != null" >
+        #{lwTaskinfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="lwPersonalinfoId != null" >
+        #{lwPersonalinfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusOutdate != null" >
+        #{statusOutdate,jdbcType=DATE},
+      </if>
+      <if test="allocationMethod != null" >
+        #{allocationMethod,jdbcType=INTEGER},
+      </if>
+      <if test="allocationCoefficient != null" >
+        #{allocationCoefficient,jdbcType=DECIMAL},
+      </if>
+      <if test="workUnit != null" >
+        #{workUnit,jdbcType=DECIMAL},
+      </if>
+      <if test="fixedAmount != null" >
+        #{fixedAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="avgAmonnt != null" >
+        #{avgAmonnt,jdbcType=DECIMAL},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="totalUnit != null" >
+        #{totalUnit,jdbcType=DECIMAL},
+      </if>
+      <if test="attendanceDays != null" >
+        #{attendanceDays,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=DATE},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=DATE},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_lw_taskinfo
+    <set >
+      <if test="lwPersonalinfoId != null" >
+        LW_PERSONALINFO_ID = #{lwPersonalinfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        TASK_ID = #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        STATUS = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="statusOutdate != null" >
+        STATUS_OUTDATE = #{statusOutdate,jdbcType=DATE},
+      </if>
+      <if test="allocationMethod != null" >
+        ALLOCATION_METHOD = #{allocationMethod,jdbcType=INTEGER},
+      </if>
+      <if test="allocationCoefficient != null" >
+        ALLOCATION_COEFFICIENT = #{allocationCoefficient,jdbcType=DECIMAL},
+      </if>
+      <if test="workUnit != null" >
+        WORK_UNIT = #{workUnit,jdbcType=DECIMAL},
+      </if>
+      <if test="fixedAmount != null" >
+        FIXED_AMOUNT = #{fixedAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="avgAmonnt != null" >
+        AVG_AMONNT = #{avgAmonnt,jdbcType=DECIMAL},
+      </if>
+      <if test="amount != null" >
+        AMOUNT = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="totalUnit != null" >
+        TOTAL_UNIT = #{totalUnit,jdbcType=DECIMAL},
+      </if>
+      <if test="attendanceDays != null" >
+        ATTENDANCE_DAYS = #{attendanceDays,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=DATE},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=DATE},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where LW_TASKINFO_ID = #{lwTaskinfoId,jdbcType=VARCHAR}
+  </update>
+</mapper>

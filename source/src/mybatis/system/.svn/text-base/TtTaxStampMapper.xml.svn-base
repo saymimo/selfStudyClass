@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtTaxStampMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtTaxStamp" >
+    <id column="TAX_STAMP_ID" property="taxStampId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="FINANCE_NO" property="financeNo" jdbcType="VARCHAR" />
+    <result column="INVOICE_CODE" property="invoiceCode" jdbcType="VARCHAR" />
+    <result column="INVOICE_NO" property="invoiceNo" jdbcType="VARCHAR" />
+    <result column="TAX_DATE" property="taxDate" jdbcType="DATE" />
+    <result column="INVOICE_MONEY" property="invoiceMoney" jdbcType="DECIMAL" />
+    <result column="TAX_MOENY" property="taxMoeny" jdbcType="DECIMAL" />
+    <result column="SALES_NAME" property="salesName" jdbcType="VARCHAR" />
+    <result column="TAX_NO" property="taxNo" jdbcType="VARCHAR" />
+    <result column="TAX_STATE" property="taxState" jdbcType="INTEGER" />
+    <result column="UP_DATE" property="upDate" jdbcType="DATE" />
+    <result column="FAIL_REMARK" property="failRemark" jdbcType="VARCHAR" />
+    <result column="INVOICE_TAG" property="invoiceTag" jdbcType="INTEGER" />
+    <result column="STRUCT_NO" property="structNo" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    TAX_STAMP_ID, STRUCT_ID, ITEM_ID, FINANCE_NO, INVOICE_CODE, INVOICE_NO, TAX_DATE, 
+    INVOICE_MONEY, TAX_MOENY, SALES_NAME, TAX_NO, TAX_STATE, UP_DATE, FAIL_REMARK, INVOICE_TAG, 
+    STRUCT_NO, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_tax_stamp
+    where TAX_STAMP_ID = #{taxStampId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_tax_stamp
+    where TAX_STAMP_ID = #{taxStampId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtTaxStamp" >
+    insert into tt_tax_stamp (TAX_STAMP_ID, STRUCT_ID, ITEM_ID, 
+      FINANCE_NO, INVOICE_CODE, INVOICE_NO, 
+      TAX_DATE, INVOICE_MONEY, TAX_MOENY, 
+      SALES_NAME, TAX_NO, TAX_STATE, 
+      UP_DATE, FAIL_REMARK, INVOICE_TAG, 
+      STRUCT_NO, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY)
+    values (#{taxStampId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{itemId,jdbcType=VARCHAR}, 
+      #{financeNo,jdbcType=VARCHAR}, #{invoiceCode,jdbcType=VARCHAR}, #{invoiceNo,jdbcType=VARCHAR}, 
+      #{taxDate,jdbcType=DATE}, #{invoiceMoney,jdbcType=DECIMAL}, #{taxMoeny,jdbcType=DECIMAL}, 
+      #{salesName,jdbcType=VARCHAR}, #{taxNo,jdbcType=VARCHAR}, #{taxState,jdbcType=INTEGER}, 
+      #{upDate,jdbcType=DATE}, #{failRemark,jdbcType=VARCHAR}, #{invoiceTag,jdbcType=INTEGER}, 
+      #{structNo,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_tax_stamp
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="taxStampId != null" >
+        TAX_STAMP_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="financeNo != null" >
+        FINANCE_NO,
+      </if>
+      <if test="invoiceCode != null" >
+        INVOICE_CODE,
+      </if>
+      <if test="invoiceNo != null" >
+        INVOICE_NO,
+      </if>
+      <if test="taxDate != null" >
+        TAX_DATE,
+      </if>
+      <if test="invoiceMoney != null" >
+        INVOICE_MONEY,
+      </if>
+      <if test="taxMoeny != null" >
+        TAX_MOENY,
+      </if>
+      <if test="salesName != null" >
+        SALES_NAME,
+      </if>
+      <if test="taxNo != null" >
+        TAX_NO,
+      </if>
+      <if test="taxState != null" >
+        TAX_STATE,
+      </if>
+      <if test="upDate != null" >
+        UP_DATE,
+      </if>
+      <if test="failRemark != null" >
+        FAIL_REMARK,
+      </if>
+      <if test="invoiceTag != null" >
+        INVOICE_TAG,
+      </if>
+      <if test="structNo != null" >
+        STRUCT_NO,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="taxStampId != null" >
+        #{taxStampId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="financeNo != null" >
+        #{financeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceCode != null" >
+        #{invoiceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceNo != null" >
+        #{invoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="taxDate != null" >
+        #{taxDate,jdbcType=DATE},
+      </if>
+      <if test="invoiceMoney != null" >
+        #{invoiceMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="taxMoeny != null" >
+        #{taxMoeny,jdbcType=DECIMAL},
+      </if>
+      <if test="salesName != null" >
+        #{salesName,jdbcType=VARCHAR},
+      </if>
+      <if test="taxNo != null" >
+        #{taxNo,jdbcType=VARCHAR},
+      </if>
+      <if test="taxState != null" >
+        #{taxState,jdbcType=INTEGER},
+      </if>
+      <if test="upDate != null" >
+        #{upDate,jdbcType=DATE},
+      </if>
+      <if test="failRemark != null" >
+        #{failRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceTag != null" >
+        #{invoiceTag,jdbcType=INTEGER},
+      </if>
+      <if test="structNo != null" >
+        #{structNo,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_tax_stamp
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="financeNo != null" >
+        FINANCE_NO = #{financeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceCode != null" >
+        INVOICE_CODE = #{invoiceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceNo != null" >
+        INVOICE_NO = #{invoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="taxDate != null" >
+        TAX_DATE = #{taxDate,jdbcType=DATE},
+      </if>
+      <if test="invoiceMoney != null" >
+        INVOICE_MONEY = #{invoiceMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="taxMoeny != null" >
+        TAX_MOENY = #{taxMoeny,jdbcType=DECIMAL},
+      </if>
+      <if test="salesName != null" >
+        SALES_NAME = #{salesName,jdbcType=VARCHAR},
+      </if>
+      <if test="taxNo != null" >
+        TAX_NO = #{taxNo,jdbcType=VARCHAR},
+      </if>
+      <if test="taxState != null" >
+        TAX_STATE = #{taxState,jdbcType=INTEGER},
+      </if>
+      <if test="upDate != null" >
+        UP_DATE = #{upDate,jdbcType=DATE},
+      </if>
+      <if test="failRemark != null" >
+        FAIL_REMARK = #{failRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceTag != null" >
+        INVOICE_TAG = #{invoiceTag,jdbcType=INTEGER},
+      </if>
+      <if test="structNo != null" >
+        STRUCT_NO = #{structNo,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where TAX_STAMP_ID = #{taxStampId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtTaxStamp" >
+    update tt_tax_stamp
+    set STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      FINANCE_NO = #{financeNo,jdbcType=VARCHAR},
+      INVOICE_CODE = #{invoiceCode,jdbcType=VARCHAR},
+      INVOICE_NO = #{invoiceNo,jdbcType=VARCHAR},
+      TAX_DATE = #{taxDate,jdbcType=DATE},
+      INVOICE_MONEY = #{invoiceMoney,jdbcType=DECIMAL},
+      TAX_MOENY = #{taxMoeny,jdbcType=DECIMAL},
+      SALES_NAME = #{salesName,jdbcType=VARCHAR},
+      TAX_NO = #{taxNo,jdbcType=VARCHAR},
+      TAX_STATE = #{taxState,jdbcType=INTEGER},
+      UP_DATE = #{upDate,jdbcType=DATE},
+      FAIL_REMARK = #{failRemark,jdbcType=VARCHAR},
+      INVOICE_TAG = #{invoiceTag,jdbcType=INTEGER},
+      STRUCT_NO = #{structNo,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where TAX_STAMP_ID = #{taxStampId,jdbcType=VARCHAR}
+  </update>
+  <!-- 税票管理主页查询  子-->
+  <select id="listPageAllTax" resultType="pd" parameterType="page"  useCache="false">
+  SELECT 
+  (SELECT 
+    NAME 
+  FROM
+    `sys_user` u 
+  WHERE t.`CREATE_BY` = u.USER_ID) AS CREATE_NAME,
+  t.`CREATE_DATE`,
+  t.`FAIL_REMARK`,
+  t.`FINANCE_NO`,
+  t.`INVOICE_CODE`,
+  t.`INVOICE_MONEY`,
+  t.`INVOICE_NO`,
+  t.`INVOICE_TAG`,
+ (SELECT i.`ITEM_NAME` FROM`tt_iteminfo` i WHERE i.`ITEM_ID`=t.`ITEM_ID`)AS ITEM_NAME,
+  t.`SALES_NAME`,
+  t.`STRUCT_ID`,
+  t.`STRUCT_NO`,
+  t.`TAX_DATE`,
+  t.`TAX_MOENY`,
+  t.`TAX_NO`,
+  t.`TAX_STAMP_ID`,
+  t.`TAX_STATE`,
+  t.`UP_DATE`,
+  (SELECT 
+    n.STRUCT_NAME 
+  FROM
+    `sys_structinfo` n 
+  WHERE n.STRUCT_ID = t.`STRUCT_ID`) AS NAME 
+FROM
+  `tt_tax_stamp` t 
+WHERE STRUCT_ID  =#{pd.STRUCT_ID}
+	 <if test="pd.NAME != null and pd.NAME != ''">
+			and	 INVOICE_CODE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+		</if><!-- 关键词检索 -->
+ORDER BY  CREATE_DATE DESC
+  </select>
+  
+   <!-- 税票管理主页查询 区域 -->
+  <select id="listPageOneTax" resultType="pd" parameterType="page"  useCache="false">
+   SELECT 
+  (SELECT 
+    NAME 
+  FROM
+    `sys_user` u 
+  WHERE t.`CREATE_BY` = u.USER_ID) AS CREATE_NAME,
+  t.`CREATE_DATE`,
+  t.`FAIL_REMARK`,
+  t.`FINANCE_NO`,
+  t.`INVOICE_CODE`,
+  t.`INVOICE_MONEY`,
+  t.`INVOICE_NO`,
+  t.`INVOICE_TAG`,
+ (SELECT i.`ITEM_NAME` FROM`tt_iteminfo` i WHERE i.`ITEM_ID`=t.`ITEM_ID`)AS ITEM_NAME,
+  t.`SALES_NAME`,
+  t.`STRUCT_ID`,
+  t.`STRUCT_NO`,
+  t.`TAX_DATE`,
+  t.`TAX_MOENY`,
+  t.`TAX_NO`,
+  t.`TAX_STAMP_ID`,
+  t.`TAX_STATE`,
+  t.`UP_DATE`,
+  (SELECT 
+    n.STRUCT_NAME 
+  FROM
+    `sys_structinfo` n 
+  WHERE n.STRUCT_ID = t.`STRUCT_ID`) AS NAME,
+  (SELECT 
+    n.STRUCTST_AGE 
+  FROM
+    `sys_structinfo` n 
+  WHERE n.STRUCT_ID = t.`STRUCT_ID`) AS AGE 
+FROM
+  `tt_tax_stamp` t 
+ WHERE 
+t.`STRUCT_ID`
+
+IN(
+SELECT tt.`STRUCT_ID` FROM tt_iteminfo tt WHERE tt.`ITEM_ID` IN (
+SELECT i.`ITEM_ID` FROM `tt_item_struct` i WHERE i.`STRUCT_ID`=#{pd.STRUCT_ID})) 
+	 <if test="pd.NAME != null and pd.NAME != ''">
+			and	 INVOICE_CODE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+		</if><!-- 关键词检索 -->
+ORDER BY  CREATE_DATE DESC
+  </select>
+  
+   <!-- 税票管理主页查询  集团-->
+  <select id="listPageTwoTax" resultType="pd" parameterType="page"  useCache="false">
+  SELECT 
+  (SELECT 
+    NAME 
+  FROM
+    `sys_user` u 
+  WHERE t.`CREATE_BY` = u.USER_ID) AS CREATE_NAME,
+  t.`CREATE_DATE`,
+  t.`FAIL_REMARK`,
+  t.`FINANCE_NO`,
+  t.`INVOICE_CODE`,
+  t.`INVOICE_MONEY`,
+  t.`INVOICE_NO`,
+  t.`INVOICE_TAG`,
+  (SELECT i.`ITEM_NAME` FROM`tt_iteminfo` i WHERE i.`ITEM_ID`=t.`ITEM_ID`)AS ITEM_NAME,
+  t.`SALES_NAME`,
+  t.`STRUCT_ID`,
+  t.`STRUCT_NO`,
+  t.`TAX_DATE`,
+  t.`TAX_MOENY`,
+  t.`TAX_NO`,
+  t.`TAX_STAMP_ID`,
+  t.`TAX_STATE`,
+  t.`UP_DATE`,
+  (SELECT 
+    n.STRUCT_NAME 
+  FROM
+    `sys_structinfo` n 
+  WHERE n.STRUCT_ID = t.`STRUCT_ID`) AS NAME 
+FROM
+  `tt_tax_stamp` t 
+
+	 <if test="pd.NAME != null and pd.NAME != ''">
+		WHERE 	 INVOICE_CODE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+		</if><!-- 关键词检索 -->
+ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  <select id="findage" resultType="java.lang.String" parameterType="pd">
+  
+  SELECT STRUCTST_AGE FROM `sys_structinfo`WHERE STRUCT_ID=#{STRUCT_ID}
+  
+  </select>
+  
+  <!-- 税票管理主页查询 -->
+  <select id="listPageAllTaxStamp" parameterType="page" resultMap="BaseResultMap"  useCache="false">
+  SELECT 
+  t.`CREATE_BY`,
+  t.`CREATE_DATE`,
+  t.`FAIL_REMARK`,
+  t.`FINANCE_NO`,
+  t.`INVOICE_CODE`,
+  t.`INVOICE_MONEY`,
+  t.`INVOICE_NO`,
+  t.`INVOICE_TAG`,
+  t.`ITEM_ID`,
+  t.`SALES_NAME`,
+  t.`STRUCT_ID`,
+  t.`STRUCT_NO`,
+  t.`TAX_DATE`,
+  t.`TAX_MOENY`,
+  t.`TAX_NO`,
+  t.`TAX_STAMP_ID`,
+  t.`TAX_STATE`,
+  t.`UP_DATE` 
+FROM
+  `tt_tax_stamp` t 
+WHERE STRUCT_ID =#{pd.STRUCT_ID}
+ORDER BY  CREATE_DATE DESC
+  </select>
+  
+   <select id="selectBy" resultType="pd" parameterType="page" >
+    select 
+      t.`CREATE_BY`,
+	  t.`CREATE_DATE`,
+	  t.`FAIL_REMARK`,
+	  t.`FINANCE_NO`,
+	  t.`INVOICE_CODE`,
+	  t.`INVOICE_MONEY`,
+	  t.`INVOICE_NO`,
+	  t.`INVOICE_TAG`,
+	  t.`ITEM_ID`,
+	  (SELECT i.`ITEM_NAME` FROM`tt_iteminfo` i WHERE i.`ITEM_ID`=t.`ITEM_ID`)AS ITEM_NAME,
+	  t.`SALES_NAME`,
+	  t.`STRUCT_ID`,
+	  t.`STRUCT_NO`,
+	  t.`TAX_DATE`,
+	  t.`TAX_MOENY`,
+	  t.`TAX_NO`,
+	  t.`TAX_STAMP_ID`,
+	  t.`TAX_STATE`,
+	  t.`UP_DATE` 
+    from tt_tax_stamp t
+    where TAX_STAMP_ID = #{pd.taxStampId}
+  </select>
+  
+  
+  <!-- 删除 -->
+  <delete id="deleteTax" parameterType="pd" >
+    delete from tt_tax_stamp where TAX_STAMP_ID = #{taxStampId,jdbcType=VARCHAR}
+  </delete>
+  
+  
+  <!-- 批量删除用户 -->
+	<delete id="deleteAllM" parameterType="String" flushCache="false">
+	 delete from tt_tax_stamp
+		where 
+			TAX_STAMP_ID in
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+</mapper>

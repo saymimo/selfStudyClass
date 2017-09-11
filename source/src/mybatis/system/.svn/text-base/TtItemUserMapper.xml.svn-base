@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtItemUserMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtItemUser" >
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="CERTIFICATE_NO" property="certificateNo" jdbcType="VARCHAR" />
+    <result column="CERTIFICATE_ID" property="certificateId" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+  </resultMap>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtItemUser" >
+    insert into tt_item_user (ITEM_ID, CERTIFICATE_NO, CERTIFICATE_ID, 
+      USER_ID)
+    values (#{itemId,jdbcType=VARCHAR}, #{certificateNo,jdbcType=VARCHAR}, #{certificateId,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=VARCHAR})
+  </insert>
+   <select id="findItemUserByItemId" parameterType="pd" resultType="pd">
+  
+  select GROUP_CONCAT(USER_ID) AS userlist from tt_item_user where ITEM_ID=#{itemId} and CERTIFICATE_NO=#{CERTIFICATE_NO}
+  
+  </select>
+  
+    <delete id="deleteByItemId" parameterType="pd" >
+    delete from tt_item_user
+    where ITEM_ID = #{itemId}
+  </delete>
+  
+  
+  
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.TtItemUser" >
+    insert into tt_item_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="certificateNo != null" >
+        CERTIFICATE_NO,
+      </if>
+      <if test="certificateId != null" >
+        CERTIFICATE_ID,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="certificateNo != null" >
+        #{certificateNo,jdbcType=VARCHAR},
+      </if>
+      <if test="certificateId != null" >
+        #{certificateId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>

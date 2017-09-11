@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtPurchaseInquiryMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.ttPurchaseInquiry" >
+    <id column="PURCHASE_INQUIRY_ID" property="purchaseInquiryId" jdbcType="VARCHAR" />
+    <result column="PURCHASE_ID" property="purchaseId" jdbcType="VARCHAR" />
+    <result column="INQUIRY_DATE" property="inquiryDate" jdbcType="DATE" />
+    <result column="PROVINCE" property="province" jdbcType="VARCHAR" />
+    <result column="CITY" property="city" jdbcType="VARCHAR" />
+    <result column="INQUIRY_UNIT" property="inquiryUnit" jdbcType="VARCHAR" />
+    <result column="INQUIRY_PRICE" property="inquiryPrice" jdbcType="VARCHAR" />
+    <result column="OTHER_UNIT_USER" property="otherUnitUser" jdbcType="VARCHAR" />
+    <result column="OTHER_UNIT_PHONE" property="otherUnitPhone" jdbcType="VARCHAR" />
+    <result column="INQUIRY_REMARK" property="inquiryRemark" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    PURCHASE_INQUIRY_ID, PURCHASE_ID, INQUIRY_DATE, PROVINCE, CITY, INQUIRY_UNIT, INQUIRY_PRICE, 
+    OTHER_UNIT_USER, OTHER_UNIT_PHONE, INQUIRY_REMARK, IS_DEL, CREATE_DATE, CREATE_BY, 
+    UPDATE_DATE, UPDATE_BY
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_purchase_inquiry
+    where PURCHASE_INQUIRY_ID = #{purchaseInquiryId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_purchase_inquiry
+    where PURCHASE_INQUIRY_ID = #{purchaseInquiryId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.ttPurchaseInquiry" >
+    insert into tt_purchase_inquiry (PURCHASE_INQUIRY_ID, PURCHASE_ID, INQUIRY_DATE, 
+      PROVINCE, CITY, INQUIRY_UNIT, 
+      INQUIRY_PRICE, OTHER_UNIT_USER, OTHER_UNIT_PHONE, 
+      INQUIRY_REMARK, IS_DEL, CREATE_DATE, 
+      CREATE_BY, UPDATE_DATE, UPDATE_BY
+      )
+    values (#{purchaseInquiryId,jdbcType=VARCHAR}, #{purchaseId,jdbcType=VARCHAR}, #{inquiryDate,jdbcType=DATE}, 
+      #{province,jdbcType=VARCHAR}, #{city,jdbcType=VARCHAR}, #{inquiryUnit,jdbcType=VARCHAR}, 
+      #{inquiryPrice,jdbcType=VARCHAR}, #{otherUnitUser,jdbcType=VARCHAR}, #{otherUnitPhone,jdbcType=VARCHAR}, 
+      #{inquiryRemark,jdbcType=VARCHAR}, #{isDel,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_purchase_inquiry
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="purchaseInquiryId != null" >
+        PURCHASE_INQUIRY_ID,
+      </if>
+      <if test="purchaseId != null" >
+        PURCHASE_ID,
+      </if>
+      <if test="inquiryDate != null" >
+        INQUIRY_DATE,
+      </if>
+      <if test="province != null" >
+        PROVINCE,
+      </if>
+      <if test="city != null" >
+        CITY,
+      </if>
+      <if test="inquiryUnit != null" >
+        INQUIRY_UNIT,
+      </if>
+      <if test="inquiryPrice != null" >
+        INQUIRY_PRICE,
+      </if>
+      <if test="otherUnitUser != null" >
+        OTHER_UNIT_USER,
+      </if>
+      <if test="otherUnitPhone != null" >
+        OTHER_UNIT_PHONE,
+      </if>
+      <if test="inquiryRemark != null" >
+        INQUIRY_REMARK,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="purchaseInquiryId != null" >
+        #{purchaseInquiryId,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseId != null" >
+        #{purchaseId,jdbcType=VARCHAR},
+      </if>
+      <if test="inquiryDate != null" >
+        #{inquiryDate,jdbcType=DATE},
+      </if>
+      <if test="province != null" >
+        #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="inquiryUnit != null" >
+        #{inquiryUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="inquiryPrice != null" >
+        #{inquiryPrice,jdbcType=VARCHAR},
+      </if>
+      <if test="otherUnitUser != null" >
+        #{otherUnitUser,jdbcType=VARCHAR},
+      </if>
+      <if test="otherUnitPhone != null" >
+        #{otherUnitPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="inquiryRemark != null" >
+        #{inquiryRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_purchase_inquiry
+    <set >
+      <if test="purchaseId != null" >
+        PURCHASE_ID = #{purchaseId,jdbcType=VARCHAR},
+      </if>
+      <if test="inquiryDate != null" >
+        INQUIRY_DATE = #{inquiryDate,jdbcType=DATE},
+      </if>
+      <if test="province != null" >
+        PROVINCE = #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        CITY = #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="inquiryUnit != null" >
+        INQUIRY_UNIT = #{inquiryUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="inquiryPrice != null" >
+        INQUIRY_PRICE = #{inquiryPrice,jdbcType=VARCHAR},
+      </if>
+      <if test="otherUnitUser != null" >
+        OTHER_UNIT_USER = #{otherUnitUser,jdbcType=VARCHAR},
+      </if>
+      <if test="otherUnitPhone != null" >
+        OTHER_UNIT_PHONE = #{otherUnitPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="inquiryRemark != null" >
+        INQUIRY_REMARK = #{inquiryRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where PURCHASE_INQUIRY_ID = #{purchaseInquiryId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.ttPurchaseInquiry" >
+    update tt_purchase_inquiry
+    set PURCHASE_ID = #{purchaseId,jdbcType=VARCHAR},
+      INQUIRY_DATE = #{inquiryDate,jdbcType=DATE},
+      PROVINCE = #{province,jdbcType=VARCHAR},
+      CITY = #{city,jdbcType=VARCHAR},
+      INQUIRY_UNIT = #{inquiryUnit,jdbcType=VARCHAR},
+      INQUIRY_PRICE = #{inquiryPrice,jdbcType=VARCHAR},
+      OTHER_UNIT_USER = #{otherUnitUser,jdbcType=VARCHAR},
+      OTHER_UNIT_PHONE = #{otherUnitPhone,jdbcType=VARCHAR},
+      INQUIRY_REMARK = #{inquiryRemark,jdbcType=VARCHAR},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where PURCHASE_INQUIRY_ID = #{purchaseInquiryId,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="listPagePurchaseInquiry" resultMap="BaseResultMap" parameterType="page">
+  	select 
+    PURCHASE_INQUIRY_ID, PURCHASE_ID, INQUIRY_DATE, PROVINCE, CITY, INQUIRY_UNIT, INQUIRY_PRICE, 
+    OTHER_UNIT_USER, OTHER_UNIT_PHONE, INQUIRY_REMARK, IS_DEL, CREATE_DATE,(SELECT s.`NAME` FROM `sys_user` s WHERE s.`USER_ID`=p.CREATE_BY) CREATE_BY, 
+    UPDATE_DATE, UPDATE_BY
+    from tt_purchase_inquiry p where PURCHASE_ID=#{pd.purchaseId,jdbcType=VARCHAR} and IS_DEL=0
+    <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 OTHER_UNIT_USER LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 or 
+					 INQUIRY_UNIT LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+					 or 
+					 OTHER_UNIT_PHONE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+				)
+		</if>
+		    
+		     <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 		AND INQUIRY_DATE  &gt;=#{pd.LASTLOGINSTART1} AND INQUIRY_DATE &lt;=#{pd.LASTLOGINSTART2} 
+		 		</if>
+		</if>
+  
+  </select>
+  
+  
+  	<!-- 删除 -->
+	  <update id="updateByIsDel" parameterType="pd">
+  		 update tt_purchase_inquiry   set   IS_DEL = 1 where PURCHASE_INQUIRY_ID=#{purchaseInquiryId}
+	  </update>
+  
+  
+</mapper>

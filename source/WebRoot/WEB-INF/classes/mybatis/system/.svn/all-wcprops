@@ -1,0 +1,917 @@
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/lc/!svn/ver/4387/branches/selfStudyClass/resources/mybatis/system
+END
+CostfixedDetailMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/lc/!svn/ver/2887/branches/selfStudyClass/resources/mybatis/system/CostfixedDetailMapper.xml
+END
+MaterialGroupMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/4381/branches/selfStudyClass/resources/mybatis/system/MaterialGroupMapper.xml
+END
+OutputInvoiceMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/4350/branches/selfStudyClass/resources/mybatis/system/OutputInvoiceMapper.xml
+END
+DictionariesMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/4385/branches/selfStudyClass/resources/mybatis/system/DictionariesMapper.xml
+END
+ItemReviewUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/3719/branches/selfStudyClass/resources/mybatis/system/ItemReviewUserMapper.xml
+END
+TtCostUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/2985/branches/selfStudyClass/resources/mybatis/system/TtCostUserMapper.xml
+END
+TtEquipmentTransferMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/lc/!svn/ver/4281/branches/selfStudyClass/resources/mybatis/system/TtEquipmentTransferMapper.xml
+END
+PayListMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/lc/!svn/ver/3686/branches/selfStudyClass/resources/mybatis/system/PayListMapper.xml
+END
+SafetyListMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/3497/branches/selfStudyClass/resources/mybatis/system/SafetyListMapper.xml
+END
+LwSanctionPerMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/2813/branches/selfStudyClass/resources/mybatis/system/LwSanctionPerMapper.xml
+END
+TtNoticeMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/lc/!svn/ver/4040/branches/selfStudyClass/resources/mybatis/system/TtNoticeMapper.xml
+END
+TtLwTaskinfoMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/4338/branches/selfStudyClass/resources/mybatis/system/TtLwTaskinfoMapper.xml
+END
+TtTaskProMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/lc/!svn/ver/3638/branches/selfStudyClass/resources/mybatis/system/TtTaskProMapper.xml
+END
+TtSealMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/lc/!svn/ver/4034/branches/selfStudyClass/resources/mybatis/system/TtSealMapper.xml
+END
+TtPurchaseInquiryMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/lc/!svn/ver/2295/branches/selfStudyClass/resources/mybatis/system/TtPurchaseInquiryMapper.xml
+END
+ExternalSyndromeMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/lc/!svn/ver/3750/branches/selfStudyClass/resources/mybatis/system/ExternalSyndromeMapper.xml
+END
+WageDetailManualMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/lc/!svn/ver/4361/branches/selfStudyClass/resources/mybatis/system/WageDetailManualMapper.xml
+END
+TtBudgetCostMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/3180/branches/selfStudyClass/resources/mybatis/system/TtBudgetCostMapper.xml
+END
+UserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/lc/!svn/ver/3893/branches/selfStudyClass/resources/mybatis/system/UserMapper.xml
+END
+TtCcUserDisposeMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/lc/!svn/ver/4186/branches/selfStudyClass/resources/mybatis/system/TtCcUserDisposeMapper.xml
+END
+LwRecordlogMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/4361/branches/selfStudyClass/resources/mybatis/system/LwRecordlogMapper.xml
+END
+TtLeaseTaskMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/3602/branches/selfStudyClass/resources/mybatis/system/TtLeaseTaskMapper.xml
+END
+TtLeaseDetailMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/3600/branches/selfStudyClass/resources/mybatis/system/TtLeaseDetailMapper.xml
+END
+ItemPersonMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/4000/branches/selfStudyClass/resources/mybatis/system/ItemPersonMapper.xml
+END
+ttCostApplyMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/3580/branches/selfStudyClass/resources/mybatis/system/ttCostApplyMapper.xml
+END
+TtTenderUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/3001/branches/selfStudyClass/resources/mybatis/system/TtTenderUserMapper.xml
+END
+TtReviewGroupTypeMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/lc/!svn/ver/4297/branches/selfStudyClass/resources/mybatis/system/TtReviewGroupTypeMapper.xml
+END
+TtTaskDeclareMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/2187/branches/selfStudyClass/resources/mybatis/system/TtTaskDeclareMapper.xml
+END
+TaxEnterpriseMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/4246/branches/selfStudyClass/resources/mybatis/system/TaxEnterpriseMapper.xml
+END
+LwActivityMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/2993/branches/selfStudyClass/resources/mybatis/system/LwActivityMapper.xml
+END
+TtLoanMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/lc/!svn/ver/4107/branches/selfStudyClass/resources/mybatis/system/TtLoanMapper.xml
+END
+MenuMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/lc/!svn/ver/3266/branches/selfStudyClass/resources/mybatis/system/MenuMapper.xml
+END
+MeetinginfoMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/3010/branches/selfStudyClass/resources/mybatis/system/MeetinginfoMapper.xml
+END
+TaskCostQuotaMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/4381/branches/selfStudyClass/resources/mybatis/system/TaskCostQuotaMapper.xml
+END
+TtItemUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/3109/branches/selfStudyClass/resources/mybatis/system/TtItemUserMapper.xml
+END
+TtPactTargetMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/3174/branches/selfStudyClass/resources/mybatis/system/TtPactTargetMapper.xml
+END
+InvoicePlanMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/4124/branches/selfStudyClass/resources/mybatis/system/InvoicePlanMapper.xml
+END
+TtPactinfoMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/4310/branches/selfStudyClass/resources/mybatis/system/TtPactinfoMapper.xml
+END
+MeetingPersonMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/2079/branches/selfStudyClass/resources/mybatis/system/MeetingPersonMapper.xml
+END
+TtDocumentObjMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/2819/branches/selfStudyClass/resources/mybatis/system/TtDocumentObjMapper.xml
+END
+TtProjectInsidePactMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/lc/!svn/ver/4272/branches/selfStudyClass/resources/mybatis/system/TtProjectInsidePactMapper.xml
+END
+TtUserSafeMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/3357/branches/selfStudyClass/resources/mybatis/system/TtUserSafeMapper.xml
+END
+TtDutyCostMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/3180/branches/selfStudyClass/resources/mybatis/system/TtDutyCostMapper.xml
+END
+TtBondMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/lc/!svn/ver/4177/branches/selfStudyClass/resources/mybatis/system/TtBondMapper.xml
+END
+TtInInvoiceMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/4248/branches/selfStudyClass/resources/mybatis/system/TtInInvoiceMapper.xml
+END
+FileinfoMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/lc/!svn/ver/4361/branches/selfStudyClass/resources/mybatis/system/FileinfoMapper.xml
+END
+ttLwTypeMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/lc/!svn/ver/2549/branches/selfStudyClass/resources/mybatis/system/ttLwTypeMapper.xml
+END
+TtLeaseGoodsMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/3600/branches/selfStudyClass/resources/mybatis/system/TtLeaseGoodsMapper.xml
+END
+TtHonorMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/lc/!svn/ver/3137/branches/selfStudyClass/resources/mybatis/system/TtHonorMapper.xml
+END
+StructinfoMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/4295/branches/selfStudyClass/resources/mybatis/system/StructinfoMapper.xml
+END
+LwPersonalinfoMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/4365/branches/selfStudyClass/resources/mybatis/system/LwPersonalinfoMapper.xml
+END
+TtPactDutyMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/3174/branches/selfStudyClass/resources/mybatis/system/TtPactDutyMapper.xml
+END
+UserXMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/lc/!svn/ver/4324/branches/selfStudyClass/resources/mybatis/system/UserXMapper.xml
+END
+TtDocumentRoleMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/2819/branches/selfStudyClass/resources/mybatis/system/TtDocumentRoleMapper.xml
+END
+TtItemStructMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/2964/branches/selfStudyClass/resources/mybatis/system/TtItemStructMapper.xml
+END
+TtItemCcMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/lc/!svn/ver/4361/branches/selfStudyClass/resources/mybatis/system/TtItemCcMapper.xml
+END
+AppuserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/lc/!svn/ver/2657/branches/selfStudyClass/resources/mybatis/system/AppuserMapper.xml
+END
+TtTribuneMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/lc/!svn/ver/4312/branches/selfStudyClass/resources/mybatis/system/TtTribuneMapper.xml
+END
+ApplySafeMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/lc/!svn/ver/3596/branches/selfStudyClass/resources/mybatis/system/ApplySafeMapper.xml
+END
+ttSysStatusMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/2549/branches/selfStudyClass/resources/mybatis/system/ttSysStatusMapper.xml
+END
+TtItemStorageMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/4381/branches/selfStudyClass/resources/mybatis/system/TtItemStorageMapper.xml
+END
+ItemReviewUserReplyMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/lc/!svn/ver/2969/branches/selfStudyClass/resources/mybatis/system/ItemReviewUserReplyMapper.xml
+END
+lwExecutionMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/3591/branches/selfStudyClass/resources/mybatis/system/lwExecutionMapper.xml
+END
+TtEquipmentSlipMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/lc/!svn/ver/2138/branches/selfStudyClass/resources/mybatis/system/TtEquipmentSlipMapper.xml
+END
+TtSupplierUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/2770/branches/selfStudyClass/resources/mybatis/system/TtSupplierUserMapper.xml
+END
+TtTenderReviewUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/lc/!svn/ver/2807/branches/selfStudyClass/resources/mybatis/system/TtTenderReviewUserMapper.xml
+END
+InvoiceExcelMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/4264/branches/selfStudyClass/resources/mybatis/system/InvoiceExcelMapper.xml
+END
+TaxRecordsMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/4187/branches/selfStudyClass/resources/mybatis/system/TaxRecordsMapper.xml
+END
+TtQualityCriterionMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/lc/!svn/ver/3614/branches/selfStudyClass/resources/mybatis/system/TtQualityCriterionMapper.xml
+END
+TtTribuneUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/3909/branches/selfStudyClass/resources/mybatis/system/TtTribuneUserMapper.xml
+END
+ApplySafeUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/3012/branches/selfStudyClass/resources/mybatis/system/ApplySafeUserMapper.xml
+END
+TechniqueMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/lc/!svn/ver/3322/branches/selfStudyClass/resources/mybatis/system/TechniqueMapper.xml
+END
+OutTaskMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/lc/!svn/ver/3604/branches/selfStudyClass/resources/mybatis/system/OutTaskMapper.xml
+END
+TenderinfoMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/4376/branches/selfStudyClass/resources/mybatis/system/TenderinfoMapper.xml
+END
+TtItemDiaryMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/2712/branches/selfStudyClass/resources/mybatis/system/TtItemDiaryMapper.xml
+END
+ItemBillingMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/2837/branches/selfStudyClass/resources/mybatis/system/ItemBillingMapper.xml
+END
+TtDocumentManageMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/lc/!svn/ver/4232/branches/selfStudyClass/resources/mybatis/system/TtDocumentManageMapper.xml
+END
+TtCostfixedMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/3585/branches/selfStudyClass/resources/mybatis/system/TtCostfixedMapper.xml
+END
+RoleMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/lc/!svn/ver/4265/branches/selfStudyClass/resources/mybatis/system/RoleMapper.xml
+END
+TtCostDetailMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/3180/branches/selfStudyClass/resources/mybatis/system/TtCostDetailMapper.xml
+END
+TtOutStorageMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/3939/branches/selfStudyClass/resources/mybatis/system/TtOutStorageMapper.xml
+END
+TtItemPaymentMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/4085/branches/selfStudyClass/resources/mybatis/system/TtItemPaymentMapper.xml
+END
+TtInvoiceMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/lc/!svn/ver/4243/branches/selfStudyClass/resources/mybatis/system/TtInvoiceMapper.xml
+END
+TtMemoMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/lc/!svn/ver/3446/branches/selfStudyClass/resources/mybatis/system/TtMemoMapper.xml
+END
+TtTenderScheduleMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/lc/!svn/ver/2454/branches/selfStudyClass/resources/mybatis/system/TtTenderScheduleMapper.xml
+END
+PayTaxMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/lc/!svn/ver/4085/branches/selfStudyClass/resources/mybatis/system/PayTaxMapper.xml
+END
+TaskApprovalMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/2796/branches/selfStudyClass/resources/mybatis/system/TaskApprovalMapper.xml
+END
+TtTaxStampMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/2886/branches/selfStudyClass/resources/mybatis/system/TtTaxStampMapper.xml
+END
+BorrowMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/lc/!svn/ver/4015/branches/selfStudyClass/resources/mybatis/system/BorrowMapper.xml
+END
+SafetyCriterionMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/lc/!svn/ver/3615/branches/selfStudyClass/resources/mybatis/system/SafetyCriterionMapper.xml
+END
+SysApplyTryoutMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/2785/branches/selfStudyClass/resources/mybatis/system/SysApplyTryoutMapper.xml
+END
+TtSealReviewMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/4253/branches/selfStudyClass/resources/mybatis/system/TtSealReviewMapper.xml
+END
+TtEquipmentMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/4289/branches/selfStudyClass/resources/mybatis/system/TtEquipmentMapper.xml
+END
+TtReviewGroupFlagMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/lc/!svn/ver/4367/branches/selfStudyClass/resources/mybatis/system/TtReviewGroupFlagMapper.xml
+END
+TtLwAttendanceMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/2411/branches/selfStudyClass/resources/mybatis/system/TtLwAttendanceMapper.xml
+END
+TtTaskQualityMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/4146/branches/selfStudyClass/resources/mybatis/system/TtTaskQualityMapper.xml
+END
+ItemCompanyMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/2096/branches/selfStudyClass/resources/mybatis/system/ItemCompanyMapper.xml
+END
+BillApplyMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/lc/!svn/ver/4313/branches/selfStudyClass/resources/mybatis/system/BillApplyMapper.xml
+END
+TtTenderUnitMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/2450/branches/selfStudyClass/resources/mybatis/system/TtTenderUnitMapper.xml
+END
+PayAppMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/lc/!svn/ver/4361/branches/selfStudyClass/resources/mybatis/system/PayAppMapper.xml
+END
+TtCertificateMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/4188/branches/selfStudyClass/resources/mybatis/system/TtCertificateMapper.xml
+END
+InvoiceTypeMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/4130/branches/selfStudyClass/resources/mybatis/system/InvoiceTypeMapper.xml
+END
+TaskQuotaDetailMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/lc/!svn/ver/4381/branches/selfStudyClass/resources/mybatis/system/TaskQuotaDetailMapper.xml
+END
+TtEquipmentMaintainMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/lc/!svn/ver/2456/branches/selfStudyClass/resources/mybatis/system/TtEquipmentMaintainMapper.xml
+END
+UserRoleMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/lc/!svn/ver/2659/branches/selfStudyClass/resources/mybatis/system/UserRoleMapper.xml
+END
+TtTempStorageMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/3661/branches/selfStudyClass/resources/mybatis/system/TtTempStorageMapper.xml
+END
+TtInStorageMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/4364/branches/selfStudyClass/resources/mybatis/system/TtInStorageMapper.xml
+END
+TaskWageMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/lc/!svn/ver/3210/branches/selfStudyClass/resources/mybatis/system/TaskWageMapper.xml
+END
+WageDetailMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/4361/branches/selfStudyClass/resources/mybatis/system/WageDetailMapper.xml
+END
+TtUserSafeDetailMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/lc/!svn/ver/3418/branches/selfStudyClass/resources/mybatis/system/TtUserSafeDetailMapper.xml
+END
+ItemInvoiceMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/3562/branches/selfStudyClass/resources/mybatis/system/ItemInvoiceMapper.xml
+END
+TtSealReviewUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/lc/!svn/ver/3777/branches/selfStudyClass/resources/mybatis/system/TtSealReviewUserMapper.xml
+END
+TtSealLincenseMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/2132/branches/selfStudyClass/resources/mybatis/system/TtSealLincenseMapper.xml
+END
+TaskinfoMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/lc/!svn/ver/4381/branches/selfStudyClass/resources/mybatis/system/TaskinfoMapper.xml
+END
+LwSanctionMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/3935/branches/selfStudyClass/resources/mybatis/system/LwSanctionMapper.xml
+END
+ItemOutvalueMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/2837/branches/selfStudyClass/resources/mybatis/system/ItemOutvalueMapper.xml
+END
+InvoiceOutMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/4194/branches/selfStudyClass/resources/mybatis/system/InvoiceOutMapper.xml
+END
+TtTenderReviewUserReplyMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/lc/!svn/ver/2632/branches/selfStudyClass/resources/mybatis/system/TtTenderReviewUserReplyMapper.xml
+END
+TtReviewGroupMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/4382/branches/selfStudyClass/resources/mybatis/system/TtReviewGroupMapper.xml
+END
+UserPactMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/lc/!svn/ver/2447/branches/selfStudyClass/resources/mybatis/system/UserPactMapper.xml
+END
+TtTenderReviewReplyMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/lc/!svn/ver/2984/branches/selfStudyClass/resources/mybatis/system/TtTenderReviewReplyMapper.xml
+END
+TtQualityListMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/4142/branches/selfStudyClass/resources/mybatis/system/TtQualityListMapper.xml
+END
+TtItemEquipmentMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/lc/!svn/ver/2123/branches/selfStudyClass/resources/mybatis/system/TtItemEquipmentMapper.xml
+END
+TtTaskSecurityMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/4146/branches/selfStudyClass/resources/mybatis/system/TtTaskSecurityMapper.xml
+END
+TtPurchaseDeclareMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/lc/!svn/ver/4363/branches/selfStudyClass/resources/mybatis/system/TtPurchaseDeclareMapper.xml
+END
+pactBusinessMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/2469/branches/selfStudyClass/resources/mybatis/system/pactBusinessMapper.xml
+END
+TtTaxAdjustmentMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/lc/!svn/ver/4086/branches/selfStudyClass/resources/mybatis/system/TtTaxAdjustmentMapper.xml
+END
+TenderPersonMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/2878/branches/selfStudyClass/resources/mybatis/system/TenderPersonMapper.xml
+END
+TtSupplierMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/2784/branches/selfStudyClass/resources/mybatis/system/TtSupplierMapper.xml
+END
+TtTenderReviewMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/3368/branches/selfStudyClass/resources/mybatis/system/TtTenderReviewMapper.xml
+END
+TtEntrustMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/lc/!svn/ver/3975/branches/selfStudyClass/resources/mybatis/system/TtEntrustMapper.xml
+END
+CostApplyUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/2985/branches/selfStudyClass/resources/mybatis/system/CostApplyUserMapper.xml
+END
+ProjectPactMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/4379/branches/selfStudyClass/resources/mybatis/system/ProjectPactMapper.xml
+END
+ItemReviewMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/4292/branches/selfStudyClass/resources/mybatis/system/ItemReviewMapper.xml
+END
+TtPurchaseMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/4381/branches/selfStudyClass/resources/mybatis/system/TtPurchaseMapper.xml
+END
+TtIteminfoMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/lc/!svn/ver/4314/branches/selfStudyClass/resources/mybatis/system/TtIteminfoMapper.xml
+END
+TaxationListMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/lc/!svn/ver/4255/branches/selfStudyClass/resources/mybatis/system/TaxationListMapper.xml
+END
+TtFileManagementMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/lc/!svn/ver/3788/branches/selfStudyClass/resources/mybatis/system/TtFileManagementMapper.xml
+END
+TtCheckUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/3977/branches/selfStudyClass/resources/mybatis/system/TtCheckUserMapper.xml
+END
+TtReviewGroupUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/lc/!svn/ver/4298/branches/selfStudyClass/resources/mybatis/system/TtReviewGroupUserMapper.xml
+END
+TtDocumentUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/3472/branches/selfStudyClass/resources/mybatis/system/TtDocumentUserMapper.xml
+END
+TtSealReviewUserReplyMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/lc/!svn/ver/3720/branches/selfStudyClass/resources/mybatis/system/TtSealReviewUserReplyMapper.xml
+END
+PaymentInvoiceMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/4073/branches/selfStudyClass/resources/mybatis/system/PaymentInvoiceMapper.xml
+END
+TtTribuneUserReplyMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/lc/!svn/ver/3118/branches/selfStudyClass/resources/mybatis/system/TtTribuneUserReplyMapper.xml
+END
+TtCcUserMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/lc/!svn/ver/4387/branches/selfStudyClass/resources/mybatis/system/TtCcUserMapper.xml
+END
+PaySettlementMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/lc/!svn/ver/4255/branches/selfStudyClass/resources/mybatis/system/PaySettlementMapper.xml
+END
+TtEquipmentBuyMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/4148/branches/selfStudyClass/resources/mybatis/system/TtEquipmentBuyMapper.xml
+END
+TtTenderReviewPersonMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/lc/!svn/ver/3238/branches/selfStudyClass/resources/mybatis/system/TtTenderReviewPersonMapper.xml
+END
+ItemCollectMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/lc/!svn/ver/2822/branches/selfStudyClass/resources/mybatis/system/ItemCollectMapper.xml
+END
+TtTenderSummaryMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/lc/!svn/ver/2772/branches/selfStudyClass/resources/mybatis/system/TtTenderSummaryMapper.xml
+END
+SafetyActivityMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/lc/!svn/ver/2993/branches/selfStudyClass/resources/mybatis/system/SafetyActivityMapper.xml
+END
+TtSealUseMapper.xml
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/lc/!svn/ver/4100/branches/selfStudyClass/resources/mybatis/system/TtSealUseMapper.xml
+END

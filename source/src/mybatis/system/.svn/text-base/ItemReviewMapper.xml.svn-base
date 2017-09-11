@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="ItemReviewMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.ItemReview" >
+    <id column="ITEM_REVIEW_ID" property="itemReviewId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="FOREIGN_KEY_ID" property="foreignKeyId" jdbcType="VARCHAR" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+    <result column="TITLE" property="title" jdbcType="VARCHAR" />
+    <result column="CONTENT" property="content" jdbcType="VARCHAR" />
+    <result column="STATE" property="state" jdbcType="INTEGER" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="IS_WAGE" property="isWage" jdbcType="INTEGER" />
+    <result column="REVIEW_TYPE" property="reviewType" jdbcType="CHAR" />
+     <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ITEM_REVIEW_ID, ITEM_ID, FOREIGN_KEY_ID, TYPE, TITLE, CONTENT, STATE, IS_DEL, CREATE_DATE, 
+    CREATE_BY, UPDATE_DATE, UPDATE_BY,IS_WAGE,REVIEW_TYPE,USER_ID,REVIEW_GROUP_ID
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_item_review
+    where ITEM_REVIEW_ID = #{itemReviewId,jdbcType=VARCHAR}
+  </select>
+  
+ <select id="selectForType" resultType="pd" parameterType="pd" >
+    select 
+    *
+    from tt_item_review
+    where ITEM_REVIEW_ID = #{itemReviewId,jdbcType=VARCHAR}
+ </select>
+  <update id="updateReviewType" parameterType="pd">
+UPDATE 
+  tt_item_review r 
+SET
+  r.`REVIEW_TYPE` = #{reviewType,jdbcType=VARCHAR} 
+WHERE r.`ITEM_REVIEW_ID` = #{itemReviewId,jdbcType=VARCHAR}  
+  </update>
+  
+  <update id="sendState" parameterType="pd">
+  UPDATE 
+  tt_item_review ti 
+SET
+  ti.`STATE` = 1 
+WHERE ti.`ITEM_REVIEW_ID` = #{itemReviewId,jdbcType=VARCHAR} 
+  </update>
+  
+  <update id="upWageApproval" parameterType="pd">
+  UPDATE 
+  tt_taskinfo t 
+SET
+  t.`WAGE_APPROVAL` = 1 
+WHERE t.`UID` =#{UID,jdbcType=VARCHAR}
+  </update>
+  
+  
+  
+  <select id="findItemReviewfoByid" parameterType="pd" resultType="pd">
+SELECT 
+  ITEM_REVIEW_ID,
+  ITEM_ID,
+  FOREIGN_KEY_ID,
+  TYPE,
+  TITLE,
+  CONTENT,
+  STATE,
+  IS_DEL,
+  CREATE_DATE,
+  CREATE_BY,
+  UPDATE_DATE,
+  UPDATE_BY,
+  IS_WAGE,
+  REVIEW_TYPE,
+  REVIEW_GROUP_ID 
+FROM
+  tt_item_review
+WHERE ITEM_REVIEW_ID = #{tribuneId}  
+  
+  </select>
+  
+  <!-- 根据主键查询=====sf -->
+  <select id="selectByPK" resultType="pd" parameterType="pd" useCache="false">
+    select ITEM_ID,ir.ITEM_REVIEW_ID,TYPE,IS_WAGE,(SELECT REMARK FROM `tt_pactinfo` WHERE tt_pactinfo.`PACT_ID`=ir.FOREIGN_KEY_ID)AS REMARK,
+ CASE 
+ WHEN (SELECT NAME FROM tt_taskinfo tt WHERE tt.`UID`=ir.FOREIGN_KEY_ID) IS NULL
+ THEN (SELECT PACT_NAME FROM tt_pactinfo  WHERE PACT_ID=ir.FOREIGN_KEY_ID) 
+ WHEN (SELECT PACT_NAME FROM tt_pactinfo  WHERE PACT_ID=ir.FOREIGN_KEY_ID) IS NULL
+ THEN (SELECT NAME FROM tt_taskinfo tt WHERE tt.`UID`=ir.FOREIGN_KEY_ID ) 
+ END
+ AS    OBJECT_NAME
+ ,ir.FOREIGN_KEY_ID,ir.`TYPE`,ir.TITLE,ir.CONTENT,ir.STATE,ir.CREATE_DATE,
+ (SELECT u.`NAME` FROM sys_user u WHERE u.`USER_ID`=ir.`CREATE_BY`) AS CREATE_NAME,ir.CREATE_BY,
+  (SELECT 
+    STATE 
+  FROM
+    tt_tribune_user tu 
+  WHERE tu.TRIBUNE_ID = ir.ITEM_REVIEW_ID 
+    AND tu.USER_ID = #{USER_ID,jdbcType=VARCHAR}) AS USER_STATE,
+  CASE
+    WHEN FIND_IN_SET(#{USER_ID,jdbcType=VARCHAR},ir.`USER_ID`)
+    THEN 1 
+    ELSE 0 
+  END AS REVIEW_TYPE_STATE   
+    from tt_item_review ir
+    where ITEM_REVIEW_ID = #{itemReviewId,jdbcType=VARCHAR}
+  </select>
+ 
+<!-- 查询主键 -->
+ <select id="findId" resultType="java.lang.String" >
+  
+  SELECT ITEM_REVIEW_ID FROM `tt_item_review` WHERE ITEM_ID=#{pd.ITEM_ID,jdbcType=VARCHAR}
+  
+  </select>
+ 
+ <select id="selectitemId" resultType="pd" parameterType="pd" useCache="false">
+SELECT 
+  t.`PROJECTUID`,
+  t.WAGE_APPROVAL,
+  CASE
+    t.WAGE_APPROVAL 
+    WHEN 0 
+    OR 3
+    THEN NULL 
+    WHEN 1 THEN '审批中'
+    WHEN 2 THEN '已通过'
+  END AS TYPE,
+  PACT_SETTLEMENT 
+FROM
+  tt_taskinfo t  
+WHERE t.`UID` =#{TASK_ID,jdbcType=VARCHAR} 
+ </select>
+  
+  <!-- 查询所有带分页  sf  项目体内显示-->
+  <select id="listPageAll" resultType="pd" parameterType="page" useCache="false">
+ SELECT ITEM_ID,ir.ITEM_REVIEW_ID,
+ CASE 
+ WHEN (SELECT NAME FROM tt_taskinfo tt WHERE tt.`UID`=ir.FOREIGN_KEY_ID) IS NULL
+ THEN (SELECT PACT_NAME FROM tt_pactinfo  WHERE PACT_ID=ir.FOREIGN_KEY_ID) 
+ WHEN (SELECT PACT_NAME FROM tt_pactinfo  WHERE PACT_ID=ir.FOREIGN_KEY_ID) IS NULL
+ THEN (SELECT NAME FROM tt_taskinfo tt WHERE tt.`UID`=ir.FOREIGN_KEY_ID ) 
+ END
+ AS   OBJECT_NAME,ir.FOREIGN_KEY_ID,ir.`TYPE`,ir.TITLE,ir.CONTENT,ir.STATE,ir.CREATE_DATE,
+ (SELECT u.`NAME` FROM sys_user u WHERE u.`USER_ID`=ir.`CREATE_BY`) AS CREATE_NAME,ir.CREATE_BY 
+  FROM tt_item_review ir 
+  WHERE  ir.IS_DEL=0  
+  AND (ir.CREATE_BY=#{pd.userId,jdbcType=VARCHAR} OR #{pd.userId,jdbcType=VARCHAR} IN ( SELECT  tt.user_id FROM `tt_tribune_user` tt WHERE tt.`TRIBUNE_ID`= ir.`ITEM_REVIEW_ID`) )
+  AND ITEM_ID=#{pd.itemId,jdbcType=VARCHAR}
+  AND (ir.`TYPE` = 0 
+   OR ir.`TYPE` = 1 OR ir.`TYPE` = 99
+    OR ir.`TYPE` IN 
+    (SELECT 
+      BIANMA 
+    FROM
+      sys_dictionaries s 
+    WHERE s.PARENT_ID = 
+      (SELECT 
+        s.ZD_ID 
+      FROM
+        sys_dictionaries s 
+      WHERE s.BIANMA = 'SPLX')  ORDER BY s.bianma)
+   
+   )
+  <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 TITLE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 or 
+					 ir.CONTENT LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+				)
+		</if>
+		order by  ir.CREATE_DATE DESC
+  </select>
+<!-- 查询所有带分页 ====sf-->
+
+
+
+<!-- 查询for task-->
+  <select id="listPageAlll" resultType="pd" parameterType="page" useCache="false">
+ SELECT ITEM_ID,ir.ITEM_REVIEW_ID, (SELECT NAME FROM tt_taskinfo tt WHERE tt.`UID`=ir.FOREIGN_KEY_ID) 
+ AS   OBJECT_NAME,ir.FOREIGN_KEY_ID,ir.`TYPE`,ir.TITLE,ir.CONTENT,ir.STATE,ir.CREATE_DATE,
+ (SELECT PACT_SETTLEMENT FROM tt_taskinfo t WHERE t.UID=ir.`FOREIGN_KEY_ID`) AS PACT_SETTLEMENT,
+ (SELECT u.`NAME` FROM sys_user u WHERE u.`USER_ID`=ir.`CREATE_BY`) AS CREATE_NAME,ir.CREATE_BY
+  FROM tt_item_review ir 
+  WHERE ir.IS_DEL=0 and ir.`FOREIGN_KEY_ID`= #{pd.TASK_ID,jdbcType=VARCHAR} AND ir.`TYPE`=0
+  <!--
+  AND (ir.`CREATE_BY`= #{pd.userId,jdbcType=VARCHAR} OR  #{pd.userId,jdbcType=VARCHAR}  IN(
+   SELECT  tt.user_id FROM `tt_tribune_user` tt WHERE tt.`TRIBUNE_ID`= ir.`ITEM_REVIEW_ID`) )
+-->
+  <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 TITLE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 or 
+					 ir.CONTENT LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+				)
+		</if>
+		order by  ir.CREATE_DATE DESC
+  </select>
+
+
+<!-- 查询所有带不带分页 根据pactId====sf-->
+<select id="listPageforPact" parameterType="pd" resultType="pd" useCache="false">
+SELECT ITEM_REVIEW_ID,ITEM_ID,FOREIGN_KEY_ID,TITLE,CONTENT,STATE,CREATE_DATE,CREATE_BY,UPDATE_DATE,UPDATE_BY,
+(SELECT u.NAME FROM sys_user u WHERE u.USER_ID=r.`CREATE_BY`) AS CREATE_NAME,
+(SELECT u.NAME FROM sys_user u WHERE u.USER_ID=r.`UPDATE_BY`) AS UPDATE_NAME
+FROM tt_item_review r
+WHERE r.`IS_DEL`=0 AND  r.`FOREIGN_KEY_ID` =#{pd.pactId,jdbcType=VARCHAR} 
+AND r.`TYPE`!=2
+ AND (r.CREATE_BY=#{pd.userId,jdbcType=VARCHAR} OR #{pd.userId,jdbcType=VARCHAR} IN (  SELECT  tt.user_id FROM `tt_tribune_user` tt WHERE tt.`TRIBUNE_ID`= r.`ITEM_REVIEW_ID`) )
+AND r.`ITEM_ID` = 
+(SELECT p.`ITEM_ID` FROM tt_pactinfo p WHERE p.`PACT_ID`=#{pd.pactId,jdbcType=VARCHAR} GROUP BY p.`ITEM_ID`)
+ <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 TITLE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 or 
+					 r.CONTENT LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+				)
+		</if>
+		order by  CREATE_DATE DESC
+</select>
+<!-- 查询所有带不带分页 根据pactId====sf-->
+
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_item_review
+    where ITEM_REVIEW_ID = #{itemReviewId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_item_review
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="itemReviewId != null" >
+        ITEM_REVIEW_ID,
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="foreignKeyId != null" >
+        FOREIGN_KEY_ID,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+      <if test="title != null" >
+        TITLE,
+      </if>
+      <if test="content != null" >
+        CONTENT,
+      </if>
+      <if test="state != null" >
+        STATE,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="isWage != null" >
+        IS_WAGE,
+      </if>
+      <if test="reviewType != null" >
+        REVIEW_TYPE,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="reviewGroupId != null" >
+        REVIEW_GROUP_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="itemReviewId != null" >
+        #{itemReviewId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="foreignKeyId != null" >
+        #{foreignKeyId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="isWage != null" >
+        #{isWage,jdbcType=INTEGER},
+      </if>
+      <if test="reviewType != null" >
+        #{reviewType,jdbcType=CHAR},
+      </if>
+      
+       <if test="userId != null" >
+       #{userId},
+      </if>
+      <if test="reviewGroupId != null" >
+        #{reviewGroupId},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByState" parameterType="pd">
+  		 update tt_item_review   set   STATE = #{state,jdbcType=INTEGER} where ITEM_REVIEW_ID=#{itemReviewId,jdbcType=INTEGER}
+</update>
+
+<update id="updateTaskWageApproval" parameterType="pd">
+UPDATE 
+  tt_taskinfo t 
+SET
+  t.`WAGE_APPROVAL` = #{WAGE_APPROVAL,jdbcType=INTEGER} 
+WHERE t.`UID` = 
+  (SELECT 
+    r.`FOREIGN_KEY_ID` 
+  FROM
+    tt_item_review r 
+  WHERE r.`ITEM_REVIEW_ID` =#{itemReviewId})
+</update>
+
+ 
+  
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_item_review
+    <set >
+      <if test="itemId != null" >
+        ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="foreignKeyId != null" >
+        FOREIGN_KEY_ID = #{foreignKeyId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        TYPE = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="title != null" >
+        TITLE = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="content != null" >
+        CONTENT = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        STATE = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+       <if test="isWage != null" >
+         IS_WAGE=#{isWage,jdbcType=INTEGER},
+      </if>
+      <if test="reviewType != null" >
+        REVIEW_TYPE = #{reviewType,jdbcType=CHAR},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId},
+      </if>
+      <if test="reviewGroupId != null" >
+        REVIEW_GROUP_ID = #{reviewGroupId},
+      </if>
+    </set>
+    where ITEM_REVIEW_ID = #{itemReviewId,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 删除 -->
+	  <update id="updateByIsDel" parameterType="pd">
+  		 update tt_item_review   set   IS_DEL = 1 where ITEM_REVIEW_ID=#{itemReviewId}
+	  </update>
+	  <delete id="deleteByPk" parameterType="pd">
+	  DELETE 
+FROM
+  tt_item_review 
+WHERE ITEM_REVIEW_ID = #{itemReviewId,jdbcType=VARCHAR}
+	  </delete>
+	  <!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String" flushCache="false">
+		update tt_item_review
+		 set
+			IS_DEL =1 where ITEM_REVIEW_ID in 
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+	
+	  <select id="selectCCId"  parameterType="pd" resultType="java.lang.String">
+SELECT 
+  GROUP_CONCAT(t.`USER_ID`) 
+FROM
+  `tt_tribune_user` t 
+WHERE t.`TRIBUNE_ID` = #{itemReviewId,jdbcType=VARCHAR} 
+  </select>
+  
+  
+  
+  
+  
+     <select id="selectItemReviewByuserId" resultMap="BaseResultMap" parameterType="pd" >
+    SELECT 
+  t.`ITEM_REVIEW_ID`,
+  t.`USER_ID` 
+FROM
+  tt_item_review t 
+WHERE t.`ITEM_REVIEW_ID` = #{itemReviewId}
+  </select>
+  
+  
+     <!--查询  未审批的最小层次的审批人-->
+   <select id="findItemReviewbyMinLeveLUserlist" parameterType="pd" resultType="pd">
+  SELECT t.`USER_ID`,t.`LEVEL` FROM `tt_tribune_user` t  WHERE t.`TRIBUNE_ID`=#{itemReviewId} AND t.`STATE`=0  AND t.`LEVEL`=(
+  SELECT MIN(t.`LEVEL`) FROM `tt_tribune_user` t  WHERE t.`TRIBUNE_ID`=#{itemReviewId} AND t.`STATE`=0)
+     </select>
+     
+     
+         <update id="updateItemReviewByUserIdXJ" parameterType="pd">
+ UPDATE `tt_item_review` t SET t.`USER_ID`= #{userIdList}
+WHERE t.`ITEM_REVIEW_ID`= #{itemReviewId}
+
+  </update>
+  
+  
+  
+    <update id="updateItemReviewByUserId" parameterType="pd">
+ UPDATE `tt_item_review` t SET t.`USER_ID`= REPLACE(t.USER_ID,#{USER_ID},'')
+WHERE t.`ITEM_REVIEW_ID`=  #{itemReviewId}
+  </update>
+<select id="listPageForPlanApproval" parameterType="page" resultType="pd">
+SELECT 
+  ITEM_REVIEW_ID, ITEM_ID, FOREIGN_KEY_ID, TYPE, TITLE, CONTENT, STATE, IS_DEL, CREATE_DATE, 
+  CREATE_BY, UPDATE_DATE, UPDATE_BY,IS_WAGE,REVIEW_TYPE,USER_ID,REVIEW_GROUP_ID,
+  (SELECT s.NAME FROM sys_user s WHERE s.USER_ID = t.`CREATE_BY`) CREATE_NAME
+FROM
+  tt_item_review t 
+WHERE t.`IS_DEL` = 0 
+  AND t.`TYPE` = 32 
+  AND t.`ITEM_ID`= #{pd.itemId,jdbcType=VARCHAR}
+  AND (
+    t.CREATE_BY = #{pd.userId,jdbcType=VARCHAR} 
+    OR ( SELECT  COUNT(1) FROM `tt_tribune_user` tt WHERE tt.`TRIBUNE_ID`= t.`ITEM_REVIEW_ID` AND tt.`USER_ID` = #{pd.userId,jdbcType=VARCHAR}) >0 
+  )
+<if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+	and (
+		TITLE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+		or 
+		t.CONTENT LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+	)
+</if>
+order by  t.CREATE_DATE DESC  
+</select>  
+  
+</mapper>

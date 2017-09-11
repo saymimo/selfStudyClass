@@ -1,0 +1,589 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtInInvoiceMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtInInvoice" >
+    <id column="IN_INVOICE_ID" property="inInvoiceId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="FOREIGN_KEY" property="foreignKey" jdbcType="VARCHAR" />
+    <result column="SOURCE" property="source" jdbcType="INTEGER" />
+    <result column="FINANCE_NO" property="financeNo" jdbcType="VARCHAR" />
+    <result column="INVOICE_CODE" property="invoiceCode" jdbcType="VARCHAR" />
+    <result column="INVOICE_NO" property="invoiceNo" jdbcType="VARCHAR" />
+    <result column="TAX_DATE" property="taxDate" jdbcType="VARCHAR" />
+    <result column="PURCHASE_NAME" property="purchaseName" jdbcType="VARCHAR" />
+    <result column="PURCHASE_IDENTIFY_NUMBER" property="purchaseIdentifyNumber" jdbcType="VARCHAR" />
+    <result column="PURCHASE_ADDRESS" property="purchaseAddress" jdbcType="VARCHAR" />
+    <result column="PURCHASE_PHONE" property="purchasePhone" jdbcType="VARCHAR" />
+    <result column="PURCHASE_ACCOUNT_NUMBER" property="purchaseAccountNumber" jdbcType="VARCHAR" />
+    <result column="SALES_NAME" property="salesName" jdbcType="VARCHAR" />
+    <result column="SALES_IDENTIFY_NUMBER" property="salesIdentifyNumber" jdbcType="VARCHAR" />
+    <result column="SALES_ADDRESS" property="salesAddress" jdbcType="VARCHAR" />
+    <result column="SEALS_PHONE" property="sealsPhone" jdbcType="VARCHAR" />
+    <result column="SALES_ACCOUNT_NUMBER" property="salesAccountNumber" jdbcType="VARCHAR" />
+    <result column="TAX_NO_INCLUDED" property="taxNoIncluded" jdbcType="DECIMAL" />
+    <result column="INVOICE_MONEY" property="invoiceMoney" jdbcType="DECIMAL" />
+    <result column="TAX_MONEY" property="taxMoney" jdbcType="DECIMAL" />
+    <result column="COLLECT_NAME" property="collectName" jdbcType="VARCHAR" />
+    <result column="CHECK_NAME" property="checkName" jdbcType="VARCHAR" />
+    <result column="OPEN_NAME" property="openName" jdbcType="VARCHAR" />
+    <result column="IS_RIGHT" property="isRight" jdbcType="INTEGER" />
+    <result column="UP_DATE" property="upDate" jdbcType="VARCHAR" />
+    <result column="STATE" property="state" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="IS_ESTATE" property="isEstate" jdbcType="INTEGER" />
+    <result column="TAX_RATE" property="taxRate" jdbcType="DECIMAL" />
+    <result column="RZ_DATE" property="rzDate" jdbcType="TIMESTAMP" />
+    <result column="IN_STATE" property="inState" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    IN_INVOICE_ID, STRUCT_ID, ITEM_ID, FOREIGN_KEY, SOURCE, FINANCE_NO, INVOICE_CODE, 
+    INVOICE_NO, TAX_DATE, PURCHASE_NAME, PURCHASE_IDENTIFY_NUMBER, PURCHASE_ADDRESS, 
+    PURCHASE_PHONE, PURCHASE_ACCOUNT_NUMBER, SALES_NAME, SALES_IDENTIFY_NUMBER, SALES_ADDRESS, 
+    SEALS_PHONE, SALES_ACCOUNT_NUMBER, INVOICE_MONEY, TAX_MONEY, COLLECT_NAME, CHECK_NAME, 
+    OPEN_NAME, IS_RIGHT, UP_DATE, STATE, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,
+    IN_STATE,TAX_NO_INCLUDED
+  </sql>
+  
+<select id="aItemObjByItemId" parameterType="pd" resultType="pd">
+SELECT * FROM tt_iteminfo t WHERE t.`ITEM_ID`= #{itemId,jdbcType=VARCHAR}
+</select>
+
+
+<select id="listPageForPactChoose" parameterType="page" resultType="pd">
+SELECT 
+  sd.`NAME` PACT_TYPE_NAME,
+  tp.* 
+FROM
+  tt_pactinfo tp 
+  LEFT JOIN sys_dictionaries sd 
+    ON tp.`PACT_TYPE` = sd.`BIANMA` 
+WHERE tp.`IS_DEL` = 0 
+  AND tp.`ITEM_ID` = #{pd.itemId,jdbcType=VARCHAR}
+<if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME !='' ">
+  AND(
+     tp.PACT_NUMBER LIKE #{pd.ITEMCOLLECTNAME2}
+     OR tp.PACT_NAME LIKE #{pd.ITEMCOLLECTNAME2}
+     OR tp.OTHER_UNIT LIKE #{pd.ITEMCOLLECTNAME2}
+     OR sd.`NAME` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+</if>  
+</select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_in_invoice
+    where IN_INVOICE_ID = #{inInvoiceId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_in_invoice
+    where IN_INVOICE_ID = #{inInvoiceId,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.TtInInvoice" >
+    insert into tt_in_invoice
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="inInvoiceId != null" >
+        IN_INVOICE_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="foreignKey != null" >
+        FOREIGN_KEY,
+      </if>
+      <if test="source != null" >
+        SOURCE,
+      </if>
+      <if test="financeNo != null" >
+        FINANCE_NO,
+      </if>
+      <if test="invoiceCode != null" >
+        INVOICE_CODE,
+      </if>
+      <if test="invoiceNo != null" >
+        INVOICE_NO,
+      </if>
+      <if test="taxDate != null" >
+        TAX_DATE,
+      </if>
+      <if test="purchaseName != null" >
+        PURCHASE_NAME,
+      </if>
+      <if test="purchaseIdentifyNumber != null" >
+        PURCHASE_IDENTIFY_NUMBER,
+      </if>
+      <if test="purchaseAddress != null" >
+        PURCHASE_ADDRESS,
+      </if>
+      <if test="purchasePhone != null" >
+        PURCHASE_PHONE,
+      </if>
+      <if test="purchaseAccountNumber != null" >
+        PURCHASE_ACCOUNT_NUMBER,
+      </if>
+      <if test="salesName != null" >
+        SALES_NAME,
+      </if>
+      <if test="salesIdentifyNumber != null" >
+        SALES_IDENTIFY_NUMBER,
+      </if>
+      <if test="salesAddress != null" >
+        SALES_ADDRESS,
+      </if>
+      <if test="sealsPhone != null" >
+        SEALS_PHONE,
+      </if>
+      <if test="salesAccountNumber != null" >
+        SALES_ACCOUNT_NUMBER,
+      </if>
+      <if test="invoiceMoney != null and invoiceMoney != ''"  >
+        INVOICE_MONEY,
+      </if>
+      <if test="taxMoney != null and taxMoney != ''" >
+        TAX_MONEY,
+      </if>
+      <if test="collectName != null" >
+        COLLECT_NAME,
+      </if>
+      <if test="checkName != null" >
+        CHECK_NAME,
+      </if>
+      <if test="openName != null" >
+        OPEN_NAME,
+      </if>
+      <if test="isRight != null" >
+        IS_RIGHT,
+      </if>
+      <if test="isEstate != null" >
+        IS_ESTATE,
+      </if>
+      <if test="upDate != null" >
+        UP_DATE,
+      </if>
+      <if test="state != null" >
+        STATE,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="rzDate != null" >
+        RZ_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="taxRate != null and taxRate != ''" >
+        TAX_RATE,
+      </if>
+      <if test="inState != null" >
+        IN_STATE,
+      </if>
+      <if test="taxNoIncluded != null and taxNoIncluded !='' ">
+      	TAX_NO_INCLUDED,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="inInvoiceId != null" >
+        #{inInvoiceId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="foreignKey != null" >
+        #{foreignKey,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null" >
+        #{source,jdbcType=INTEGER},
+      </if>
+      <if test="financeNo != null" >
+        #{financeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceCode != null" >
+        #{invoiceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceNo != null" >
+        #{invoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="taxDate != null" >
+        #{taxDate,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseName != null" >
+        #{purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseIdentifyNumber != null" >
+        #{purchaseIdentifyNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseAddress != null" >
+        #{purchaseAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="purchasePhone != null" >
+        #{purchasePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseAccountNumber != null" >
+        #{purchaseAccountNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="salesName != null" >
+        #{salesName,jdbcType=VARCHAR},
+      </if>
+      <if test="salesIdentifyNumber != null" >
+        #{salesIdentifyNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="salesAddress != null" >
+        #{salesAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="sealsPhone != null" >
+        #{sealsPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="salesAccountNumber != null" >
+        #{salesAccountNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceMoney != null and invoiceMoney != ''" >
+        #{invoiceMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="taxMoney != null and taxMoney != ''" >
+        #{taxMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="collectName != null" >
+        #{collectName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkName != null" >
+        #{checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="openName != null" >
+        #{openName,jdbcType=VARCHAR},
+      </if>
+      <if test="isRight != null" >
+        #{isRight,jdbcType=INTEGER},
+      </if>
+      <if test="isEstate != null" >
+        #{isEstate,jdbcType=INTEGER},
+      </if>
+      <if test="upDate != null" >
+        #{upDate,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="rzDate != null" >
+        #{rzDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="taxRate != null and taxRate != ''" >
+        #{taxRate,jdbcType=DECIMAL},
+      </if>
+      <if test="inState != null" >
+        #{inState,jdbcType=INTEGER},
+      </if>
+      <if test="taxNoIncluded != null and taxNoIncluded !='' ">
+      	#{taxNoIncluded,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtInInvoice" >
+    update tt_in_invoice
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="foreignKey != null" >
+        FOREIGN_KEY = #{foreignKey,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null" >
+        SOURCE = #{source,jdbcType=INTEGER},
+      </if>
+      <if test="financeNo != null" >
+        FINANCE_NO = #{financeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceCode != null" >
+        INVOICE_CODE = #{invoiceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceNo != null" >
+        INVOICE_NO = #{invoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="taxDate != null" >
+        TAX_DATE = #{taxDate,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseName != null" >
+        PURCHASE_NAME = #{purchaseName,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseIdentifyNumber != null" >
+        PURCHASE_IDENTIFY_NUMBER = #{purchaseIdentifyNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseAddress != null" >
+        PURCHASE_ADDRESS = #{purchaseAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="purchasePhone != null" >
+        PURCHASE_PHONE = #{purchasePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="purchaseAccountNumber != null" >
+        PURCHASE_ACCOUNT_NUMBER = #{purchaseAccountNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="salesName != null" >
+        SALES_NAME = #{salesName,jdbcType=VARCHAR},
+      </if>
+      <if test="salesIdentifyNumber != null" >
+        SALES_IDENTIFY_NUMBER = #{salesIdentifyNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="salesAddress != null" >
+        SALES_ADDRESS = #{salesAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="sealsPhone != null" >
+        SEALS_PHONE = #{sealsPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="salesAccountNumber != null" >
+        SALES_ACCOUNT_NUMBER = #{salesAccountNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceMoney != null and invoiceMoney != ''" >
+        INVOICE_MONEY = #{invoiceMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="taxMoney != null and taxMoney != ''" >
+        TAX_MONEY = #{taxMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="taxRate != null and taxRate != ''" >
+        TAX_RATE = #{taxRate,jdbcType=DECIMAL},
+      </if>
+      <if test="collectName != null" >
+        COLLECT_NAME = #{collectName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkName != null" >
+        CHECK_NAME = #{checkName,jdbcType=VARCHAR},
+      </if>
+      <if test="openName != null" >
+        OPEN_NAME = #{openName,jdbcType=VARCHAR},
+      </if>
+      <if test="isRight != null" >
+        IS_RIGHT = #{isRight,jdbcType=INTEGER},
+      </if>
+      <if test="upDate != null" >
+        UP_DATE = #{upDate,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        STATE = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="rzDate != null" >
+        RZ_DATE = #{rzDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="isEstate != null" >
+        IS_ESTATE = #{isEstate,jdbcType=INTEGER},
+      </if>
+      <if test="inState != null and inState != ''" >
+        IN_STATE = #{inState,jdbcType=INTEGER},
+      </if>
+      <if test="taxNoIncluded != null and taxNoIncluded !='' ">
+      	TAX_NO_INCLUDED =  #{taxNoIncluded,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where IN_INVOICE_ID = #{inInvoiceId,jdbcType=VARCHAR}
+  </update>
+  
+  
+   <select id="yanzhengIn" resultType="pd" parameterType="pd"  useCache="false">
+  	SELECT 
+  * 
+FROM
+  tt_in_invoice 
+WHERE CONCAT(
+    INVOICE_CODE,
+    INVOICE_NO
+  ) = #{invoiceCodeYZ}
+  </select>
+  
+   <!-- 合同发票主页查询 -->
+  <select id="listPageinInvoice" resultType="pd" parameterType="page"  useCache="false">
+SELECT
+ IN_INVOICE_ID, STRUCT_ID, ITEM_ID, FOREIGN_KEY, SOURCE, FINANCE_NO, INVOICE_CODE,TAX_RATE,TAX_NO_INCLUDED,
+    INVOICE_NO, TAX_DATE, PURCHASE_NAME, PURCHASE_IDENTIFY_NUMBER, PURCHASE_ADDRESS, 
+    PURCHASE_PHONE, PURCHASE_ACCOUNT_NUMBER, SALES_NAME, SALES_IDENTIFY_NUMBER, SALES_ADDRESS, 
+    SEALS_PHONE, SALES_ACCOUNT_NUMBER, INVOICE_MONEY, TAX_MONEY, COLLECT_NAME, CHECK_NAME, 
+    OPEN_NAME, IS_RIGHT, UP_DATE, STATE, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,(SELECT NAME FROM `sys_user` u 
+WHERE u.USER_ID=tt_in_invoice.CREATE_BY)AS CREATE_NAME
+  FROM `tt_in_invoice`  WHERE IS_DEL=0  AND FOREIGN_KEY=#{pd.PACT_ID,jdbcType=VARCHAR}
+ <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{pd.NAME2}
+	 			or INVOICE_NO LIKE #{pd.NAME2})
+		</if>
+ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  <!-- 修改查询 -->
+<select id="selectOne" resultType="pd" parameterType="pd" >
+SELECT 
+  t.*,
+  ti.`ITEM_NAME`,
+  tp.`PACT_NAME` 
+FROM
+  `tt_in_invoice` t 
+  LEFT JOIN tt_iteminfo ti ON t.`ITEM_ID` = ti.`ITEM_ID` 
+  LEFT JOIN tt_pactinfo tp ON t.`FOREIGN_KEY` = tp.`PACT_ID` 
+ WHERE t.IN_INVOICE_ID = #{IN_INVOICE_ID}
+</select>
+  
+     <!-- 删除 -->
+ <update id="deleteById" parameterType="pd" >
+		UPDATE
+		  `tt_in_invoice`  SET IS_DEL=1
+		WHERE 
+		    IN_INVOICE_ID
+		   = #{IN_INVOICE_ID}
+ </update>
+ 
+ 
+   <!-- 批量删除 -->
+<update id="deleteAll" parameterType="String" flushCache="false">
+	  UPDATE
+		  `tt_in_invoice` SET IS_DEL=1
+		WHERE 
+		   IN_INVOICE_ID in 
+ 			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+            </foreach>
+</update>
+
+  <!-- 进项发票主页查询 -->
+<select id="listPagevatInvoice" resultType="pd" parameterType="page"  useCache="false">
+SELECT t.`IN_INVOICE_ID`,t.`SOURCE`,t.`INVOICE_CODE`,t.`INVOICE_NO`,t.`TAX_DATE`,t.`FINANCE_NO`,t.TAX_NO_INCLUDED,
+t.`PURCHASE_NAME`,t.`PURCHASE_IDENTIFY_NUMBER`,t.`PURCHASE_ADDRESS`,t.`PURCHASE_PHONE`,
+t.`PURCHASE_ACCOUNT_NUMBER`,t.`SALES_NAME`,t.`SALES_IDENTIFY_NUMBER`,t.`SALES_ADDRESS`,t.`IS_ESTATE`,t.`TAX_RATE`,
+t.`SEALS_PHONE`,t.`SALES_ACCOUNT_NUMBER`,t.`INVOICE_MONEY`,t.`TAX_MONEY`,t.`COLLECT_NAME`,
+t.`CHECK_NAME`,t.`OPEN_NAME`,t.`IS_RIGHT`,t.`UP_DATE`,t.`STATE`,t.`CREATE_DATE`,t.`CREATE_BY`,t.RZ_DATE,
+(SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=t.ITEM_ID)AS ITEM_NAME,
+(SELECT STRUCT_NAME FROM `sys_structinfo` u WHERE u.STRUCT_ID=t.STRUCT_ID)AS STRUCT_NAME,
+(SELECT NAME FROM `sys_user` u WHERE u.USER_ID=t.`CREATE_BY`)AS CREATE_NAME,
+(SELECT tp.`PACT_NAME` FROM tt_pactinfo tp WHERE tp.`PACT_ID`= t.FOREIGN_KEY) PACT_NAME
+ 	FROM `tt_in_invoice` t 
+ WHERE IS_DEL=0 
+    and STRUCT_ID=#{pd.STRUCT_ID}
+<if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+	and (INVOICE_CODE LIKE #{pd.NAME2}
+	or FINANCE_NO LIKE #{pd.NAME2}
+	or INVOICE_NO LIKE #{pd.NAME2}
+	or (SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=t.ITEM_ID) LIKE #{pd.NAME2})
+</if>
+<if test="pd.ITEMCOLLECTTYPE!=null and pd.ITEMCOLLECTTYPE != ''   and pd.ITEMCOLLECTTYPE !=4">
+ 	and (STATE= #{pd.ITEMCOLLECTTYPE})
+</if>
+<if test="pd.LASTLOGINSTART1 != null and pd.LASTLOGINSTART1 != ''">
+<if test="pd.LASTLOGINSTART2 != null and pd.LASTLOGINSTART2 != ''">
+ AND(t.`RZ_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND t.`RZ_DATE` &lt;=#{pd.LASTLOGINSTART2})
+</if>
+</if>		
+ORDER BY  CREATE_DATE DESC
+</select>
+
+<select id="totalMoney" parameterType="pd" resultType="pd">
+SELECT 
+	SUM(t.TAX_NO_INCLUDED) TAX_NO_INCLUDED ,
+	SUM(INVOICE_MONEY) INVOICE_MONEY ,
+	sum(TAX_MONEY) TAX_MONEY
+  FROM `tt_in_invoice` t 
+WHERE IS_DEL=0 
+    and STRUCT_ID=#{STRUCT_ID}
+<if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	and (INVOICE_CODE LIKE #{NAME2}
+	or FINANCE_NO LIKE #{NAME2}
+	or INVOICE_NO LIKE #{NAME2}
+	or (SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=t.ITEM_ID) LIKE #{NAME2})
+</if>
+<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+ 	and (STATE= #{ITEMCOLLECTTYPE})
+</if>
+<if test="LASTLOGINSTART1 != null and LASTLOGINSTART1 != ''">
+<if test="LASTLOGINSTART2 != null and LASTLOGINSTART2 != ''">
+ AND(t.`RZ_DATE` BETWEEN #{LASTLOGINSTART1} AND  #{LASTLOGINSTART2})
+</if>
+</if>		
+</select>
+  
+  
+   <!-- 进项发票主页查询（导出） -->
+  <select id="listvatInvoice"  parameterType="pd" resultType="pd">
+SELECT t.`IN_INVOICE_ID`,t.`SOURCE`,t.`INVOICE_CODE`,t.`INVOICE_NO`,t.`TAX_DATE`,t.`FINANCE_NO`,t.TAX_NO_INCLUDED,
+t.`PURCHASE_NAME`,t.`PURCHASE_IDENTIFY_NUMBER`,t.`PURCHASE_ADDRESS`,t.`PURCHASE_PHONE`,
+t.`PURCHASE_ACCOUNT_NUMBER`,t.`SALES_NAME`,t.`SALES_IDENTIFY_NUMBER`,t.`SALES_ADDRESS`,t.`IS_ESTATE`,t.`TAX_RATE`,
+t.`SEALS_PHONE`,t.`SALES_ACCOUNT_NUMBER`,t.`INVOICE_MONEY`,t.`TAX_MONEY`,t.`COLLECT_NAME`,
+t.`CHECK_NAME`,t.`OPEN_NAME`,t.`IS_RIGHT`,t.`UP_DATE`,t.`STATE`,t.`CREATE_DATE`,t.`CREATE_BY`,
+(SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=t.ITEM_ID)AS ITEM_NAME,
+(SELECT STRUCT_NAME FROM `sys_structinfo` u WHERE u.STRUCT_ID=t.STRUCT_ID)AS STRUCT_NAME,
+(SELECT NAME FROM `sys_user` u WHERE u.USER_ID=t.`CREATE_BY`)AS CREATE_NAME,
+CASE
+WHEN t.`STATE`=0
+THEN '未比对'
+WHEN t.`STATE`=1
+THEN '比对成功'
+WHEN t.`STATE`=2
+THEN '已勾选未确认'
+WHEN t.`STATE`=3
+THEN '已勾选已确认'
+END AS STATE_NAME
+ FROM `tt_in_invoice` t WHERE IS_DEL=0 and STRUCT_ID=#{ZD_ID}
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or FINANCE_NO LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2}
+	 			or (SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=t.ITEM_ID) LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (STATE= #{ITEMCOLLECTTYPE})
+		</if>
+ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  
+    <select id="findinvoiceCode" resultType="pd" parameterType="pd" >
+    SELECT 
+   	INVOICE_CODE
+    FROM `tt_invoice`
+     GROUP BY INVOICE_CODE
+  </select>
+  
+  <select id="findinvoiceNo" resultType="pd" parameterType="pd" >
+    SELECT 
+   	INVOICE_NO
+    FROM `tt_invoice`
+     GROUP BY INVOICE_NO
+  </select>
+</mapper>

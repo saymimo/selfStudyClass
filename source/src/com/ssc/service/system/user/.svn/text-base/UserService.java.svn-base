@@ -1,0 +1,1180 @@
+package com.ssc.service.system.user;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+
+import javax.annotation.Resource;
+
+import net.sf.json.JSONObject;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.java_websocket.WebSocket;
+import org.springframework.stereotype.Service;
+
+import com.ssc.controller.base.BaseController;
+import com.ssc.dao.DaoSupport;
+import com.ssc.entity.Page;
+import com.ssc.entity.system.Menu;
+import com.ssc.entity.system.Structinfo;
+import com.ssc.entity.system.User;
+import com.ssc.entity.system.UserRole;
+import com.ssc.plugin.websocketOnline.OnlineChatServerPool;
+import com.ssc.util.Const;
+import com.ssc.util.MD5;
+import com.ssc.util.PageData;
+import com.ssc.util.Tools;
+
+
+@Service("userService")
+public class UserService {
+
+	@Resource(name = "daoSupport")
+	private DaoSupport dao;
+	
+	//======================================================================================
+	
+	/*
+	* 通过id获取数据
+	*/
+	public PageData findByUiId(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.findByUiId", pd);
+	}
+	
+	//登录的时候密码如果为111111，通过用户名修改密码
+	public void updatePasswordByUsername(PageData pd)throws Exception{
+			dao.update("UserXMapper.updatePasswordByUsername", pd); 
+	}
+ 
+	/**
+	 * 根据id 查询当前审批人 日常审批
+	 * @param pd
+	 * @return
+	 * @throws Exception 
+	 */
+	public List<PageData> findDQTribuneUserId(PageData pd) throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.findDQTribuneUserId", pd);
+		
+	}
+	/**
+	 * 根据id 查询当前审批人 项目待批
+	 * @param pd
+	 * @return
+	 * @throws Exception 
+	 */
+	public List<PageData> findDQTribuneUserIdItem(PageData pd) throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.findDQTribuneUserIdItem", pd);
+		
+	}
+	
+
+	/**
+	 * 根据id 查询下级审批人 项目待批
+	 * @param pd
+	 * @return
+	 * @throws Exception 
+	 */
+	public List<PageData> findXJTribuneUserIdItem(PageData pd) throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.findXJTribuneUserIdItem", pd);
+		
+	}
+
+	/**
+	 * 根据id 查询下级审批人  日常审批
+	 * @param pd
+	 * @return
+	 * @throws Exception 
+	 */
+	public List<PageData> findXJTribuneUserId(PageData pd) throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.findXJTribuneUserId", pd);
+		
+	}
+
+	
+	
+	
+	/**
+	 * 根据项目id  查询项目组成员  
+	 * @param pd
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PageData> findIteminfoItemPersonByItemId(PageData pd) throws Exception{
+		return (List<PageData>) dao.findForList("ItemPersonMapper.findIteminfoItemPersonByItemId", pd);
+		
+	}
+	
+	
+	/**
+	 *   查询未选中的项目组成员
+	 * @param pd
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PageData> findItemPersonByItemIdNotSelect(PageData pd) throws Exception{
+		return (List<PageData>) dao.findForList("ItemPersonMapper.findItemPersonByItemIdNotSelect", pd);
+		
+	}
+	
+	/**
+	 * 通过组织id 查询 这个组织下的人员
+	 * @param pd
+	 * @return
+	 * @throws Exception 
+	 */
+	public List<PageData> findUserinfoListbyStructId(PageData pd) throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.findUserinfoListbyStructId", pd);
+		
+	}
+	/**
+	 * 查询集团下的人员
+	 * @param pd
+	 * @return
+	 * @throws Exception 
+	 */
+	public List<PageData> findUserinfoListbyStructIdJiTuan(PageData pd) throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.findUserinfoListbyStructIdJiTuan", pd);
+		
+	}
+	
+	/**
+	 * 新增审批组时添加所在组织的人（因为新增时这个审批组肯定是没有人的，所以把username和password不为null的都查询出来）
+	 * @author administrator_chen
+	 * @param pd
+	 * @return
+	 * @throws Exception 
+	 * @throws Exception
+	 */
+	public List<PageData> findUserListbyStructId(PageData pd) throws Exception {
+		// TODO Auto-generated method stub
+		return (List<PageData>) dao.findForList("UserXMapper.findUserListbyStructId", pd);
+	}
+	
+	
+	/*
+	* 通过id获取BM数据部门----sf
+	*/
+	public PageData findtoBM(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.findToBM", pd);
+	}
+	/*
+	* 通过userid获取密码
+	*/
+	public PageData findMI(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.findMI", pd);
+	}
+	/*
+	* 通过loginname获取数据
+	*/
+	public PageData findByUId(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.findByUId", pd);
+	}
+	
+	public PageData findUser(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.findUser", pd);
+	}
+	/*
+	 * 查询信息通过主键---sf
+	 */
+	public PageData findByUPK(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.findByUPKId", pd);
+	}
+	/*
+	*获取sys_user username字段最大的数据
+	*/
+	public User findByNubmerMax(PageData pd)throws Exception{
+		return (User)dao.findForObject("UserMapper.findByNumberMax",pd);
+	}
+	
+	public User findUserinfoById(PageData pd)throws Exception{
+		return (User)dao.findForObject("UserMapper.findUserinfoById",pd);
+	}
+	/*
+	* 通过邮箱获取数据
+	*/
+	public PageData findByUE(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.findByUE", pd);
+	}
+	/*
+	 * 通过身份证获取数据
+	 */
+	public PageData findByUIden(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.findByUIden", pd);
+	}
+	/*
+	 * 通过身份证获取数据
+	 */
+	public PageData hasIdentiTwo(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.hasIdentiTwo", pd);
+	}
+	/*
+	 * 通过手机获取数据
+	 */
+	public PageData findByUPhone(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.findByUPhone", pd);
+	}
+	public PageData findByUPhoneTwo(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.findByUPhoneTwo", pd);
+	}
+	
+	
+	/*
+	* 通过编号获取数据
+	*/
+	public PageData findByUN(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.findByUN", pd);
+	}
+	
+	/*
+	* 保存用户
+	*/
+	public void saveU(PageData pd)throws Exception{
+		dao.save("UserXMapper.saveU", pd);
+		
+	}
+	
+	public Integer countUserForIC(String IC)throws Exception{
+		return (Integer) dao.findForObject("UserXMapper.countUserForIC", IC);
+	}
+	
+	/**
+	 * 查询组织层次
+	 * @param pd
+	 * @throws Exception
+	 */
+	public PageData findtype(PageData pd) throws Exception {
+		 return (PageData) dao.findForObject("UserXMapper.findtype", pd);
+	}
+	
+	/**
+	 * 保存--------sf
+	 * @param pd
+	 * @throws Exception
+	 */
+	public void saveUbyBM(PageData pd)throws Exception{
+		dao.save("UserXMapper.saveUbyBM", pd);
+		
+	}
+	/**
+	 * 查询用户名为空列表--------sf  20161101查全部，不用structid
+	 * @param pd
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PageData> findByBM()throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.findByBM", null);
+	}
+	
+	/*
+	 * 修改后保存用===部门----sf
+	 */
+	public void editUbyDis(PageData pd)throws Exception{
+		
+		if(pd.get("STRUCT_ID")!=null){
+			if(!pd.get("structIdByuserId").equals(pd.get("STRUCT_ID"))){
+			pd.put("structId", pd.get("STRUCT_ID"));
+			
+			Structinfo structInfo=(Structinfo) dao.findForObject("StructinfoMapper.selectByPrimaryKey", pd);
+			if(structInfo.getStructstAge()==0){
+				pd.put("reviewType", "A");
+			}else if (structInfo.getStructstAge()==1){
+				pd.put("reviewType", "B");
+			}else if(structInfo.getStructstAge()==2){
+				pd.put("reviewType", "C");
+			}
+			dao.update("ItemPersonMapper.deleteByItemPersonUserId", pd);//删除tt_item_person表  等于userid的数据
+			}else{
+				pd.put("STRUCT_ID", null);
+			}
+			
+		}
+	
+		dao.save("UserXMapper.saveUBM", pd);
+	}
+	
+	/**
+	 * 通过组织ID 获取考勤端组织ID 2016-9-20
+	 * @param structId
+	 * @return
+	 * @throws Exception
+	 */
+	public String getCcStructIdByStructId(String structId)throws Exception{
+		return (String) dao.findForObject("StructinfoMapper.getCcStructIdByStructId", structId);
+	}
+	
+	/*
+	 * 修改后保存用===用户密码
+	 */
+	public void editUbyMI(PageData pd,List<UserRole> userRoleList)throws Exception{
+		dao.save("UserXMapper.saveUBMI", pd);
+		dao.delete("UserXMapper.deleteRoleUser",pd);//先删除角色表里的数据然后在添加
+		for (int i = 0; i < userRoleList.size(); i++) {
+			dao.save("UserRoleMapper.insertSelective", userRoleList.get(i));
+		}
+	}
+	
+	/*
+	 * 修改后保存用===用户密码
+	 */
+	public void editUbyMI2(PageData pd)throws Exception{
+		dao.save("UserXMapper.saveUBMI", pd);
+	}
+	/**
+	 * 修改密码
+	 * @param pd
+	 * @throws Exception
+	 */
+	public void updatePassWord(PageData pd) throws Exception{
+		dao.update("UserXMapper.updatePassWord", pd);
+	}
+	/*
+	 * 保存用户和角色
+	 */
+	public void saveUserAndUserRole(PageData pd,List<UserRole> userRoleList)throws Exception{
+		dao.save("UserXMapper.saveU", pd);
+		for (int i = 0; i < userRoleList.size(); i++) {
+			dao.save("UserRoleMapper.insertSelective", userRoleList.get(i));
+		}
+	}
+	/*
+	* 修改用户
+	*/
+	public void editU(PageData pd,List<UserRole> userRoleList)throws Exception{
+		dao.update("UserXMapper.editU", pd);
+		dao.delete("UserXMapper.deleteRoleUser",pd);//先删除角色表里的数据然后在添加
+		for (int i = 0; i < userRoleList.size(); i++) {
+			dao.save("UserRoleMapper.insertSelective", userRoleList.get(i));
+		}
+	}
+	
+	/*
+	* 保存用户----sf
+	*/
+	public void editUone(PageData pd,List<UserRole> userRoleList)throws Exception{
+		dao.update("UserXMapper.editFirstU", pd);
+		dao.delete("UserXMapper.deleteRoleUser",pd);//先删除角色表里的数据然后在添加
+		for (int i = 0; i < userRoleList.size(); i++) {
+			dao.save("UserRoleMapper.insertSelective", userRoleList.get(i));
+		}
+	}
+	
+	//登入名验证
+		public Integer checkFinNo(PageData pd)throws Exception{
+			return (Integer) dao.findForObject("UserXMapper.checkFinNo", pd);
+		}
+	
+	
+	/*
+	* 换皮肤
+	*/
+	public void setSKIN(PageData pd)throws Exception{
+		dao.update("UserXMapper.setSKIN", pd);
+	}
+	/*
+	* 删除用户
+	*/
+	public void deleteU(PageData pd)throws Exception{
+		dao.delete("UserXMapper.deleteU", pd);
+	}
+	/*
+	* 删除用户 使 用户没有  登录权限
+	*/
+	public void deleteUser(PageData pd)throws Exception{
+		dao.delete("UserXMapper.deleteUserRole", pd);
+		dao.delete("UserXMapper.updateLogin", pd);
+		
+	}
+	
+	/*
+	* 删除用户 使 用户没有  登录权限(员工管理)
+	*/
+	public void deleteUserForDictionaries(PageData pd)throws Exception{
+		dao.delete("UserXMapper.deleteUserRole", pd);
+		dao.delete("UserXMapper.updateLoginDictionaries", pd);
+		
+	}
+	
+	/*
+	 * 重置密码
+	 */
+	public void reset(PageData pd)throws Exception{
+		dao.update("UserXMapper.reset", pd);
+	}
+	/*
+	* 批量删除用户
+	*/
+	public void deleteAllU(String[] USER_IDS)throws Exception{
+		dao.delete("UserXMapper.deleteAllU", USER_IDS);
+	}
+	/*
+	*用户列表(用户组)
+	*/
+	public List<PageData> listPdPageUser(Page page)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.userlistPage", page);
+	}
+	
+	/**
+	 * @author shenwei 微信通讯录 查同一组织下的人员信息 2016/05/25 
+	 * @param page
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PageData> findMyContacts(PageData pd)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.findMyContacts", pd);
+	}
+	
+	/*
+	*用户列表(用户组)----sf
+	*/
+	public List<PageData> listPdPageUserbm(Page page)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.userlistPagebm", page);
+	}
+	
+	
+	/**
+	 * 抄送
+	 * @param page
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PageData> ccUserlistPagebmTri(Page page)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.ccUserlistPbmTri", page);
+	}
+	
+	
+	/*
+	* 会议记要未选择人员查询
+	*/
+	public List<PageData> listPdPageUserHYJY(PageData pd)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.listPdPageUserHYJY", pd);
+	}
+	
+	/**
+	 * 根据主键ID查询已选择的人员(会议记要)
+	 * @param pd
+	 * @throws Exception 
+	 */
+	public List<PageData> findUserByIdHYJY(PageData pd) throws Exception{
+		return	(List<PageData>) dao.findForList("UserXMapper.findUserByIdHYJY", pd);
+	}
+	
+	/**
+	 * 查询所有人员
+	 * @param page
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PageData> userlistPagebmAll(Page page)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.userlistPagebmAll", page);
+	}
+	
+	/**
+	 * 查询抄送人员
+	 * @param page
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PageData> ccuserListToChooseAll(Page page)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.ccuserListToChooseAll", page);
+	}
+	/**
+	 * 通过选择的抄送人员id查询姓名
+	 * @param page
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PageData> ccuserListByCcuserId(PageData pd)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.ccuserListByCcuserId", pd);
+	}
+	/**
+	 * 评审 选择 组名 查询人员  如果  当前登录人 是分公司  只查询 这个分公司 和集团的人
+	 * @param page
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PageData> findReviewGroupUserinfo(PageData pd)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.findReviewGroupUserinfo", pd);
+	}
+	
+	
+	
+	/*
+	*用户列表(全部)
+	*/
+	public List<PageData> listAllUser(PageData pd)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.listAllUser", pd);
+	}
+	
+	/*
+	*用户列表tab切换(全部)-----sf
+	*/
+	public List<PageData> listAlltabUser(PageData pd)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.listAlltabUser", pd);
+	}
+	
+	/*
+	*用户列表(供应商用户)
+	*/
+	public List<PageData> listGPdPageUser(Page page)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.userGlistPage", page);
+	}
+	/*
+	* 保存用户IP
+	*/
+	public void saveIP(PageData pd)throws Exception{
+		dao.update("UserXMapper.saveIP", pd);
+	}
+	
+	public String getUseName(PageData pd)throws Exception{
+		return (String)dao.findForObject("UserXMapper.getUseName", pd);
+	}
+	
+	/*
+	* 登录判断
+	*/
+	public PageData getUserByNameAndPwd(PageData pd)throws Exception{
+		return (PageData)dao.findForObject("UserXMapper.getUserInfo", pd);
+	}
+	/*
+	* 跟新登录时间
+	*/
+	public void updateLastLogin(PageData pd)throws Exception{
+		dao.update("UserXMapper.updateLastLogin", pd);
+	}
+	
+	/*
+	*通过id获取数据
+	*/
+	public User getUserAndRoleById(PageData pd) throws Exception {
+		return (User) dao.findForObject("UserMapper.getUserAndRoleById", pd);
+	}
+	/*
+	*通过组织id获取数据
+	*/
+	public List<PageData> listUserAllByStructid(PageData pd)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.listUserAllByStructid", pd);
+	}
+	
+	/**
+	 * 查询本组织的人员
+	 * @param pd
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PageData> listUserAllByStructidTwo(PageData pd)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.listUserAllByStructidTwo", pd);
+	}
+	
+	
+	/**
+	 * 查询有证书的人员
+	 * @param pd
+	 * @return
+	 * @throws Exception
+	 */
+	public List<PageData>  findUserinfoByCitificate(PageData pd) throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.findUserinfoByCitificate", pd);
+	}
+	//查询选中的本组织id
+	public List<PageData> listUserAllByStructByPerson(PageData pd)throws Exception{
+		return (List<PageData>) dao.findForList("UserXMapper.listUserAllByStructByPerson", pd);
+	}
+	
+	
+	public void saveUserAndRole(PageData pd1,PageData pd2,Structinfo pd3)throws Exception{
+		
+		dao.save("UserXMapper.saveU", pd1);
+		dao.save("UserRoleMapper.insertSelective", pd2);
+		dao.save("StructinfoMapper.insertSelective", pd3);
+		
+	}
+
+	/**
+	 * 通过项目ID获取参与项目人员--------sf
+	 * @param STRUCTID
+	 * @return
+	 * @throws Exception
+	 */
+	public List<User> getUserInfoByItemId(PageData pd) throws Exception {
+		return (List<User>) dao.findForList("UserMapper.getUserInfoByItemId", pd);
+	}
+	
+	public List<User> getUserInByItemId(PageData pd) throws Exception {
+		return (List<User>) dao.findForList("UserMapper.getUserInByItemId", pd);
+	}
+	
+	public List<PageData> getUserifByItemId(Page page)throws Exception{
+		return (List<PageData>) dao.findForList("UserMapper.getUserifByItemId", page);
+	}
+	
+	public List<PageData> getUserIfByItemId(Page page)throws Exception{
+		return (List<PageData>) dao.findForList("UserMapper.getUserIfByItemId", page);
+	}
+	
+	public List<User> getUserInfoByItem(PageData pd) throws Exception {
+		return (List<User>) dao.findForList("UserMapper.getUserInfoByItem", pd);
+	}
+	
+	public List<User> getUserInfoByItemS(PageData pd) throws Exception {
+		return (List<User>) dao.findForList("UserMapper.getUserInfoByItemS", pd);
+	}
+	
+	public List<User> getUserInfoItemId(PageData pd) throws Exception {
+		return (List<User>) dao.findForList("UserMapper.getUserInfoItemId", pd);
+	}
+	
+	public List<User> getUserInfoItemIdQuality(PageData pd) throws Exception {
+		return (List<User>) dao.findForList("UserMapper.getUserInfoItemIdQuality", pd);
+	}
+	
+	public List<User> getUserInfoByStructid(String STRUCTID) throws Exception {
+		return (List<User>) dao.findForList("UserMapper.getUserInfoByStructid", STRUCTID);
+	}
+	
+	public List<User> getUserInfoByTenderperson(PageData pd) throws Exception {
+		return (List<User>) dao.findForList("UserMapper.getUserInfoByTenderperson", pd);
+	}
+	
+	public List<User> getUserInfoByMeetperson(PageData pd) throws Exception {
+		return (List<User>) dao.findForList("UserMapper.getUserInfoByMeetperson", pd);
+	}
+	
+	public List<User> getUser(PageData pd) throws Exception {
+		return (List<User>) dao.findForList("UserMapper.getUser", pd);
+	}
+	
+	/**
+	 * @author shenwei 2016/03/30 head页面评审人
+	 * @param pd
+	 * @return
+	 * @throws Exception
+	 */
+		public List<PageData> findReviewUser(PageData pd)throws Exception{
+			return (List<PageData>) dao.findForList("UserXMapper.findReviewUser", pd);
+		}
+		/**
+		 * 
+		 * @param pd
+		 * @return
+		 * @throws Exception
+		 */
+		public List<PageData> findReviewUserLevel(PageData pd)throws Exception{
+			return (List<PageData>) dao.findForList("UserXMapper.findReviewUserLevel", pd);
+		}
+		
+		public List<PageData> findItem(PageData pd)throws Exception{
+			return (List<PageData>) dao.findForList("UserXMapper.findItem", pd);
+		}
+		public List<PageData> findItemLevel(PageData pd)throws Exception{
+			return (List<PageData>) dao.findForList("UserXMapper.findItemLevel", pd);
+		}
+		
+		
+		
+		
+		public List<PageData> findEntrust(PageData pd)throws Exception{
+			return (List<PageData>) dao.findForList("UserXMapper.findEntrust", pd);
+		}
+
+		/**
+		 * 招标评审
+		 * @param pd
+		 * @return
+		 * @throws Exception
+		 */
+		public List<PageData> findTenderInfo(PageData pd)throws Exception{
+			return (List<PageData>) dao.findForList("UserXMapper.findTenderInfo", pd);
+		}
+		/**
+		 * @author shenwei 2016/04/01 微信绑定账号
+		 * @param pd
+		 * @return
+		 * @throws Exception
+		 */
+			public void bindingUser(PageData bindingUser)throws Exception{
+				dao.update("UserXMapper.clearOpenId", bindingUser);
+				dao.update("UserXMapper.bindingUser", bindingUser);
+			}
+			
+			public PageData findBinding(PageData pd)throws Exception{
+				 return (PageData) dao.findForObject("UserXMapper.findBinding", pd);
+			}
+
+		
+		/*
+		 * 通过id获取数据(评审)
+		 */
+		public PageData findByReviewByID(PageData pd) throws Exception {
+			return (PageData) dao.findForObject("UserXMapper.findByReviewById",pd);
+		}
+		
+		public List<PageData> applySafeList(PageData pd)throws Exception{
+			return (List<PageData>) dao.findForList("ApplySafeMapper.applySafeList", pd);
+		}
+		
+		/**
+		 * 保存抄送
+		 * @param ccUserList
+		 * @throws Exception 
+		 */
+		public void saveCcUserInfo(List ccUserList) throws Exception{
+
+			if(ccUserList.size()>0){
+			for (int i = 0; i < ccUserList.size(); i++) {
+						dao.save("TtCcUserMapper.insertSelective", ccUserList.get(i));	
+					}
+			}
+		}
+		
+		/**
+		 * 修改抄送
+		 * @param pd
+		 * @param ccUserList
+		 * @throws Exception
+		 */
+		public void updateCcUserInfo(PageData pd,List ccUserList) throws Exception{
+
+			 dao.delete("TtCcUserMapper.deleteTribuneId", pd);//先删除抄送
+					 for (int i = 0; i < ccUserList.size(); i++) {
+						dao.save("TtCcUserMapper.insertSelective", ccUserList.get(i));
+					}
+		}
+		
+		/**
+		 * shenwei20161011 websocketUser 查询 + 推送 //创建的时候 消息推送
+		 * @param pd
+		 * @return
+		 * @throws Exception
+		 */
+		public void sendWebsocketUser(String CREATE_BY,String USER_ID,String uu32)throws Exception{
+			List<PageData> userList = (List<PageData>) dao.findForList("UserXMapper.findWebsocketUser", USER_ID);
+//			String type = "";
+			Set<WebSocket> keySet = OnlineChatServerPool.userconnections.keySet();
+			
+	 	   		if(userList.size()>0){
+	 	   			for(int i=0;i<userList.size();i++){
+       	 	 	   		/*if(i==0){				//第一次循环判断要给ABC中哪一类人推送
+	 	   						type=userList.get(i).getString("REVIEW_TYPE");
+	 	   					}*/
+	 	   				  /*  if(type.equals(userList.get(i).getString("REVIEW_TYPE"))){	//如果循环的LIST的REVIEW_TYPE 等于第一次判定的类型，就推送，否则跳出循环
+*/				 	   					synchronized (keySet) {
+				 	   					for (WebSocket conn : keySet) {
+				 	   						String cuser = OnlineChatServerPool.userconnections.get(conn);
+				 	   						if(cuser.equals(userList.get(i).getString("WEBSOCKETUSER"))){
+				 	   						JSONObject result = new JSONObject();
+				 	   						result.element("type", "sendUser"+uu32);
+				 	   						conn.send(result.toString());
+				 	   						}
+				 	   					}
+				 	   				}
+	 	   				    /*}else{
+	 	   				    	break;
+	 	   				    }*/
+	 	   			}
+	 	   		}
+	 	   		
+	 	   		
+	 	   		
+	 	   		
+	 	   		//发送短信
+	 	   		PageData sendSmsUser = (PageData) dao.findForObject("UserXMapper.findSmsUser", CREATE_BY);			//发送人
+	 	   		List<PageData> smsUserList = (List<PageData>) dao.findForList("UserXMapper.findSmsUser", USER_ID);	//接收人LIST
+	 	   		String content=sendSmsUser.getString("STRUCT_NAME"); //发送内容
+	 	   		if(sendSmsUser.getString("BM")!=null){
+	 	   		content=content+"["+sendSmsUser.getString("BM")+"]";
+	 	   		}
+	 	   		content=content+sendSmsUser.getString("NAME")+"发起的审批，请你审批!";
+	 	   		
+	 	   	for(int i=0;i<smsUserList.size();i++){
+ 	   			if(!"0".equals(smsUserList.get(i).getString("PHONE"))){
+ 	   					sendSms2(smsUserList.get(i).getString("PHONE"),content);
+ 	   			}
+ 	   		}
+		}
+		
+		
+		
+		
+		/**
+		 * shenwei20161011 websocketUser 查询 + 推送 //创建的时候 消息推送  项目待批  创建推送
+		 * @param pd
+		 * @return
+		 * @throws Exception
+		 */
+		public void sendWebsocketUserXM(String CREATE_BY,String USER_ID,String uu32)throws Exception{
+			List<PageData> userList = (List<PageData>) dao.findForList("UserXMapper.findWebsocketUser", USER_ID);
+//			String type = "";
+			Set<WebSocket> keySet = OnlineChatServerPool.userconnections.keySet();
+			
+	 	   		if(userList.size()>0){
+	 	   			for(int i=0;i<userList.size();i++){
+       	 	 	   		/*if(i==0){				//第一次循环判断要给ABC中哪一类人推送
+	 	   						type=userList.get(i).getString("REVIEW_TYPE");
+	 	   					}*/
+	 	   				  /*  if(type.equals(userList.get(i).getString("REVIEW_TYPE"))){	//如果循环的LIST的REVIEW_TYPE 等于第一次判定的类型，就推送，否则跳出循环
+*/				 	   					synchronized (keySet) {
+				 	   					for (WebSocket conn : keySet) {
+				 	   						String cuser = OnlineChatServerPool.userconnections.get(conn);
+				 	   						if(cuser.equals(userList.get(i).getString("WEBSOCKETUSER"))){
+				 	   						JSONObject result = new JSONObject();
+				 	   						result.element("type", "XMDP"+uu32);
+				 	   						conn.send(result.toString());
+				 	   						}
+				 	   					}
+				 	   				}
+	 	   				    /*}else{
+	 	   				    	break;
+	 	   				    }*/
+	 	   			}
+	 	   		}
+	 	   		
+	 	   	//发送短信
+	 	   		PageData sendSmsUser = (PageData) dao.findForObject("UserXMapper.findSmsUser", CREATE_BY);			//发送人
+	 	   		List<PageData> smsUserList = (List<PageData>) dao.findForList("UserXMapper.findSmsUser", USER_ID);	//接收人LIST
+	 	   		String content=sendSmsUser.getString("STRUCT_NAME"); //发送内容
+	 	   		if(sendSmsUser.getString("BM")!=null){
+	 	   		content=content+"["+sendSmsUser.getString("BM")+"]";
+	 	   		}
+	 	   		content=content+sendSmsUser.getString("NAME")+"发起的审批，请你审批!";
+	 	   		
+	 	   	for(int i=0;i<smsUserList.size();i++){
+ 	   			if(!"0".equals(smsUserList.get(i).getString("PHONE"))){
+ 	   					sendSms2(smsUserList.get(i).getString("PHONE"),content);
+ 	   			}
+ 	   		}
+	 	   		
+	 	   		
+		}
+		
+		
+		/**
+		 * shenwei20161013  查询评审回复人员 findWebsocketReplyUser 回复推送消息
+		 * shenwei20161011 websocketUser 查询
+		 * @param pd
+		 * @return
+		 * @throws Exception
+		 */
+		public List<PageData> findWebsocketUserByFlowState(PageData pd)throws Exception{
+			return (List<PageData>) dao.findForList("UserXMapper.findWebsocketUserByFlowState", pd);
+		}
+		
+		public PageData findWebsocketTribuneIdByReviewObjid(PageData pd)throws Exception{
+			return (PageData) dao.findForObject("UserXMapper.findWebsocketTribuneIdByReviewObjid", pd);
+		}
+		
+		
+		/**
+		 * shenwei20161011 websocketUser 查询
+		 * @param pd
+		 * @return
+		 * @throws Exception
+		 */
+		public List<PageData> findWebsocketUserByTribuneId(PageData pd)throws Exception{
+			return (List<PageData>) dao.findForList("UserXMapper.findWebsocketUserByTribuneId", pd);
+		}
+		
+		
+		
+		public List<PageData> findWebsocketUserByItemReviewId(PageData pd)throws Exception{
+			return (List<PageData>) dao.findForList("UserXMapper.findWebsocketUserByItemReviewId", pd);
+		}
+		
+		
+		
+		/**
+		 * shenwei20161013  查询评审回复人员 findWebsocketReplyUser
+		 * @param pd
+		 * @return
+		 * @throws Exception
+		 */
+		public void sendWebsocketReplyUser(PageData pd,User userinfo)throws Exception{
+			//List<PageData> userList = (List<PageData>) dao.findForList("UserXMapper.findWebsocketReplyUser", pd);
+			//String type = "";
+			String fromUser = userinfo.getNAME()+userinfo.getUSERNAME();
+			PageData toUserList = (PageData) dao.findForObject("UserXMapper.selectCreateBy", pd);
+			String toUser	= toUserList.getString("WEBSOCKETUSER");
+			Set<WebSocket> keySet = OnlineChatServerPool.userconnections.keySet();
+			//给创建人 推送 XXX已审批的消息
+			int st=Integer.parseInt(pd.get("state").toString());
+			String msg="";
+			if(st==2){
+				msg="同意";
+			}else{
+				msg="驳回";
+			}
+			synchronized (keySet) {
+					for (WebSocket conn : keySet) {
+						String cuser = OnlineChatServerPool.userconnections.get(conn);
+						if(cuser.equals(toUser)){			
+						JSONObject result = new JSONObject();
+						result.element("type", "userToUser"+fromUser+msg);
+						conn.send(result.toString());
+						}
+					}
+				}
+			//给其他需要推送的人员推送
+			/*if(userList.size()>0){
+   					if(!userList.get(0).getString("REVIEW_TYPE").equals(userinfo.getReviewType())){  //如果LIST第一个人不等于当前回复人的REVIEW_TYPE 
+   						type=userList.get(0).getString("REVIEW_TYPE");  // 接收那个要推送的人的REVIEW_TYPE
+   							for(int i=0;i<userList.size();i++){
+   							 	if(type == userList.get(i).getString("REVIEW_TYPE")){	//如果循环的LIST的REVIEW_TYPE 等于判定的类型，就推送，否则跳出循环
+	   							 	synchronized (keySet) {
+				 	   					for (WebSocket conn : keySet) {
+				 	   						String cuser = OnlineChatServerPool.userconnections.get(conn);
+				 	   						if(cuser.equals(userList.get(i).getString("WEBSOCKETUSER"))){
+				 	   						JSONObject result = new JSONObject();
+				 	   						result.element("type", "sendUser"+pd.getString("tribuneId"));
+				 	   						conn.send(result.toString());
+				 	   						}
+				 	   					}
+				 	   				}
+   							 		 
+	 	 	   				    }else{				//后台SQL 必须按CBA这样排序
+	 	 	   				    	break;
+	 	 	   				    }
+   							}
+   					}else{
+   						
+   					}
+   				} */
+			/**
+			 * 只有审批同意的时，才往下级发消息
+			 */
+			if(Integer.parseInt(pd.get("state").toString())==2){
+				
+				List<PageData> userList = (List<PageData>) dao.findForList("UserXMapper.findWebsocketUser", pd.get("userIdList"));
+		 	   		if(userList.size()>0){
+		 	   			for(int i=0;i<userList.size();i++){
+					 	   					synchronized (keySet) {
+					 	   					for (WebSocket conn : keySet) {
+					 	   						String cuser = OnlineChatServerPool.userconnections.get(conn);
+					 	   						if(cuser.equals(userList.get(i).getString("WEBSOCKETUSER"))){
+					 	   						JSONObject result = new JSONObject();
+					 	   						result.element("type", "sendUser"+pd.getString("tribuneId"));
+					 	   						conn.send(result.toString());
+					 	   						}
+					 	   					}
+					 	   				}
+		 	   				   
+		 	   			}
+		 	   		}
+		 	   		
+		 	   		
+		 	   		
+		 	   	//发送短信
+		 	   		PageData create_by = (PageData) dao.findForObject("TtTribuneMapper.findTribuneinfoByid", pd);			//pd.getString("tribuneId")参数
+		 	   		PageData sendSmsUser = (PageData) dao.findForObject("UserXMapper.findSmsUser",create_by.getString("CREATE_BY"));			//发送人 拿到创建人ID
+		 	   		List<PageData> smsUserList = (List<PageData>) dao.findForList("UserXMapper.findSmsUser", pd.get("userIdList"));	//接收人LIST
+		 	   		String content=sendSmsUser.getString("STRUCT_NAME"); //发送内容
+		 	   		if(sendSmsUser.getString("BM")!=null){
+		 	   		content=content+"["+sendSmsUser.getString("BM")+"]";
+		 	   		}
+		 	   		content=content+sendSmsUser.getString("NAME")+"发起的审批，请你审批!";
+		 	   		
+		 	   	for(int i=0;i<smsUserList.size();i++){
+	 	   			if(!"0".equals(smsUserList.get(i).getString("PHONE"))){
+	 	   					sendSms2(smsUserList.get(i).getString("PHONE"),content);
+	 	   			}
+	 	   		}
+		 	   		
+			
+			}
+			
+		}
+		
+		
+		
+		/**
+		 * shenwei20161013  查询评审回复人员 findWebsocketReplyUser  项目待批 回复
+		 * @param pd
+		 * @return
+		 * @throws Exception
+		 */
+		public void sendWebsocketReplyUserXMDP(PageData pd,User userinfo)throws Exception{
+			
+			String fromUser = userinfo.getNAME()+userinfo.getUSERNAME();
+			PageData toUserList = (PageData) dao.findForObject("UserXMapper.selectCreateByXMDP", pd);//  这个要改  查询 项目 审批  表
+			String toUser	= toUserList.getString("WEBSOCKETUSER");
+			Set<WebSocket> keySet = OnlineChatServerPool.userconnections.keySet();
+			//给创建人 推送 XXX已审批的消息
+			int st=Integer.parseInt(pd.get("state").toString());
+			String msg="";
+			if(st==2){
+				msg="同意";
+			}else{
+				msg="驳回";
+			}
+			synchronized (keySet) {
+					for (WebSocket conn : keySet) {
+						String cuser = OnlineChatServerPool.userconnections.get(conn);
+						if(cuser.equals(toUser)){			
+						JSONObject result = new JSONObject();
+						result.element("type", "userToUser"+fromUser+msg);
+						conn.send(result.toString());
+						}
+					}
+				}
+			
+			/**
+			 * 只有审批同意的时，才往下级发消息
+			 */
+			if(Integer.parseInt(pd.get("state").toString())==2){
+				
+				List<PageData> userList = (List<PageData>) dao.findForList("UserXMapper.findWebsocketUser", pd.get("userIdList"));
+		 	   		if(userList.size()>0){
+		 	   			for(int i=0;i<userList.size();i++){
+					 	   					synchronized (keySet) {
+					 	   					for (WebSocket conn : keySet) {
+					 	   						String cuser = OnlineChatServerPool.userconnections.get(conn);
+					 	   						if(cuser.equals(userList.get(i).getString("WEBSOCKETUSER"))){
+					 	   						JSONObject result = new JSONObject();
+					 	   						result.element("type", "XMDP"+pd.getString("tribuneId"));
+					 	   						conn.send(result.toString());
+					 	   						}
+					 	   					}
+					 	   				}
+		 	   				   
+		 	   			}
+		 	   		}
+		 	   		
+		 	   	//发送短信
+		 	   		PageData create_by = (PageData) dao.findForObject("ItemReviewMapper.findItemReviewfoByid", pd);
+		 	   		PageData sendSmsUser = (PageData) dao.findForObject("UserXMapper.findSmsUser", create_by.getString("CREATE_BY"));			//发送人 拿到创建人ID
+		 	   		List<PageData> smsUserList = (List<PageData>) dao.findForList("UserXMapper.findSmsUser", pd.get("userIdList"));	//接收人LIST
+		 	   		String content=sendSmsUser.getString("STRUCT_NAME"); //发送内容
+		 	   		if(sendSmsUser.getString("BM")!=null){
+		 	   		content=content+"["+sendSmsUser.getString("BM")+"]";
+		 	   		}
+		 	   		content=content+sendSmsUser.getString("NAME")+"发起的审批，请你审批!";
+		 	   		
+		 	   	for(int i=0;i<smsUserList.size();i++){
+	 	   			if(!"0".equals(smsUserList.get(i).getString("PHONE"))){
+	 	   					sendSms2(smsUserList.get(i).getString("PHONE"),content);
+	 	   			}
+	 	   		}
+			
+			}
+			
+		}
+		
+		
+		
+		
+		
+		/**
+		 * 给一个人发送单条短信
+		 * @param mobile 手机号
+		 * @param code  短信内容
+		 */
+		private static String Url = "http://api.cnsms.cn/?ac=send";
+		public void sendSms2(String mobile,String code){
+			HttpClient client = new HttpClient(); 
+			PostMethod method = new PostMethod(Url); 
+				
+			client.getParams().setContentCharset("UTF-8");
+			method.setRequestHeader("ContentType","application/x-www-form-urlencoded;charset=UTF-8");
+
+		    String content = new String(code);  
+		    
+		    String account = "", password = "";
+		    String strSMS2 = Tools.readTxtFile(Const.SMS2);			//读取短信2配置
+			if(null != strSMS2 && !"".equals(strSMS2)){
+				String strS2[] = strSMS2.split(",fh,");
+				if(strS2.length == 2){
+					account = strS2[0];
+					password = strS2[1];
+				}
+			}
+		   
+			NameValuePair[] data = {//提交短信
+			    new NameValuePair("uid", account), 
+			    new NameValuePair("pwd",  MD5.md5(password)), 			//密码可以使用明文密码或使用32位MD5加密
+			    new NameValuePair("mobile", mobile), 
+			    new NameValuePair("content", content),
+			    new NameValuePair("encode", "utf8"),
+			};
+			
+			method.setRequestBody(data);
+			
+			try {
+				client.executeMethod(method);
+				
+				String SubmitResult =method.getResponseBodyAsString();
+						
+			/*	Document doc = DocumentHelper.parseText(SubmitResult); 
+				Element root = doc.getRootElement();
+
+
+				code = root.elementText("code");
+				String msg = root.elementText("msg");
+				String smsid = root.elementText("smsid");
+				
+				
+				System.out.println(code);
+				System.out.println(msg);
+				System.out.println(smsid);*/
+				
+				/*if(code == "100"){
+					System.out.println("短信发送成功");
+				}*/
+				
+			} catch (HttpException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}/* catch (DocumentException e) {
+				e.printStackTrace();
+			}	*/
+			
+		}
+		
+		
+		
+		/**
+		 * 抄送 的 推送
+		 * @param pd
+		 * @throws Exception
+		 */
+		public void sendWebsocketCcUser(PageData pd)throws Exception{
+			List<PageData> ccUserList=(List<PageData>) dao.findForList("selectByTribuneId", pd);
+			String userIdList="";
+			for (int i = 0; i < ccUserList.size(); i++) {
+				userIdList+=ccUserList.get(i).getString("USER_ID")+",";
+			}
+			pd.put("userIdList", userIdList);
+			Set<WebSocket> keySet = OnlineChatServerPool.userconnections.keySet();
+			List<PageData> userList = (List<PageData>) dao.findForList("UserXMapper.findWebsocketUser", pd.get("userIdList"));
+		 	   		if(userList.size()>0){
+		 	   			for(int i=0;i<userList.size();i++){
+					 	   					synchronized (keySet) {
+					 	   					for (WebSocket conn : keySet) {
+					 	   						String cuser = OnlineChatServerPool.userconnections.get(conn);
+					 	   						if(cuser.equals(userList.get(i).getString("WEBSOCKETUSER"))){
+					 	   						JSONObject result = new JSONObject();
+					 	   						result.element("type", "tTccUser"+pd.getString("tribuneId"));
+					 	   						conn.send(result.toString());
+					 	   						}
+					 	   					}
+					 	   				}
+		 	   				   
+		 	   			}
+		 	   		}
+		}
+		
+		
+		/**
+		 * @author administrator_chen
+		 * 解除绑定
+		 * @param pd
+		 * @throws Exception
+		 */
+		public void unBindingUser(PageData pd) throws Exception{
+			dao.update("UserXMapper.unBindingUser", pd); 
+		}
+
+
+		
+}

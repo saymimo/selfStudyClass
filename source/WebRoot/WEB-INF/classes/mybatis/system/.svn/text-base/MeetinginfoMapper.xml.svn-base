@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="MeetinginfoMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.Meetinginfo" >
+    <id column="MEETINGINFO_ID" property="meetinginfoId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="MEETING_TITLE" property="meetingTitle" jdbcType="VARCHAR" />
+    <result column="MEETING_CONTENT" property="meetingContent" jdbcType="VARCHAR" />
+    <result column="MEETING_ADDRESS" property="meetingAddress" jdbcType="VARCHAR" />
+    <result column="MEETING_USER" property="meetingUser" jdbcType="VARCHAR" />
+    <result column="MEETING_TYPE" property="meetingType" jdbcType="CHAR" />
+    <result column="MEETING_START_DATE" property="meetingStartDate" jdbcType="TIMESTAMP" />
+    <result column="MEETING_END_DATE" property="meetingEndDate" jdbcType="TIMESTAMP" />
+    <result column="MEETING_RESULTS" property="meetingResults" jdbcType="VARCHAR" />
+    <result column="INVITE_MEET_USER" property="inviteMeetUser" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="FLOW_STATE" property="flowState" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    MEETINGINFO_ID, STRUCT_ID, MEETING_TITLE, MEETING_CONTENT, MEETING_ADDRESS, MEETING_USER, 
+    MEETING_TYPE, MEETING_START_DATE, MEETING_END_DATE, MEETING_RESULTS, INVITE_MEET_USER, 
+    CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, IS_DEL,FLOW_STATE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_meetinginfo
+    where MEETINGINFO_ID = #{meetinginfoId,jdbcType=VARCHAR} and IS_DEL=0
+  </select>
+  
+   <select id="selectByUserid" resultMap="BaseResultMap" parameterType="java.lang.String" >
+     select 
+     m.MEETINGINFO_ID, STRUCT_ID, MEETING_TITLE, MEETING_CONTENT, MEETING_ADDRESS, MEETING_USER, 
+    MEETING_TYPE, MEETING_START_DATE, MEETING_END_DATE, MEETING_RESULTS, INVITE_MEET_USER, 
+    CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, IS_DEL
+    FROM tt_meeting_person t LEFT JOIN  tt_meetinginfo m ON t.meetinginfo_id=m.meetinginfo_id  
+    WHERE t.user_id=#{USERID} AND m.is_del=0 AND MEETING_START_DATE &gt;= (SELECT SYSDATE())
+  </select>
+  
+   <select id="listPageByStructid" resultType="pd" parameterType="page" >
+    select 
+     MEETINGINFO_ID, STRUCT_ID, MEETING_TITLE, MEETING_CONTENT, MEETING_ADDRESS, MEETING_USER, 
+    MEETING_TYPE, MEETING_START_DATE, MEETING_END_DATE, MEETING_RESULTS, INVITE_MEET_USER, 
+    CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, IS_DEL,FLOW_STATE,
+    (SELECT NAME FROM `sys_dictionaries` WHERE P_BM LIKE 'HYLX_%%' AND ORDY_BY =tt_meetinginfo.`MEETING_TYPE`) AS MEETTYPE
+    from tt_meetinginfo
+    where STRUCT_ID = #{pd.structId,jdbcType=VARCHAR} and IS_DEL=0
+    
+    	<if test="pd.MEETNAME!=null and pd.MEETNAME != '' ">
+		 	and MEETING_TITLE LIKE #{pd.MEETNAME2} 
+		</if>
+		
+    
+       <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 					<if test="pd.LASTLOGINSTART1 != pd.LASTLOGINSTART2">
+		 		AND MEETING_START_DATE &gt;=#{pd.LASTLOGINSTART1} AND MEETING_START_DATE &lt;=#{pd.LASTLOGINSTART2}
+		 					</if>
+		 					<if test="pd.LASTLOGINSTART1 == pd.LASTLOGINSTART2">
+		 		AND MEETING_START_DATE &gt;=#{pd.LASTLOGINSTART1} 
+		 					</if>
+		 		</if>
+		</if>
+		
+		 ORDER BY MEETING_START_DATE DESC
+    
+  </select>
+  
+  <select id="listByStructid" resultType="pd" parameterType="page" >
+    select 
+     MEETINGINFO_ID, STRUCT_ID, MEETING_TITLE, MEETING_CONTENT, MEETING_ADDRESS, MEETING_USER, 
+    MEETING_TYPE, MEETING_START_DATE, MEETING_END_DATE, MEETING_RESULTS, INVITE_MEET_USER, 
+    CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY, IS_DEL,
+    (SELECT NAME FROM `sys_dictionaries` WHERE P_BM LIKE 'HYLX_%%' AND ORDY_BY =tt_meetinginfo.`MEETING_TYPE`) AS MEETTYPE
+    from tt_meetinginfo
+    where STRUCT_ID = #{pd.structId,jdbcType=VARCHAR} and IS_DEL=0
+    
+    	<if test="pd.MEETNAME!=null and pd.MEETNAME != '' ">
+		 	and MEETING_TITLE LIKE #{pd.MEETNAME2} 
+		</if>
+		
+    
+       <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 					<if test="pd.LASTLOGINSTART1 != pd.LASTLOGINSTART2">
+		 		AND MEETING_START_DATE &gt;=#{pd.LASTLOGINSTART1} AND MEETING_START_DATE &lt;=#{pd.LASTLOGINSTART2}
+		 					</if>
+		 					<if test="pd.LASTLOGINSTART1 == pd.LASTLOGINSTART2">
+		 		AND MEETING_START_DATE &gt;=#{pd.LASTLOGINSTART1} 
+		 					</if>
+		 		</if>
+		</if>
+		
+		 ORDER BY MEETING_START_DATE DESC
+    
+  </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_meetinginfo
+    where MEETINGINFO_ID = #{meetinginfoId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="pd" >
+    insert into tt_meetinginfo (MEETINGINFO_ID, STRUCT_ID, MEETING_TITLE, 
+      MEETING_CONTENT, MEETING_ADDRESS, MEETING_USER, 
+      MEETING_TYPE, MEETING_START_DATE, MEETING_END_DATE, 
+      MEETING_RESULTS, INVITE_MEET_USER, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY, IS_DEL,FLOW_STATE
+      )
+    values (#{meetinginfoId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{meetingTitle,jdbcType=VARCHAR}, 
+      #{meetingContent,jdbcType=VARCHAR}, #{meetingAddress,jdbcType=VARCHAR}, #{meetingUser,jdbcType=VARCHAR}, 
+      #{meetingType,jdbcType=CHAR}, #{meetingStartDate,jdbcType=TIMESTAMP}, #{meetingEndDate,jdbcType=TIMESTAMP}, 
+      #{meetingResults,jdbcType=VARCHAR}, #{inviteMeetUser,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, #{isDel,jdbcType=INTEGER}, #{flowState,jdbcType=INTEGER}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.Meetinginfo" >
+    insert into tt_meetinginfo
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="meetinginfoId != null" >
+        MEETINGINFO_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="meetingTitle != null" >
+        MEETING_TITLE,
+      </if>
+      <if test="meetingContent != null" >
+        MEETING_CONTENT,
+      </if>
+      <if test="meetingAddress != null" >
+        MEETING_ADDRESS,
+      </if>
+      <if test="meetingUser != null" >
+        MEETING_USER,
+      </if>
+      <if test="meetingType != null" >
+        MEETING_TYPE,
+      </if>
+      <if test="meetingStartDate != null" >
+        MEETING_START_DATE,
+      </if>
+      <if test="meetingEndDate != null" >
+        MEETING_END_DATE,
+      </if>
+      <if test="meetingResults != null" >
+        MEETING_RESULTS,
+      </if>
+      <if test="inviteMeetUser != null" >
+        INVITE_MEET_USER,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="meetinginfoId != null" >
+        #{meetinginfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="meetingTitle != null" >
+        #{meetingTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="meetingContent != null" >
+        #{meetingContent,jdbcType=VARCHAR},
+      </if>
+      <if test="meetingAddress != null" >
+        #{meetingAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="meetingUser != null" >
+        #{meetingUser,jdbcType=VARCHAR},
+      </if>
+      <if test="meetingType != null" >
+        #{meetingType,jdbcType=CHAR},
+      </if>
+      <if test="meetingStartDate != null" >
+        #{meetingStartDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="meetingEndDate != null" >
+        #{meetingEndDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="meetingResults != null" >
+        #{meetingResults,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteMeetUser != null" >
+        #{inviteMeetUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_meetinginfo
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="meetingTitle != null" >
+        MEETING_TITLE = #{meetingTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="meetingContent != null" >
+        MEETING_CONTENT = #{meetingContent,jdbcType=VARCHAR},
+      </if>
+      <if test="meetingAddress != null" >
+        MEETING_ADDRESS = #{meetingAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="meetingUser != null" >
+        MEETING_USER = #{meetingUser,jdbcType=VARCHAR},
+      </if>
+      <if test="meetingType != null" >
+        MEETING_TYPE = #{meetingType,jdbcType=CHAR},
+      </if>
+      <if test="meetingStartDate != null" >
+        MEETING_START_DATE = #{meetingStartDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="meetingEndDate != null" >
+        MEETING_END_DATE = #{meetingEndDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="meetingResults != null" >
+        MEETING_RESULTS = #{meetingResults,jdbcType=VARCHAR},
+      </if>
+      <if test="inviteMeetUser != null" >
+        INVITE_MEET_USER = #{inviteMeetUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="flowState != null" >
+        FLOW_STATE = #{flowState,jdbcType=INTEGER},
+      </if>
+    </set>
+    where MEETINGINFO_ID = #{meetinginfoId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.Meetinginfo" >
+    update tt_meetinginfo
+    set STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      MEETING_TITLE = #{meetingTitle,jdbcType=VARCHAR},
+      MEETING_CONTENT = #{meetingContent,jdbcType=VARCHAR},
+      MEETING_ADDRESS = #{meetingAddress,jdbcType=VARCHAR},
+      MEETING_USER = #{meetingUser,jdbcType=VARCHAR},
+      MEETING_TYPE = #{meetingType,jdbcType=CHAR},
+      MEETING_START_DATE = #{meetingStartDate,jdbcType=TIMESTAMP},
+      MEETING_END_DATE = #{meetingEndDate,jdbcType=TIMESTAMP},
+      MEETING_RESULTS = #{meetingResults,jdbcType=VARCHAR},
+      INVITE_MEET_USER = #{inviteMeetUser,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      IS_DEL = #{isDel,jdbcType=INTEGER}
+    where MEETINGINFO_ID = #{meetinginfoId,jdbcType=VARCHAR}
+  </update>
+  
+   <update id="deleteMeetinginfoByid" parameterType="pd" >
+    update tt_meetinginfo
+    set IS_DEL = 1
+    where MEETINGINFO_ID = #{meetinginfoId,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 发送 -->
+  <update id="sentMeetinginfoByid" parameterType="pd" >
+    update tt_meetinginfo
+    set FLOW_STATE = 1
+    where MEETINGINFO_ID = #{meetinginfoId,jdbcType=VARCHAR}
+  </update>
+  <!-- 批量删除用户 -->
+	<delete id="deleteAllM" parameterType="String" flushCache="false">
+	 update tt_meetinginfo set   IS_DEL = 1
+		where 
+			MEETINGINFO_ID in
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+	
+	
+	 <!-- 查询已选人员 -->
+  <select id="selectCCId"  parameterType="pd" resultType="java.lang.String">
+ SELECT GROUP_CONCAT(t.`USER_ID`) FROM `tt_meeting_person` t WHERE t.`MEETINGINFO_ID`=#{meetinginfoId,jdbcType=VARCHAR}
+  </select>
+</mapper>

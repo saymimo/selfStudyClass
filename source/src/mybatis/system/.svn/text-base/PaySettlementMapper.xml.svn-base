@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="PaySettlementMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.PaySettlement" >
+    <id column="PAY_SETTLEMENT_ID" property="paySettlementId" jdbcType="VARCHAR" />
+    <result column="BILL_APPLY_ID" property="billApplyId" jdbcType="VARCHAR" />
+    <result column="FINANCE_NO" property="financeNo" jdbcType="VARCHAR" />
+    <result column="INVOICE_CODE" property="invoiceCode" jdbcType="VARCHAR" />
+    <result column="INVOICE_NO" property="invoiceNo" jdbcType="VARCHAR" />
+    <result column="TAX_DATE" property="taxDate" jdbcType="TIMESTAMP" />
+    <result column="INVOICE_MONEY" property="invoiceMoney" jdbcType="DECIMAL" />
+    <result column="TAX_MONEY" property="taxMoney" jdbcType="DECIMAL" />
+    <result column="ADD_TAX_MONEY" property="addTaxMoney" jdbcType="DECIMAL" />
+    <result column="ADD_TAX" property="addTax" jdbcType="DECIMAL" />
+    <result column="CITY_TAX" property="cityTax" jdbcType="DECIMAL" />
+    <result column="CITY_RATE" property="cityRate" jdbcType="DECIMAL" />
+    <result column="EDUCATE_TAX" property="educateTax" jdbcType="DECIMAL" />
+    <result column="EDUCATE_RATE" property="educateRate" jdbcType="DECIMAL" />
+    <result column="PLACE_EDUCATE_TAX" property="placeEducateTax" jdbcType="DECIMAL" />
+    <result column="PLACE_EDUCATE_RATE" property="placeEducateRate" jdbcType="DECIMAL" />
+    <result column="RIVERWAY_TAX" property="riverwayTax" jdbcType="DECIMAL" />
+    <result column="RIVERWAY_RATE" property="riverwayRate" jdbcType="DECIMAL" />
+    <result column="PERSONAL_TAX" property="personalTax" jdbcType="DECIMAL" />
+    <result column="PERSONAL_RATE" property="personalRate" jdbcType="DECIMAL" />
+    <result column="STAMP_TAX" property="stampTax" jdbcType="DECIMAL" />
+    <result column="STAMP_RATE" property="stampRate" jdbcType="DECIMAL" />
+    <result column="OTHER_TAX" property="otherTax" jdbcType="DECIMAL" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="TAX_STATE" property="taxState" jdbcType="INTEGER" />
+    <result column="STATE_BY" property="stateBy" jdbcType="VARCHAR" />
+    <result column="STATE_DATE" property="stateDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    PAY_SETTLEMENT_ID, BILL_APPLY_ID, FINANCE_NO, INVOICE_CODE, INVOICE_NO, TAX_DATE, 
+    INVOICE_MONEY, TAX_MONEY, ADD_TAX_MONEY, ADD_TAX, CITY_TAX, CITY_RATE, EDUCATE_TAX, 
+    EDUCATE_RATE, PLACE_EDUCATE_TAX, PLACE_EDUCATE_RATE, RIVERWAY_TAX, RIVERWAY_RATE, 
+    OTHER_TAX, REMARK, OPERATOR, IS_DEL, CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE,TAX_STATE,
+    STATE_BY,STATE_DATE,PERSONAL_TAX,PERSONAL_RATE,STAMP_TAX,STAMP_RATE
+  </sql>
+<select id="checkNo" parameterType="pd" resultType="Integer">
+  SELECT 
+  COUNT(1) 
+FROM
+  tt_pay_settlement o 
+WHERE o.`INVOICE_CODE`= #{invoiceCode,jdbcType=VARCHAR}
+  AND o.`INVOICE_NO` = #{invoiceNo,jdbcType=VARCHAR}
+  AND o.IS_DEL = 0  
+  <if test="paySettlementId != null and paySettlementId != ''">
+  AND o.`PAY_SETTLEMENT_ID` != #{paySettlementId,jdbcType=VARCHAR} 
+  </if>
+</select>
+
+<delete id="DlForPaySetTwo" parameterType="pd">
+DELETE FROM tt_taxation_list 
+WHERE TYPE IN (8,9,10,11,12,17,18) AND STATE=1  AND IS_SET=1  
+AND BILL_APPLY_ID = #{billApplyId,jdbcType=VARCHAR} 
+</delete>
+
+<delete id="DlForPaySetOne" parameterType="pd">
+DELETE FROM tt_taxation_list 
+WHERE TYPE IN (8,9,10,11,12,17,18) AND STATE=0   
+AND BILL_APPLY_ID = #{billApplyId,jdbcType=VARCHAR} 
+</delete>
+
+<select id="slCounts" parameterType="String" resultType="Integer">
+SELECT 
+  COUNT(1) 
+FROM
+  tt_pay_settlement tt 
+WHERE tt.`BILL_APPLY_ID` = #{billApplyId,jdbcType=VARCHAR} 
+  AND tt.`IS_DEL` = 0  
+</select>  
+<select id="selectCount" resultType="pd" parameterType="pd">
+SELECT 
+  COUNT(*) AS counts,
+  p.`BILL_APPLY_ID` AS billApplyId,
+  (SELECT 
+    b.STATE 
+  FROM
+    tt_bill_apply b 
+  WHERE b.BILL_APPLY_ID = p.`BILL_APPLY_ID`) AS state 
+FROM
+  tt_pay_settlement p 
+WHERE p.`BILL_APPLY_ID` = 
+  (SELECT 
+    tp.`BILL_APPLY_ID` 
+  FROM
+    tt_pay_settlement tp 
+  WHERE tp.`PAY_SETTLEMENT_ID` = #{paySettlementId,jdbcType=VARCHAR}) 
+  AND IS_DEL = 0 
+</select>
+ 
+  <select id="checkFinNo" parameterType="pd" resultType="Integer">
+  SELECT 
+  COUNT(1) 
+FROM
+  tt_pay_settlement o 
+WHERE 	
+ o.`FINANCE_NO` = #{financeNo,jdbcType=VARCHAR} 
+ AND IS_DEL = 0
+ <if test="paySettlementId != null and paySettlementId != ''">
+  AND o.`PAY_SETTLEMENT_ID` != #{paySettlementId,jdbcType=VARCHAR} 
+  </if>
+  </select>
+
+<select id="selectByPrimaryKey" resultType="pd" parameterType="pd" >
+SELECT 
+  ps.*,
+  (SELECT 
+    ba.BILL_MONEY 
+  FROM
+    tt_bill_apply ba 
+  WHERE ba.BILL_APPLY_ID = ps.`BILL_APPLY_ID`) AS BILL_MONEY,
+  (SELECT 
+    SUM(ti.`INVOICE_MONEY`) 
+  FROM
+    tt_in_invoice ti 
+  WHERE ti.`IN_INVOICE_ID` IN 
+    (SELECT 
+      tit.IN_INVOICE_ID 
+    FROM
+      tt_invoice_type tit 
+    WHERE tit.`BILL_APPLY_ID` = ps.`BILL_APPLY_ID` 
+      AND tit.`IS_SUBPACKAGE` = 0) 
+    AND ti.`IS_DEL` = 0) AS PACT_MONEY,
+  (SELECT 
+    SUM(tit.D_MONEY) 
+  FROM
+    tt_invoice_type tit 
+  WHERE tit.`BILL_APPLY_ID` = ps.`BILL_APPLY_ID` 
+    AND tit.`IS_SUBPACKAGE` = 1) AS IN_MONEY,
+  (SELECT 
+    SUM(pt.`TAX_MONEY`) 
+  FROM
+    tt_pay_tax pt 
+  WHERE pt.`BILL_APPLY_ID` = ps.`BILL_APPLY_ID` 
+    AND pt.`IS_DEL` = 0) AS PAY_MONEY,
+  (SELECT 
+    TAXATION_TYPE 
+  FROM
+    tt_iteminfo ti 
+  WHERE ti.ITEM_ID = 
+    (SELECT 
+      tb.ITEM_ID 
+    FROM
+      tt_bill_apply tb 
+    WHERE tb.BILL_APPLY_ID = ps.`BILL_APPLY_ID` 
+      AND tb.IS_DEL = 0)) TAXATION_TYPE  
+FROM
+  tt_pay_settlement ps 
+WHERE ps.`IS_DEL` = 0 
+  AND ps.`PAY_SETTLEMENT_ID` = #{paySettlementId,jdbcType=VARCHAR} 
+</select>
+<select id="toAddObj" parameterType="pd" resultType="pd"> 
+SELECT 
+  sa.*,
+  CASE
+    sa.TAXATION_TYPE 
+    WHEN 1 
+    THEN (
+      (
+        sa.BILL_MONEY - IFNULL(PACT_MONEY, 0)
+      ) * 0.03
+    ) 
+    ELSE (sa.BILL_MONEY * 0.11) 
+  END ADD_TAX_MONEY_S,
+  CASE
+    sa.TAXATION_TYPE 
+    WHEN 1 
+    THEN IFNULL(sa.IN_MONEY, 0) 
+    ELSE (
+      IFNULL(sa.IN_MONEY, 0) + IFNULL(PACT_TAX_MONEY, 0) +IFNULL(ADJUST_TAX,0)
+    ) 
+  END IN_MONEY_S 
+FROM
+  (SELECT 
+    IFNULL((SELECT SUM(toi.INVOICE_MONEY+toi.TAX_MONEY) FROM tt_output_invoice toi WHERE toi.IS_DEL = 0 AND toi.BILL_APPLY_ID =ba.BILL_APPLY_ID),0)  OUT_BILL_MONEY,
+    IFNULL((SELECT  SUM(pt.`TAX_MONEY`) FROM tt_pay_tax pt WHERE pt.`BILL_APPLY_ID` = ba.`BILL_APPLY_ID`  AND pt.`IS_DEL` = 0),0)  PAY_MONEY,
+    (SELECT TAXATION_TYPE FROM tt_iteminfo ti  WHERE ti.ITEM_ID = ba.`ITEM_ID`)  TAXATION_TYPE,
+    IFNULL((
+     SELECT SUM(tit.D_MONEY) FROM tt_invoice_type tit WHERE tit.`BILL_APPLY_ID` = ba.`BILL_APPLY_ID` 
+	AND (tit.IN_INVOICE_ID IN (SELECT tii.IN_INVOICE_ID FROM tt_in_invoice tii WHERE tii.IN_STATE =0)
+        AND tit.`IS_SUBPACKAGE` = 1)
+     ),0) IN_MONEY,
+    IFNULL(( 
+    SELECT SUM(ti.TAX_NO_INCLUDED+ti.TAX_MONEY) FROM tt_in_invoice ti LEFT JOIN tt_iteminfo t ON  t.ITEM_ID = ti.ITEM_ID
+    WHERE ti.IN_INVOICE_ID IN ((SELECT tit.IN_INVOICE_ID FROM tt_invoice_type tit WHERE tit.`BILL_APPLY_ID` = ba.`BILL_APPLY_ID` AND tit.`IS_SUBPACKAGE` = 0)) AND ti.IS_DEL = 0
+    ),0)  PACT_MONEY,
+    IFNULL((
+    SELECT SUM(ti.TAX_MONEY) FROM tt_in_invoice ti WHERE ti.IN_INVOICE_ID IN ((SELECT tit.IN_INVOICE_ID FROM tt_invoice_type tit WHERE tit.`BILL_APPLY_ID` = ba.`BILL_APPLY_ID` AND tit.`IS_SUBPACKAGE` = 0)
+    ) AND ti.IS_DEL = 0
+    ),0)  PACT_TAX_MONEY,
+    IFNULL((SELECT SUM(tit.D_MONEY) FROM tt_invoice_type tit WHERE tit.BILL_APPLY_ID = ba.BILL_APPLY_ID AND tit.IS_SUBPACKAGE =2 ),0)   ADJUST_TAX,
+    (SELECT tpt.`INVOICE_MONEY` FROM tt_pay_tax tpt WHERE tpt.`IS_DEL`=0 AND tpt.`BILL_APPLY_ID`= ba.BILL_APPLY_ID) BILL_MONEY 
+  FROM
+    tt_bill_apply ba 
+  WHERE ba.`IS_DEL` = 0 
+    AND ba.`BILL_APPLY_ID` = #{billApplyId,jdbcType=VARCHAR}
+    ) sa  
+</select>
+<select id="listPageAll" parameterType="page" resultType="pd">
+SELECT 
+  sa.* 
+FROM
+  (SELECT 
+    ps.*,
+    (SELECT 
+      u.NAME 
+    FROM
+      sys_user u 
+    WHERE u.USER_ID = ps.`CREATE_BY`) CREATE_NAME,
+    (SELECT 
+      u.NAME 
+    FROM
+      sys_user u 
+    WHERE u.USER_ID = ps.`STATE_BY`) STATE_BY_NAME 
+  FROM
+    tt_pay_settlement ps 
+WHERE ps.`BILL_APPLY_ID` = #{pd.billApplyId,jdbcType=VARCHAR} 
+  AND ps.`IS_DEL` = 0 
+ORDER BY ps.`CREATE_DATE` DESC) AS sa 
+  WHERE 1 = 1 
+  <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR sa.`FINANCE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.INVOICE_CODE LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.`INVOICE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`TAX_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`TAX_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+</if>   
+</select>
+  
+<delete id="deleteByPrimaryKey" parameterType="pd" >
+UPDATE 
+  tt_taxation_list ps 
+SET
+  ps.`IS_DEL` = 1 
+WHERE ps.`TAXATION_LIST_ID` =  #{taxationListId,jdbcType=VARCHAR}
+</delete>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.PaySettlement" >
+    insert into tt_pay_settlement
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="paySettlementId != null" >
+        PAY_SETTLEMENT_ID,
+      </if>
+      <if test="billApplyId != null" >
+        BILL_APPLY_ID,
+      </if>
+      <if test="financeNo != null" >
+        FINANCE_NO,
+      </if>
+      <if test="invoiceCode != null" >
+        INVOICE_CODE,
+      </if>
+      <if test="invoiceNo != null" >
+        INVOICE_NO,
+      </if>
+      <if test="taxDate != null" >
+        TAX_DATE,
+      </if>
+      <if test="invoiceMoney != null and invoiceMoney != ''" >
+        INVOICE_MONEY,
+      </if>
+      <if test="taxMoney != null and taxMoney != ''" >
+        TAX_MONEY,
+      </if>
+      <if test="addTaxMoney != null and addTaxMoney != ''" >
+        ADD_TAX_MONEY,
+      </if>
+      <if test="addTax != null and addTax != ''" >
+        ADD_TAX,
+      </if>
+      <if test="cityTax != null and cityTax != '' " >
+        CITY_TAX,
+      </if>
+      <if test="cityRate != null and cityRate != ''" >
+        CITY_RATE,
+      </if>
+      <if test="educateTax != null and educateTax != ''" >
+        EDUCATE_TAX,
+      </if>
+      <if test="educateRate != null and educateRate != ''" >
+        EDUCATE_RATE,
+      </if>
+      <if test="placeEducateTax != null and placeEducateTax != ''" >
+        PLACE_EDUCATE_TAX,
+      </if>
+      <if test="placeEducateRate != null and placeEducateRate != ''" >
+        PLACE_EDUCATE_RATE,
+      </if>
+      <if test="riverwayTax != null and riverwayTax != ''" >
+        RIVERWAY_TAX,
+      </if>
+      <if test="riverwayRate != null and riverwayRate != ''" >
+        RIVERWAY_RATE,
+      </if>
+      <if test="personalTax != null and personalTax != ''" >
+        PERSONAL_TAX,
+      </if>
+      <if test="personalRate != null and personalRate != ''" >
+        PERSONAL_RATE,
+      </if>
+      <if test="stampTax != null and stampTax != ''" >
+        STAMP_TAX,
+      </if>
+      <if test="stampRate != null and stampRate != ''" >
+        STAMP_RATE,
+      </if>
+      <if test="otherTax != null and otherTax != ''" >
+        OTHER_TAX,
+      </if>
+      <if test="remark != null" >
+        REMARK,
+      </if>
+      <if test="operator != null" >
+        OPERATOR,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="taxState != null" >
+        TAX_STATE,
+      </if>
+      <if test="stateBy != null" >
+        STATE_BY,
+      </if>
+      <if test="stateDate != null" >
+        STATE_DATE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="paySettlementId != null" >
+        #{paySettlementId,jdbcType=VARCHAR},
+      </if>
+      <if test="billApplyId != null" >
+        #{billApplyId,jdbcType=VARCHAR},
+      </if>
+      <if test="financeNo != null" >
+        #{financeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceCode != null" >
+        #{invoiceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceNo != null" >
+        #{invoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="taxDate != null" >
+        #{taxDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="invoiceMoney != null and invoiceMoney != ''" >
+        #{invoiceMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="taxMoney != null and taxMoney != ''" >
+        #{taxMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="addTaxMoney != null and addTaxMoney != ''" >
+        #{addTaxMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="addTax != null and addTax != ''" >
+        #{addTax,jdbcType=DECIMAL},
+      </if>
+      <if test="cityTax != null and cityTax != ''" >
+        #{cityTax,jdbcType=DECIMAL},
+      </if>
+      <if test="cityRate != null and cityRate != ''" >
+        #{cityRate,jdbcType=DECIMAL},
+      </if>
+      <if test="educateTax != null and educateTax != ''" >
+        #{educateTax,jdbcType=DECIMAL},
+      </if>
+      <if test="educateRate != null and educateRate != ''" >
+        #{educateRate,jdbcType=DECIMAL},
+      </if>
+      <if test="placeEducateTax != null and placeEducateTax != ''" >
+        #{placeEducateTax,jdbcType=DECIMAL},
+      </if>
+      <if test="placeEducateRate != null and placeEducateRate != ''" >
+        #{placeEducateRate,jdbcType=DECIMAL},
+      </if>
+      <if test="riverwayTax != null and riverwayTax != ''" >
+        #{riverwayTax,jdbcType=DECIMAL},
+      </if>
+      <if test="riverwayRate != null and riverwayRate != ''" >
+        #{riverwayRate,jdbcType=DECIMAL},
+      </if>
+      <if test="personalTax != null and personalTax != ''" >
+        #{personalTax,jdbcType=DECIMAL},
+      </if>
+      <if test="personalRate != null and personalRate != ''" >
+        #{personalRate,jdbcType=DECIMAL},
+      </if>
+      <if test="stampTax != null and stampTax != ''" >
+        #{stampTax,jdbcType=DECIMAL},
+      </if>
+      <if test="stampRate != null and stampRate != ''" >
+        #{stampRate,jdbcType=DECIMAL},
+      </if>
+      <if test="otherTax != null and otherTax != ''" >
+        #{otherTax,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="operator != null" >
+        #{operator,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taxState != null" >
+        #{taxState,jdbcType=INTEGER},
+      </if>
+      <if test="stateBy != null" >
+        #{stateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="stateDate != null" >
+        #{stateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.PaySettlement" >
+    update tt_pay_settlement
+    <set >
+      <if test="billApplyId != null" >
+        BILL_APPLY_ID = #{billApplyId,jdbcType=VARCHAR},
+      </if>
+      <if test="financeNo != null" >
+        FINANCE_NO = #{financeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceCode != null" >
+        INVOICE_CODE = #{invoiceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceNo != null" >
+        INVOICE_NO = #{invoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="taxDate != null" >
+        TAX_DATE = #{taxDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="invoiceMoney != null" >
+        INVOICE_MONEY = #{invoiceMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="taxMoney != null" >
+        TAX_MONEY = #{taxMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="addTaxMoney != null" >
+        ADD_TAX_MONEY = #{addTaxMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="addTax != null" >
+        ADD_TAX = #{addTax,jdbcType=DECIMAL},
+      </if>
+      <if test="cityTax != null and cityTax != ''" >
+        CITY_TAX = #{cityTax,jdbcType=DECIMAL},
+      </if>
+      <if test="cityRate != null and cityRate != ''" >
+        CITY_RATE = #{cityRate,jdbcType=DECIMAL},
+      </if>
+      <if test="educateTax != null and educateTax != ''" >
+        EDUCATE_TAX = #{educateTax,jdbcType=DECIMAL},
+      </if>
+      <if test="educateRate != null and educateRate != ''" >
+        EDUCATE_RATE = #{educateRate,jdbcType=DECIMAL},
+      </if>
+      <if test="placeEducateTax != null and placeEducateTax != ''" >
+        PLACE_EDUCATE_TAX = #{placeEducateTax,jdbcType=DECIMAL},
+      </if>
+      <if test="placeEducateRate != null and placeEducateRate != ''" >
+        PLACE_EDUCATE_RATE = #{placeEducateRate,jdbcType=DECIMAL},
+      </if>
+      <if test="riverwayTax != null and riverwayTax != ''" >
+        RIVERWAY_TAX = #{riverwayTax,jdbcType=DECIMAL},
+      </if>
+      <if test="riverwayRate != null and riverwayRate != ''" >
+        RIVERWAY_RATE = #{riverwayRate,jdbcType=DECIMAL},
+      </if>
+      <if test="personalTax != null and personalTax != ''" >
+        PERSONAL_TAX = #{personalTax,jdbcType=DECIMAL},
+      </if>
+      <if test="personalRate != null and personalRate != ''" >
+        PERSONAL_RATE = #{personalRate,jdbcType=DECIMAL},
+      </if>
+      <if test="stampTax != null and stampTax != ''" >
+        STAMP_TAX = #{stampTax,jdbcType=DECIMAL},
+      </if>
+      <if test="stampRate != null and stampRate != ''" >
+        STAMP_RATE = #{stampRate,jdbcType=DECIMAL},
+      </if>
+      <if test="otherTax != null and otherTax != ''" >
+        OTHER_TAX = #{otherTax,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null" >
+        REMARK = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="operator != null" >
+        OPERATOR = #{operator,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="taxState != null" >
+        TAX_STATE = #{taxState,jdbcType=INTEGER},
+      </if>
+      <if test="stateBy != null" >
+        STATE_BY = #{stateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="stateDate != null" >
+        STATE_DATE = #{stateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where PAY_SETTLEMENT_ID = #{paySettlementId,jdbcType=VARCHAR}
+  </update>
+</mapper>
