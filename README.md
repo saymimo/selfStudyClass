@@ -1,6 +1,6 @@
 ## 源码一览（source）
 ### 结构
-> src/ 
+> src/  
 >├── com/  
 >│&nbsp;├── ssc/  
 >│&nbsp;&nbsp;&nbsp;&nbsp;├── controller/  
