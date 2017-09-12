@@ -1,20 +1,20 @@
 ## 源码一览（source）
 ### 结构
->src/
-├── com/
-│&nbsp;├── ssc/
-│&nbsp;&nbsp;&nbsp;&nbsp;├── controller/
-│&nbsp;&nbsp;&nbsp;&nbsp;├── dao/
-│&nbsp;&nbsp;&nbsp;&nbsp;├── entity/
-│&nbsp;&nbsp;&nbsp;&nbsp;├── filter/
-│&nbsp;&nbsp;&nbsp;&nbsp;├── interceptor/
-│&nbsp;&nbsp;&nbsp;&nbsp;├── listener/
-│&nbsp;&nbsp;&nbsp;&nbsp;├── quartz/
-│&nbsp;&nbsp;&nbsp;&nbsp;├── resolver/
-│&nbsp;&nbsp;&nbsp;&nbsp;├── service/
-│&nbsp;&nbsp;&nbsp;&nbsp;└── util/
-├── mybatis/
-├── PluSoft/
+> src/\<br /\> 
+├── com/\<br /\> 
+│&nbsp;├── ssc/\<br /\> 
+│&nbsp;&nbsp;&nbsp;&nbsp;├── controller/\<br /\> 
+│&nbsp;&nbsp;&nbsp;&nbsp;├── dao/\<br /\> 
+│&nbsp;&nbsp;&nbsp;&nbsp;├── entity/\<br /\> 
+│&nbsp;&nbsp;&nbsp;&nbsp;├── filter/\<br /\> 
+│&nbsp;&nbsp;&nbsp;&nbsp;├── interceptor/\<br /\> 
+│&nbsp;&nbsp;&nbsp;&nbsp;├── listener/\<br /\> 
+│&nbsp;&nbsp;&nbsp;&nbsp;├── quartz/\<br /\> 
+│&nbsp;&nbsp;&nbsp;&nbsp;├── resolver/\<br /\> 
+│&nbsp;&nbsp;&nbsp;&nbsp;├── service/\<br /\> 
+│&nbsp;&nbsp;&nbsp;&nbsp;└── util/\<br /\> 
+├── mybatis/\<br /\> 
+├── PluSoft/\<br /\> 
 └── spring/
 
 ------
@@ -44,9 +44,9 @@
 
 ## 接口补充
 ### *2017-09-11* 更新:
-之前有些接口不是很完整，比如新建文章为/api/v1/content/article，发布文章为/api/v1/content/article/publish 现在重新整理如下：
+之前有些接口不是很完整，比如新建文章为`/api/v1/content/article`,发布文章为`/api/v1/content/article/publish`,现在重新整理如下：
 > 
-- **新建文章:**` /api/v1/article/addArticle`
+- **新建文章:**`/api/v1/article/addArticle`
 - **删除文章:** `/api/v1/article/delete`
 - **查询文章:** ` ..../find`
 - **发布文章:** `..../publish`
