@@ -37,14 +37,16 @@
 4.spring中是项目的框架配置。
 
 其他的文件为一些公共字典和日志配置，不用改动。
-> **注:**其中`dbconfig.properties`文件为连接数据库的参数配置文件，部署到服务器之前需改动其中的ip和数据库名。
+> 
+**注:** 其中`dbconfig.properties`文件为连接数据库的参数配置文件，部署到服务器之前需改动其中的ip和数据库名。
 
 ---------------
 
 ## 接口补充
 ### *2017-09-11* 更新:
 之前有些接口不是很完整，比如新建文章为/api/v1/content/article，发布文章为/api/v1/content/article/publish 现在重新整理如下：
->- **新建文章:**` /api/v1/article/addArticle`
+> 
+- **新建文章:**` /api/v1/article/addArticle`
 - **删除文章:** `/api/v1/article/delete`
 - **查询文章:** ` ..../find`
 - **发布文章:** `..../publish`
@@ -53,11 +55,13 @@
 
 ### 后台已经写好的接口：
 ##### 用户：
->- **发送验证码:**`/api/v1/member/verificationCode`
+>
+- **发送验证码:**`/api/v1/member/verificationCode`
 - **登录/注册:**`/api/v1/member/login`
 - **更新用户:**`/api/v1/member/updateUser`	
 ##### 文章
->- **新建文章:**`/api/v1/article/addArticle`
+> 
+- **新建文章:**`/api/v1/article/addArticle`
 - **发布文章:**`/api/v1/article/publish`
 - **更新文章:**`/api/v1/article/update`
 
