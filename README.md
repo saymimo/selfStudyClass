@@ -59,7 +59,7 @@ src/
 >-**发布文章:**`/api/v1/article/publish`
 -**更新文章:**`/api/v1/article/update`
 
-ps:PUT DELETE等请求测试看能否使用。
+ps:PUT DELETE等请求接口测试看能否使用。
 
 ---------------
 	
