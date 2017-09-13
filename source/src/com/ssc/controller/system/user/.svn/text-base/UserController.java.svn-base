@@ -1,0 +1,1320 @@
+package com.ssc.controller.system.user;
+
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONObject;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.crypto.hash.SimpleHash;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.Subject;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+
+import com.ssc.controller.CC.CcJson;
+import com.ssc.controller.base.BaseController;
+import com.ssc.controller.system.structinfo.StructinfoController;
+import com.ssc.entity.Page;
+import com.ssc.entity.system.CostApplyUser;
+import com.ssc.entity.system.FileErrorBean;
+import com.ssc.entity.system.Fileinfo;
+import com.ssc.entity.system.Role;
+import com.ssc.entity.system.Structinfo;
+import com.ssc.entity.system.TtCostUser;
+import com.ssc.entity.system.TtSealReview;
+import com.ssc.entity.system.TtSealReviewUser;
+import com.ssc.entity.system.TtSealReviewUserReply;
+import com.ssc.entity.system.TtTenderReview;
+import com.ssc.entity.system.TtTenderReviewUser;
+import com.ssc.entity.system.TtTenderReviewUserReply;
+import com.ssc.entity.system.User;
+import com.ssc.entity.system.UserRole;
+import com.ssc.service.system.costapply.CostApplyService;
+import com.ssc.service.system.documentManage.DocumentManageService;
+import com.ssc.service.system.entrust.EntrustService;
+import com.ssc.service.system.fileinfoService.FileinfoService;
+import com.ssc.service.system.itemReview.ItemReviewService;
+import com.ssc.service.system.lwSanction.LwSanctionService;
+import com.ssc.service.system.menu.MenuService;
+import com.ssc.service.system.personal.PersonalService;
+import com.ssc.service.system.role.RoleService;
+import com.ssc.service.system.seal.SealReviewService;
+import com.ssc.service.system.structinfo.StructinfoService;
+import com.ssc.service.system.tenderReview.TenderReviewService;
+import com.ssc.service.system.user.UserService;
+import com.ssc.util.AppUtil;
+import com.ssc.util.Const;
+import com.ssc.util.FileDownload;
+import com.ssc.util.FileUpload;
+import com.ssc.util.GetPinyin;
+import com.ssc.util.Jurisdiction;
+import com.ssc.util.MD5;
+import com.ssc.util.ObjectExcelRead;
+import com.ssc.util.PageData;
+import com.ssc.util.ObjectExcelView;
+import com.ssc.util.PathUtil;
+import com.ssc.util.SortStrs;
+import com.ssc.util.Tools;
+
+/** 
+ * 类名称：UserController
+ * 创建人：FH 
+ * 创建时间：2014年6月28日
+ * @version
+ */
+@Controller
+@RequestMapping(value="/user")
+public class UserController extends BaseController {
+	
+	String menuUrl = "user/listUsers.do"; //菜单地址(权限用)
+	@Resource(name="userService")
+	private UserService userService;
+	@Resource(name="roleService")
+	private RoleService roleService;
+	@Resource(name="menuService")
+	private MenuService menuService;
+	@Resource(name="tenderReviewService")
+	private TenderReviewService tenderReviewService;
+	@Resource(name="fileinfoService")
+	private FileinfoService fileinfoService;
+	@Resource(name="sealReviewService")
+	private SealReviewService sealReviewService;
+
+	@Resource(name="costApplyService")
+	private CostApplyService costApplyService;
+	@Resource(name="lwSanctionService")
+	private LwSanctionService lwSanctionService;
+	
+	@Resource(name="itemReviewService")
+	private ItemReviewService itemReviewService;
+
+	@Resource(name="entrustService")
+	private EntrustService entrustService;
+	
+	@Resource(name="documentManageService")
+	private DocumentManageService documentManageService;
+	
+	@Resource(name = "structinfoService")
+	private StructinfoService structinfoService;
+	
+	/**
+	 * 去新增用户页面------sf
+	 */
+	@RequestMapping(value="/goAddU")
+	public ModelAndView goAddU()throws Exception{
+		ModelAndView mv = this.getModelAndView();
+		PageData pd = new PageData();
+		pd = this.getPageData();
+		Subject currentUser = SecurityUtils.getSubject();  
+		Session session = currentUser.getSession();
+		String structid=session.getAttribute(Const.SESSION_STRUCTID).toString();//组织id
+		pd.put("STRUCT_ID", structid);
+		//List<Role> roleList= roleService.listAllERRoles(pd);//列出所有二级角色
+		List<PageData> userList=userService.findByBM();  //20161101改为查全部
+		mv.setViewName("system/user/user_add");
+		mv.addObject("msg", "saveU");
+		pd.put("userList", userList);
+		mv.addObject("pd", pd);
+		mv.addObject("userList", userList);
+		//mv.addObject("roleList", roleList);
+		return mv;
+	}
+	
+	/**
+	 * 
+	 */
+	@RequestMapping(value="/selectRole")
+	@ResponseBody
+	public Object selectRole() {
+		PageData pd = new PageData();
+		pd = this.getPageData();
+		Map<String,Object> map = new HashMap<String,Object>();
+		try {
+			List<Role> roleList= roleService.selectRoleByUserid(pd);//根据USERID查找他所在组织的ROLE
+			map.put("result", roleList); // 返回结果
+		} catch (Exception e) {
+			logger.error(e.toString(), e);
+		} finally {
+			logAfter(logger);
+		}
+		return AppUtil.returnObject(pd, map);
+	}
+	
+	/**
+	 * 登入名验证
+	 * @return
+	 */
+	@RequestMapping(value="/checkFinNo")
+	@ResponseBody
+	public Object checkFinNo() {
+		Map<String, String> map = new HashMap<String, String>();
+		PageData pd = new PageData();
+		try {
+			pd = this.getPageData();
+			map.put("result", userService.checkFinNo(pd).toString()); // 返回结果
+		} catch (Exception e) {
+			logger.error(e.toString(), e);
+		}
+		return AppUtil.returnObject(new PageData(), map);
+	}
+	
+	
+	
+	/**
+	 * 保存用户-*-------sf
+	 */
+	@RequestMapping(value="/saveU")
+	public ModelAndView saveU(PrintWriter out) throws Exception{
+		ModelAndView mv = this.getModelAndView();
+		PageData pd = new PageData();
+		pd = this.getPageData();
+		//shiro管理的session
+		try {
+			Subject currentUser = SecurityUtils.getSubject();  
+			Session session = currentUser.getSession();
+			User userinfo = (User) session.getAttribute(Const.SESSION_USER);
+			
+			pd.put("USER_ID",pd.getString("NAME"));	//ID
+			pd.put("RIGHTS", "");					//权限
+			pd.put("LAST_LOGIN", "");				//最后登录时间
+			pd.put("IP", "");						//IP
+			pd.put("STATUS", "0");					//状态
+			pd.put("SKIN", "default");				//默认皮肤
+			User users=userService.findUserinfoById(pd);   //用传过来的USERID查账号
+			pd.put("STRUCT_ID",users.getSTRUCT_ID());//用传过来的人的组织ID
+			pd.put("UPDATE_DATE", new Date());
+			pd.put("UPDATE_BY", userinfo.getUSER_ID());
+			List<UserRole> userRoleList=new ArrayList<UserRole>();
+			String[] roleid=pd.get("ROLE_ID").toString().split(",");//角色id
+				for (int i = 0; i < roleid.length; i++) {
+					UserRole userRole=new UserRole();
+					userRole.setUserRoleId(this.get32UUID());//主键
+					userRole.setRoleId(roleid[i]);//角色id
+					userRole.setUserId(pd.getString("USER_ID"));//用户id
+					userRoleList.add(userRole);
+				}
+			User user=userService.findByNubmerMax(pd);   //用传过来的USERID查账号
+				String[] strint=user.getUSERNAME().split("@");
+				int uaccount=Integer.parseInt(strint[0])+1;
+				String str=String.valueOf(uaccount);
+				int k=str.length();
+				if(k==1){
+					str="00"+str;
+				}if(k==2){
+					str="0"+str;
+				}
+				
+			pd.put("USERNAME",str+"@"+strint[strint.length-1]);//用户登录名
+			pd.put("IS_DEL", 0);
+			pd.put("PASSWORD", new SimpleHash("SHA-1", str+"@"+strint[strint.length-1], "111111").toString());//初始密码111111
+			if(Jurisdiction.buttonJurisdiction(menuUrl, "edit")){
+				
+					
+				
+					userService.editUone(pd,userRoleList);
+				
+				} //判断新增权限
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.toString(), e);
+		}
+		mv.addObject("msg","success");
+		mv.setViewName("save_result");
+		return mv;
+	}
+	
+	/**
+	 * 判断用户名是否存在
+	 */
+	@RequestMapping(value="/hasU")
+	@ResponseBody
+	public Object hasU(){
+		Map<String,String> map = new HashMap<String,String>();
+		String errInfo = "success";
+		PageData pd = new PageData();
+		try{
+			pd = this.getPageData();
+			if(userService.findByUId(pd) != null){
+				errInfo = "error";
+			}
+		} catch(Exception e){
+			logger.error(e.toString(), e);
+		}
+		map.put("result", errInfo);				//返回结果
+		return AppUtil.returnObject(new PageData(), map);
+	}
+	
+	/**
+	 * 判断邮箱是否存在
+	 */
+	@RequestMapping(value="/hasE")
+	@ResponseBody
+	public Object hasE(){
+		Map<String,String> map = new HashMap<String,String>();
+		String errInfo = "success";
+		PageData pd = new PageData();
+		try{
+			pd = this.getPageData();
+			
+			if(userService.findByUE(pd) != null){
+				errInfo = "error";
+			}
+		} catch(Exception e){
+			logger.error(e.toString(), e);
+		}
+		map.put("result", errInfo);				//返回结果
+		return AppUtil.returnObject(new PageData(), map);
+	}
+	/**
+	 * 判断身份证是否存在
+	 * @return
+	 */
+	@RequestMapping(value="/hasIdenti")
+	@ResponseBody
+	public Object hasIdenti(){
+		Map<String,String> map = new HashMap<String,String>();
+		String errInfo = "success";
+		PageData pd = new PageData();
+		try{
+			pd = this.getPageData();
+			
+			if(userService.findByUIden(pd) != null){
+				errInfo = "error";
+			}
+		} catch(Exception e){
+			logger.error(e.toString(), e);
+		}
+		map.put("result", errInfo);				//返回结果
+		
+		return AppUtil.returnObject(new PageData(), map);
+	}
+	/**
+	 * 判断身份证是否存在
+	 * @return
+	 */
+	@RequestMapping(value="/hasIdentiTwo")
+	@ResponseBody
+	public Object hasIdentiTwo(){
+		Map<String,String> map = new HashMap<String,String>();
+		String errInfo = "success";
+		PageData pd = new PageData();
+		try{
+			pd = this.getPageData();
+			
+			if(userService.hasIdentiTwo(pd) != null){
+				errInfo = "error";
+			}
+		} catch(Exception e){
+			logger.error(e.toString(), e);
+		}
+		map.put("result", errInfo);				//返回结果
+		
+		return AppUtil.returnObject(new PageData(), map);
+	}
+	
+	/**
+	 * 判断身份证是否合法
+	 * @return
+	 */
+	@RequestMapping(value="/hasIdentiIsLegitimate")
+	@ResponseBody
+	public Object hasIdentiIsLegitimate(){
+		Map<String,String> map = new HashMap<String,String>();
+		String errInfo = "success";
+		PageData pd = new PageData();
+		try{
+			pd = this.getPageData();
+			
+			if(Tools.validateIdNumber(pd.getString("IDENTITYCODE"))){//如果合法
+				map.put("lxGender", Tools.getGenderByIdCard(pd.getString("IDENTITYCODE")));//性别
+				map.put("lwBirthday", Tools.getBirthByIdCard(pd.getString("IDENTITYCODE")));//出生日期
+				errInfo="success";
+			}else{//非法
+				errInfo="error";
+			}
+			
+		} catch(Exception e){
+			logger.error(e.toString(), e);
+		}
+		map.put("result", errInfo);				//返回结果
+		
+		return AppUtil.returnObject(new PageData(), map);
+	}
+	/**
+	 * 判断手机号是否存在
+	 * @return
+	 */
+	@RequestMapping(value="/hasPhone")
+	@ResponseBody
+	public Object hasPhone(){
+		Map<String,String> map = new HashMap<String,String>();
+		String errInfo = "success";
+		PageData pd = new PageData();
+		try{
+			pd = this.getPageData();
+			
+			if(userService.findByUPhone(pd) != null){
+				errInfo = "error";
+			}
+		} catch(Exception e){
+			logger.error(e.toString(), e);
+		}
+		map.put("result", errInfo);				//返回结果
+		
+		return AppUtil.returnObject(new PageData(), map);
+	}
+	
+	@RequestMapping(value="/hasPhoneTwo")
+	@ResponseBody
+	public Object hasPhoneTwo(){
+		Map<String,String> map = new HashMap<String,String>();
+		String errInfo = "success";
+		PageData pd = new PageData();
+		try{
+			pd = this.getPageData();
+			
+			if(userService.findByUPhoneTwo(pd) != null){
+				errInfo = "error";
+			}
+		} catch(Exception e){
+			logger.error(e.toString(), e);
+		}
+		map.put("result", errInfo);				//返回结果
+		
+		return AppUtil.returnObject(new PageData(), map);
+	}
+	
+	/**
+	 * 判断编码是否存在
+	 */
+	@RequestMapping(value="/hasN")
+	@ResponseBody
+	public Object hasN(){
+		Map<String,String> map = new HashMap<String,String>();
+		String errInfo = "success";
+		PageData pd = new PageData();
+		try{
+			pd = this.getPageData();
+			if(userService.findByUN(pd) != null){
+				errInfo = "error";
+			}
+		} catch(Exception e){
+			logger.error(e.toString(), e);
+		}
+		map.put("result", errInfo);				//返回结果
+		return AppUtil.returnObject(new PageData(), map);
+	}
+	
+	/**
+	 * 修改用户
+	 */
+	@RequestMapping(value="/editU")
+	public ModelAndView editU() throws Exception{
+		ModelAndView mv = this.getModelAndView();
+		PageData pd = new PageData();
+		pd = this.getPageData();
+		try {
+			Subject currentUser = SecurityUtils.getSubject();  
+			Session session = currentUser.getSession();
+			User userinfo = (User) session.getAttribute(Const.SESSION_USER);
+			pd.put("UPDATE_DATE", new Date());
+			pd.put("UPDATE_BY", userinfo.getUSER_ID());
+			String[] roleid=pd.get("ROLE_ID").toString().split(",");//角色id
+			List<UserRole> userRoleList=new ArrayList<UserRole>();
+			for (int i = 0; i < roleid.length; i++) {
+			
+				UserRole userRole=new UserRole();
+				userRole.setUserRoleId(this.get32UUID());//主键
+				userRole.setRoleId(roleid[i]);//角色id
+				userRole.setUserId(pd.getString("USER_ID"));//用户id
+				userRoleList.add(userRole);
+			}
+			/*if(pd.getString("PASSWORD") != null && !"".equals(pd.getString("PASSWORD"))){
+				pd.put("PASSWORD", new SimpleHash("SHA-1", pd.getString("USERNAME"), pd.getString("PASSWORD")).toString());
+			}*/
+			if(Jurisdiction.buttonJurisdiction(menuUrl, "edit")){
+					userService.editU(pd,userRoleList);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error(e.toString(), e);
+		}
+		mv.addObject("msg","success");
+		mv.setViewName("save_result");
+		return mv;
+	}
+	
+	/**
+	 * 去修改用户页面
+	 */
+	@RequestMapping(value="/goEditU")
+	public ModelAndView goEditU() throws Exception{
+		ModelAndView mv = this.getModelAndView();
+		PageData pd = new PageData();
+		pd = this.getPageData();
+		
+		//顶部修改个人资料
+		String fx = pd.getString("fx");
+		
+		//System.out.println(fx);
+		
+		if("head".equals(fx)){
+			mv.addObject("fx", "head");
+		}else{
+			mv.addObject("fx", "user");
+		}
+		Subject currentUser = SecurityUtils.getSubject();  
+		Session session = currentUser.getSession();
+		String structid=session.getAttribute(Const.SESSION_STRUCTID).toString();//组织id
+		pd.put("STRUCT_ID", structid);
+		List<Role> roleList = roleService.selectRoleByUserid(pd);			//根据USERID查找他所在组织的ROLE
+		pd = userService.findByUiId(pd);							//根据ID读取
+		mv.setViewName("system/user/user_edit");
+		mv.addObject("msg", "editU");
+		mv.addObject("pd", pd);
+		mv.addObject("roleList", roleList);
+		return mv;
+	}
+
+	
+	/**
+	 * 显示用户列表(用户组)
+	 */
+	@RequestMapping(value="/listUsers")
+	public ModelAndView listUsers(Page page)throws Exception{
+		ModelAndView mv = this.getModelAndView();
+		PageData pd = new PageData();
+		pd = this.getPageData();
+		
+		String USERNAME = pd.getString("USERNAME");
+		
+		if(null != USERNAME && !"".equals(USERNAME)){
+			USERNAME = USERNAME.trim();
+			pd.put("USERNAME", USERNAME);
+		}
+		
+		String lastLoginStart = pd.getString("lastLoginStart");
+		String lastLoginEnd = pd.getString("lastLoginEnd");
+		
+		if(lastLoginStart != null && !"".equals(lastLoginStart)){
+			lastLoginStart = lastLoginStart+" 00:00:00";
+			pd.put("lastLoginStart", lastLoginStart);
+		}
+		if(lastLoginEnd != null && !"".equals(lastLoginEnd)){
+			lastLoginEnd = lastLoginEnd+" 00:00:00";
+			pd.put("lastLoginEnd", lastLoginEnd);
+		} 
+		Subject currentUser = SecurityUtils.getSubject();  
+		Session session = currentUser.getSession();
+		String structid=session.getAttribute(Const.SESSION_STRUCTID).toString();//组织id
+		pd.put("STRUCT_ID", structid);
+		pd.put("structId", structid);
+		page.setPd(pd);
+		Structinfo si=structinfoService.selectByPrimaryKey(pd);
+		
+		pd.put("STRAGE", si.getStructstAge());   //集团公司查所有
+		List<PageData>	userList = userService.listPdPageUser(page);			//列出用户列表
+		for(int i=0;i<userList.size();i++){
+			if(userList.get(i).getString("USERNAME").substring(0, 3).equals("000")){
+				userList.get(i).put("undelete", "undelete");
+			}
+		}
+		List<Role> roleList = roleService.listAllERRoles(pd);						//列出所有二级角色
+		
+		mv.setViewName("system/user/user_list");
+		mv.addObject("userList", userList);
+		mv.addObject("roleList", roleList);
+		mv.addObject("pd", pd);
+		mv.addObject("si", si);
+		mv.addObject(Const.SESSION_QX,this.getHC());	//按钮权限
+		return mv;
+	}
+
+	
+	/**
+	 * 显示用户列表(tab方式)
+	 */
+	@RequestMapping(value="/listtabUsers")
+	public ModelAndView listtabUsers(Page page)throws Exception{
+		ModelAndView mv = this.getModelAndView();
+		PageData pd = new PageData();
+		pd = this.getPageData();
+		Subject currentUser = SecurityUtils.getSubject();  
+		Session session = currentUser.getSession();
+		String structid=session.getAttribute(Const.SESSION_STRUCTID).toString();//组织id
+		pd.put("STRUCT_ID", structid);
+		page.setPd(pd);
+		
+		//	List<PageData>	userList = userService.listPdPageUser(page);	
+		List<PageData>	userList = userService.listAllUser(pd);			//列出用户列表
+		mv.setViewName("system/user/user_tb_list");
+		mv.addObject("userList", userList);
+		mv.addObject("pd", pd);
+		mv.addObject(Const.SESSION_QX,this.getHC());	//按钮权限
+		return mv;
+	}
+	
+	/**
+	 * 删除用户
+	 */
+	@RequestMapping(value="/deleteU")
+	public void deleteU(PrintWriter out){
+		PageData pd = new PageData();
+		try{
+			pd = this.getPageData();
+			if(Jurisdiction.buttonJurisdiction(menuUrl, "del")){userService.deleteUser(pd);}
+			out.write("success");
+			out.close();
+		} catch(Exception e){
+			logger.error(e.toString(), e);
+		}
+		
+	}
+	
+	
+	/**
+	 * 删除用户(员工管理)
+	 */
+	@RequestMapping(value="/updateforDictionaries")
+	public void updateforDictionaries(PrintWriter out){
+		PageData pd = new PageData();
+		try{
+			pd = this.getPageData();
+			if(Jurisdiction.buttonJurisdiction(menuUrl, "del")){userService.deleteUserForDictionaries(pd);}
+			out.write("success");
+			out.close();
+		} catch(Exception e){
+			logger.error(e.toString(), e);
+		}
+		
+	}
+	
+	
+	/**
+	 * 重置密码
+	 */
+	@RequestMapping(value="/reset")
+	public void reset(PrintWriter out){
+		PageData pd = new PageData();
+		try{
+			Subject currentUser = SecurityUtils.getSubject();  
+			Session session = currentUser.getSession();
+			User userinfo = (User) session.getAttribute(Const.SESSION_USER);
+			pd = this.getPageData();
+			pd.put("PASSWORD", "111111");
+			pd.put("UPDATE_BY", userinfo.getUSER_ID());
+			pd.put("UPDATE_DATE",new Date());
+			pd.put("PASSWORD", new SimpleHash("SHA-1", pd.get("USERNAME"),pd.getString("PASSWORD") ).toString());
+			userService.reset(pd);
+			
+			out.write("success");
+			out.close();
+		} catch(Exception e){
+			logger.error(e.toString(), e);
+		}
+		
+	}
+	
+	/**
+	 * 批量删除
+	 */
+	@RequestMapping(value="/deleteAllU")
+	@ResponseBody
+	public Object deleteAllU() {
+		PageData pd = new PageData();
+		Map<String,Object> map = new HashMap<String,Object>();
+		try {
+			pd = this.getPageData();
+			List<PageData> pdList = new ArrayList<PageData>();
+			String USER_IDS = pd.getString("USER_IDS");
+			
+			if(null != USER_IDS && !"".equals(USER_IDS)){
+				String ArrayUSER_IDS[] = USER_IDS.split(",");
+				for(String pid:ArrayUSER_IDS){
+					pd.put("pid", pid);
+					PageData user=userService.findByUPK(pd);//查询信息通过主键----sf
+					
+					if(user.getString("USERNAME")!=null&&user.getString("USERNAME").indexOf("000")==0){
+						map.put("msg", "no");
+						map.put("userName", user.getString("USERNAME"));
+						return AppUtil.returnObject(pd, map);
+					}
+				}
+				if(Jurisdiction.buttonJurisdiction(menuUrl, "del")){
+					for (String string : ArrayUSER_IDS) {
+						pd.put("USER_ID", string);
+						userService.deleteUser(pd);
+					}
+					}
+				map.put("msg", "ok");
+			}else{
+				map.put("msg", "no");
+			}
+			
+			pdList.add(pd);
+			map.put("list", pdList);
+		} catch (Exception e) {
+			logger.error(e.toString(), e);
+		} finally {
+			logAfter(logger);
+		}
+		return AppUtil.returnObject(pd, map);
+	}
+	
+	
+	/**
+	 * 批量删除(员工管理)
+	 */
+	@RequestMapping(value="/deleteAllUforDictionaries")
+	@ResponseBody
+	public Object deleteAllUforDictionaries() {
+		PageData pd = new PageData();
+		Map<String,Object> map = new HashMap<String,Object>();
+		try {
+			pd = this.getPageData();
+			List<PageData> pdList = new ArrayList<PageData>();
+			String USER_IDS = pd.getString("USER_IDS");
+			
+			if(null != USER_IDS && !"".equals(USER_IDS)){
+				String ArrayUSER_IDS[] = USER_IDS.split(",");
+				for(String pid:ArrayUSER_IDS){
+					pd.put("pid", pid);
+					PageData user=userService.findByUPK(pd);//查询信息通过主键----sf
+					
+					if(user.getString("USERNAME")!=null&&user.getString("USERNAME").indexOf("000")==0){
+						map.put("msg", "no");
+						map.put("userName", user.getString("USERNAME"));
+						return AppUtil.returnObject(pd, map);
+					}
+				}
+				if(Jurisdiction.buttonJurisdiction(menuUrl, "del")){
+					for (String string : ArrayUSER_IDS) {
+						pd.put("USER_ID", string);
+						userService.deleteUserForDictionaries(pd);
+					}
+					}
+				map.put("msg", "ok");
+			}else{
+				map.put("msg", "no");
+			}
+			
+			pdList.add(pd);
+			map.put("list", pdList);
+		} catch (Exception e) {
+			logger.error(e.toString(), e);
+		} finally {
+			logAfter(logger);
+		}
+		return AppUtil.returnObject(pd, map);
+	}
+	
+	
+	//===================================================================================================
+	
+	
+	
+	/*
+	 * 导出用户信息到EXCEL
+	 * @return
+	 */
+	@RequestMapping(value="/excel")
+	public ModelAndView exportExcel(){
+		ModelAndView mv = this.getModelAndView();
+		PageData pd = new PageData();
+		pd = this.getPageData();
+		Subject currentUser = SecurityUtils.getSubject();  
+		Session session = currentUser.getSession();
+		String structid=session.getAttribute(Const.SESSION_STRUCTID).toString();//组织id
+		pd.put("STRUCT_ID", structid);
+		try{
+			if(Jurisdiction.buttonJurisdiction(menuUrl, "cha")){
+				//检索条件===
+				String USERNAME = pd.getString("USERNAME");
+				if(null != USERNAME && !"".equals(USERNAME)){
+					USERNAME = USERNAME.trim();
+					pd.put("USERNAME", USERNAME);
+				}
+				String lastLoginStart = pd.getString("lastLoginStart");
+				String lastLoginEnd = pd.getString("lastLoginEnd");
+				if(lastLoginStart != null && !"".equals(lastLoginStart)){
+					lastLoginStart = lastLoginStart+" 00:00:00";
+					pd.put("lastLoginStart", lastLoginStart);
+				}
+				if(lastLoginEnd != null && !"".equals(lastLoginEnd)){
+					lastLoginEnd = lastLoginEnd+" 00:00:00";
+					pd.put("lastLoginEnd", lastLoginEnd);
+				} 
+				//检索条件===
+				
+				Map<String,Object> dataMap = new HashMap<String,Object>();
+				List<String> titles = new ArrayList<String>();
+				
+				titles.add("编号"); 		//1
+				titles.add("所属公司");
+				titles.add("角色");
+				titles.add("登入名");  
+				titles.add("姓名");  		//2
+				titles.add("部门");			//3
+				//titles.add("职位");			//4
+				titles.add("手机");			//5
+				titles.add("邮箱");			//6
+				titles.add("最近登录");		//7
+				titles.add("上次登录IP");	//8
+				
+				dataMap.put("titles", titles);
+				
+				List<PageData> userList = userService.listAllUser(pd);
+				List<PageData> varList = new ArrayList<PageData>();
+				for(int i=0;i<userList.size();i++){
+					PageData vpd = new PageData();
+					vpd.put("var1", userList.get(i).getString("USERNAME"));		//1
+					vpd.put("var2", userList.get(i).getString("STRUCT_NAME"));	
+					vpd.put("var3", userList.get(i).getString("ROLE_NAME_ALL"));
+					vpd.put("var4", userList.get(i).getString("LOG_ACCOUNT"));
+					vpd.put("var5", userList.get(i).getString("NAME"));		//2
+					vpd.put("var6", userList.get(i).getString("BM_NAME"));			//3
+					//vpd.put("var4", userList.get(i).getString("ROLE_NAME"));	//4
+					vpd.put("var7", userList.get(i).getString("PHONE"));		//5
+					vpd.put("var8", userList.get(i).getString("EMAIL"));		//6
+					vpd.put("var9", userList.get(i).getString("LAST_LOGIN"));	//7
+					vpd.put("var10", userList.get(i).getString("IP"));			//8
+					varList.add(vpd);
+				}
+				dataMap.put("varList", varList);
+				ObjectExcelView erv = new ObjectExcelView();					//执行excel操作
+				mv = new ModelAndView(erv,dataMap);
+			}
+		} catch(Exception e){
+			logger.error(e.toString(), e);
+		}
+		return mv;
+	}
+	
+	/**
+	 * 打开上传EXCEL页面
+	 */
+	@RequestMapping(value="/goUploadExcel")
+	public ModelAndView goUploadExcel()throws Exception{
+		ModelAndView mv = this.getModelAndView();
+		mv.setViewName("system/user/uploadexcel");
+		return mv;
+	}
+	
+	/**
+	 * 下载模版
+	 */
+	@RequestMapping(value="/downExcel")
+	public void downExcel(HttpServletResponse response)throws Exception{
+		
+		FileDownload.fileDownload(response, PathUtil.getClasspath() + Const.FILEPATHFILE + "Users.xls", "Users.xls");
+		
+	}
+	
+	/**
+	 * 下载表格
+	 */
+	@RequestMapping(value="/downExcel2")
+	public void downExcel2(HttpServletResponse response)throws Exception{
+		
+		FileDownload.fileDownload(response, PathUtil.getClasspath() + Const.FILEPATHFILE + "Insurance.xls", "Insurance.xls");
+		
+	}
+	
+	@Resource(name = "personalService")
+	private PersonalService personalService;
+	
+	/**
+	 * 从EXCEL导入到数据库
+	 */
+	@RequestMapping(value="/readExcel")
+	public ModelAndView readExcel(
+			@RequestParam(value="excel",required=false) MultipartFile file
+			) throws Exception{
+		ModelAndView mv = this.getModelAndView();
+		PageData pd = new PageData();
+		Subject currentUser = SecurityUtils.getSubject();  
+		Session session = currentUser.getSession();
+		User userinfo = (User) session.getAttribute(Const.SESSION_USER);
+		if (null != file && !file.isEmpty()) {
+			String filePath = PathUtil.getClasspath() + Const.FILEPATHFILE;								//文件上传路径
+			String fileName =  FileUpload.fileUp(file, filePath, "userexcel");							//执行上传
+			
+			List<PageData> listPd = (List)ObjectExcelRead.readExcel(filePath, fileName, 2, 0, 0);	//执行读EXCEL操作,读出的数据导入List 2:从第3行开始；0:从第A列开始；0:第0个sheet
+			
+			/*存入数据库操作======================================*/
+			pd.put("RIGHTS", "");					//权限
+			pd.put("LAST_LOGIN", "");				//最后登录时间
+			pd.put("IP", "");						//IP
+			pd.put("STATUS", "0");					//状态
+			pd.put("IS_DEL", 0);
+			pd.put("IS_JOB", 0);					//在职状态
+			pd.put("SKIN", "default");				//默认皮肤
+			pd.put("CREATE_DATE", new Date());
+			pd.put("STRUCT_ID", userinfo.getSTRUCT_ID());//组ID
+			pd.put("CREATE_BY", userinfo.getUSER_ID());
+			pd.put("USE_STATE", 0);
+			pd.put("NUM", 0);
+			List<Role> roleList = roleService.listAllERRoles(pd);	//列出所有二级角色
+			
+			pd.put("ROLE_ID", roleList.get(0).getROLE_ID());	//设置角色ID为随便第一个
+			/**
+			 * var0 :姓名
+			 * var1 :手机
+			 * var2 :邮箱
+			 * var3 :身份证
+			 */
+			int erro = 0;//错误条数
+			int sessuc = 0;//成功条数
+			List<FileErrorBean> errorlist = new ArrayList<FileErrorBean>();
+			for(int i=0;i<listPd.size();i++){
+				FileErrorBean errorinfo = new FileErrorBean();
+				pd.put("USER_ID", this.get32UUID());										//ID
+											//姓名
+				
+				if(listPd.get(i).get("var0")==null||listPd.get(i).get("var0").equals("")){//验证姓名不能为空
+					errorinfo.setErrorRow("第" + (i+3) + "行");
+					errorinfo.setErrorValue(listPd.get(i).getString("var0"));
+					errorinfo.setPromptMessage("名称不能为空");
+					erro = erro + 1;
+					errorlist.add(errorinfo);
+					continue;
+				}else{
+					pd.put("NAME", listPd.get(i).getString("var0"));	//姓名
+				}
+				
+				
+				/*User user=userService.findByNubmerMax(userinfo.getSTRUCT_ID());
+				String[] strint=user.getUSERNAME().split("@");
+				int uaccount=Integer.parseInt(strint[0])+1;
+				String str=String.valueOf(uaccount);
+				int k=str.length();
+				if(k==1){
+					str="00"+str;
+				}if(k==2){
+					str="0"+str;
+				}
+				if(userService.findUser(pd)== null){
+					pd.put("USERNAME",str+"@"+strint[strint.length-1]);
+					pd.put("PASSWORD", new SimpleHash("SHA-1",  str+"@"+strint[strint.length-1], "111111").toString());	//默认密码111111
+				}else{
+					Integer ss=Integer.parseInt(strint[strint.length-1]);
+					String na=str+"@"+(ss+1);
+				pd.put("USERNAME",na);
+				pd.put("PASSWORD", new SimpleHash("SHA-1", str+"@"+na, "111111").toString());	//默认密码111111
+				}*/
+				pd.put("EMAIL", listPd.get(i).getString("var2"));
+				if(listPd.get(i).getString("var1")==null||listPd.get(i).getString("var1").equals("")){
+					errorinfo.setErrorRow("第" + (i + 3) + "行");
+					errorinfo.setErrorValue(listPd.get(i).getString("var1"));
+					errorinfo.setPromptMessage("手机号不能为空");
+					erro = erro + 1;
+					errorlist.add(errorinfo);
+					continue;
+				}
+				//pd.put("PHONE", listPd.get(i).getString("var1"));		
+				pd.put("PHONE","0");		//手机号
+				//pd.put("identitycode",  listPd.get(i).getString("var3"));
+				String identitycode="";
+				
+				if(listPd.get(i).get("var3")!=null&&!"".equals(listPd.get(i).getString("var3"))){//判断身份证是否为空
+					identitycode = listPd.get(i).getString("var3");
+				}
+				if("".equals(identitycode)){
+					errorinfo.setErrorRow("第" + (i + 3) + "行");
+					errorinfo.setErrorValue(identitycode);
+					errorinfo.setPromptMessage("身份证不能为空");
+					erro = erro + 1;
+					errorlist.add(errorinfo);
+					continue;
+				}
+				if(userService.countUserForIC(identitycode)>0){
+					errorinfo.setErrorRow("第" + (i + 3) + "行");
+					errorinfo.setErrorValue(identitycode);
+					errorinfo.setPromptMessage("身份证不能重复");
+					erro = erro + 1;
+					errorlist.add(errorinfo);
+					continue;
+				}
+				
+				if(identitycode.length()==15){
+					identitycode=Tools.convertIdcarBy15bit(identitycode);
+				}
+				
+				if(Tools.validateIdNumber(identitycode)){//如果合法的
+					pd.put("identitycode", listPd.get(i).getString("var3")); // 身份证
+					pd.put("sex", Tools.getGenderByIdCard(identitycode));//性别
+					pd.put("birthday", Tools.getBirthByIdCard(identitycode));//出生日期
+				}else{//非法
+					errorinfo.setErrorRow("第" + (i + 3) + "行");
+					errorinfo.setErrorValue(identitycode);
+					errorinfo.setPromptMessage("身份证号不合法");
+					erro = erro + 1;
+					errorlist.add(errorinfo);
+					continue;
+				}
+				
+				
+				if(userService.findByUN(pd) != null){
+					continue;
+				}
+				
+				// 公共参数
+				
+				DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+				String requesttime = ""; // 时间戳
+				Date d = new Date();
+				String t = SortStrs.getBaiDuWebTime(); // 时间戳处理前
+				requesttime = df.parse(t).getTime() / 1000 + "";
+				String deptid = personalService.CcStructIDByUserId(userinfo.getUSER_ID());//组织ID
+				HashMap<String, String> asing = new HashMap<String, String>();// /放到map里面调用方法拼接
+				String account = SortStrs.CC_ACCOUNT;
+				asing.put("account", account);
+				asing.put("requesttime", requesttime);
+				String realname = pd.getString("NAME");
+				asing.put("realname", realname);
+				String password = MD5.md5("111111");// 默认
+				asing.put("password", password);//
+				String mobile = pd.getString("PHONE");
+				asing.put("mobile", mobile);
+				asing.put("email", "");
+				String card = "";
+				asing.put("card", card);// 员工卡号（刷卡卡号）
+				asing.put("deptid", deptid);// 云端 项目ID
+				String s ="0";
+				if(pd.get("sex")!=null&&!"".equals(pd.get("sex"))){
+					s=pd.getString("sex");
+				};
+				String sex = (Integer.parseInt(s) + 1) + "";
+				asing.put("sex", sex);
+				String sn = "";
+				asing.put("sn", sn);// 设备ID
+				pd.put("ccSn", sn);
+				String test = SortStrs.getSign(asing);// 生成签名MD5加密用排序字符串
+				String requestUrl = "http://kq.qycn.com/index.php/Api/Api/addEmployee?"
+						+ test ;// 最后地址
+
+				StructinfoController aStrControl = new StructinfoController();
+				JSONObject jsonObject = aStrControl.httpRequst(requestUrl, "GET", null);
+				Iterator iter = jsonObject.keySet().iterator();
+				Map<String, String> jsonMap = new HashMap<String, String>();
+				while (iter.hasNext()) {
+					String key = (String) iter.next();
+					String value = jsonObject.getString(key);
+					jsonMap.put(key, value);
+				}
+				String error = jsonMap.get("error");
+				if(!"1".equals(jsonMap.get("status"))){
+					errorinfo.setErrorRow("第" + (i + 3) + "行");
+					errorinfo.setErrorValue(listPd.get(i).getString("var1"));
+					errorinfo.setPromptMessage(error);
+					erro = erro + 1;
+					errorlist.add(errorinfo);
+					continue;
+				}
+				// 公共参数
+				String aDate = jsonMap.get("data");
+				ObjectMapper mapper = new ObjectMapper();
+				CcJson aCcJson = mapper.readValue(aDate, CcJson.class);
+				String ccLwPersonalinfoId = aCcJson.getAccount();
+				pd.put("CC_USER_ID", ccLwPersonalinfoId);
+				
+				userService.saveU(pd);
+				sessuc+=1;
+			}
+			/*存入数据库操作======================================*/
+			
+			mv.addObject("msg","success");
+			mv.addObject("sessuc", sessuc);//成功条数
+			mv.addObject("erro", erro);//失败条数
+			mv.addObject("errorlist", errorlist);//失败信息
+		}
+		mv.addObject("ExclUsersSuccess", "ok");//失败信息
+		mv.setViewName("system/costInTask/successExcel");
+		return mv;
+	}
+	
+	@InitBinder
+	public void initBinder(WebDataBinder binder){
+		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		binder.registerCustomEditor(Date.class, new CustomDateEditor(format,true));
+	}
+	
+	
+	/**
+	 * @author xujian 2016/04/01 head页面查看评审
+	 * @return
+	 * @throws Exception
+	 */
+	 
+	@RequestMapping(value="/selectSealReview")
+	public ModelAndView selectSealReview() throws Exception{
+		ModelAndView mv = this.getModelAndView();
+		PageData pd = new PageData();
+		pd = this.getPageData();
+		List<Fileinfo> fileinfolist=fileinfoService.findFileinfoByForeignId(pd);
+		mv.addObject("fileinfolist", fileinfolist);//查询文件
+		String type=pd.getString("TYPE");
+		mv.addObject("aaaa", 1);
+		mv.addObject("baocun", "baocun");//baocun
+		if(type.equals("3")){
+			pd.put("FOREIGNID", pd.getString("ID"));
+			pd.put("FILETYPE", "costapply");
+			pd.put("COST_APPLY_ID", pd.getString("ID"));
+			List<Fileinfo> fileinfolistCost=fileinfoService.findFileinfoByForeignId(pd);
+			List<TtCostUser> costUserList=costApplyService.findCostUserByCostApplyId(pd);//查询审批人
+			mv.addObject("costUserList", costUserList);
+			mv.addObject("fileinfolist", fileinfolistCost);
+			List<CostApplyUser> costApplyUserList=costApplyService.findCostApplyUserByCostApplyId(pd);//查询评价
+			mv.addObject("costApplyUserList", costApplyUserList);
+			pd = costApplyService.findByCostApplyStateById(pd);	
+			mv.addObject("pd", pd);
+			mv.setViewName("system/costapply/costapplystate_edit");//评论页面
+			mv.addObject("msg", "saveCostApply");
+		}else if(type.equals("2")){
+			pd.put("tenderReviewId", pd.getString("ID"));
+			List<TtTenderReviewUser> tenderReviewUserList=tenderReviewService.listTenderReviewUser(pd);
+			mv.addObject("tenderReviewUserList",tenderReviewUserList);//查询 评审人员 
+			List<TtTenderReviewUserReply> replyList=tenderReviewService.listTenderReviewUserReply(pd);
+			mv.addObject("replyList",replyList);
+			TtTenderReview tenderReview=tenderReviewService.findTenderReviewByReviewUserName(pd);
+			mv.addObject("tenderReview",tenderReview);//查询信息
+			mv.setViewName("system/tenderReview/tenderReviewUserReplyTwo_edit");
+			mv.addObject("pd", pd);
+			mv.addObject("msg", "saveTenderReviewUserReply");
+		}else if(type.equals("1")){
+			pd.put("sealReviewId", pd.getString("ID"));
+			List<TtSealReviewUser> sealReviewUserList=sealReviewService.listSealReviewUser(pd);
+			mv.addObject("sealReviewUserList",sealReviewUserList);//查询 评审人员 
+			List<TtSealReviewUserReply> replyList=sealReviewService.listSealReivweUserReply(pd);
+			mv.addObject("replyList",replyList);
+			TtSealReview sealReview=sealReviewService.findSealReviewByReviewUserName(pd);
+			mv.addObject("sealReview",sealReview);//查询信息
+			mv.setViewName("system/seal/sealReviewUserReply_edit");
+			mv.addObject("pd", pd);
+			mv.addObject("msg", "saveSealReviewUserReply");
+		}
+		return mv;
+	}
+	
+	/**
+	 * @author xujian 2016/05/09 head页面印章,投标评审
+	 * @return
+	 * @throws Exception
+	 */
+	 
+	@RequestMapping(value="/selectReview")
+	public ModelAndView selectReview() throws Exception{
+		ModelAndView mv = this.getModelAndView();
+		PageData pd = new PageData();
+		pd = this.getPageData();
+		pd=this.getPageData();
+		mv.addObject("aaaa", 1);
+		mv.addObject("baocun", "baocun");//baocun
+		Subject currentUser = SecurityUtils.getSubject();  
+		Session session = currentUser.getSession();
+		User userinfo = (User) session.getAttribute(Const.SESSION_USER);
+		pd.put("userId", userinfo.getUSER_ID());
+		pd.put("REVIEWTYPE", userinfo.getReviewType());		//websocket推送需要
+		pd.put("WEBSOCKETCREATEUSER", userinfo.getNAME());
+		String structId = session.getAttribute(Const.SESSION_STRUCTID).toString();
+		pd.put("sealReviewId", pd.getString("ID"));
+		pd.put("FOREIGNID", pd.getString("sealReviewId"));
+		pd.put("FILETYPE", "tribune");
+		List<Fileinfo> fileinfolist=fileinfoService.findFileinfoByForeignId(pd);
+		mv.addObject("fileinfolist", fileinfolist);//查询文件
+		List<PageData> sealReviewUserList=sealReviewService.selectByTribune(pd);//查询评审人员
+		mv.addObject("sealReviewUserList", sealReviewUserList);
+		List<TtSealReviewUserReply> replyList=sealReviewService.listSealReivweUserReply(pd);//回复信息
+		mv.addObject("replyList",replyList);
+		PageData sealReview=sealReviewService.findSealReviewByTribune(pd);
+		mv.addObject("sealReview",sealReview);//查询信息
+		mv.addObject("pd", pd);
+		if(sealReview.get("FLOW_STATE")!=null&&!sealReview.get("FLOW_STATE").equals("")){
+			Integer FLOW_STATE=(Integer) sealReview.get("FLOW_STATE");
+			if(FLOW_STATE==0){
+				mv.setViewName("save_result");
+				return mv;
+			}
+		}
+		pd.put("tribuneId", pd.getString("ID"));
+		List dqUserList=userService.findDQTribuneUserId(pd);//查询当前审批人
+		List xjUserList=userService.findXJTribuneUserId(pd);//查询下级审批人
+		mv.addObject("dqUserList",dqUserList);
+		mv.addObject("xjUserList",xjUserList);
+		
+		mv.addObject("msg", "saveSealReviewUserReply");
+		Integer type=0;
+		if(sealReview.get("TYPE")!=null&&!sealReview.get("TYPE").equals(""))
+			type=(Integer) sealReview.get("TYPE");
+		if(type==5){
+			mv.setViewName("system/billApply/billApply_Reply");
+			mv.addObject("pd", pd);
+			mv.addObject("msg", "saveReply");
+			return mv;
+		}
+		
+		if(pd.getString("pactId")!=null){
+			pd.put("sf", "pact");
+		}
+		mv.setViewName("system/seal/sealReviewUserReply_edit");
+		
+		return mv;
+	}
+	
+	/**
+	 * 委托评审
+	 * @param page
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="/selectEntrust")
+	public ModelAndView selectEntrust(Page page) throws Exception{
+		ModelAndView mv = this.getModelAndView();
+		PageData pd = new PageData();
+		pd = this.getPageData();
+		pd.put("entrustId", pd.getString("ENTRUST_ID"));
+		PageData entrust= entrustService.selectByIdSP(pd);
+		//通过外键ID查找评审人员，参数改成sealReviewId
+		pd.put("sealReviewId", pd.getString("ENTRUST_ID"));
+		List<PageData> userList=sealReviewService.selectByTribune(pd);//查询评审人员
+		mv.addObject("userList", userList);
+		//通过外键ID查找评审内容
+		pd.put("tribuneId", pd.getString("ENTRUST_ID"));
+		List<PageData> replyList=documentManageService.findTribuneUserReply(pd);
+		mv.addObject("replyList",replyList);//查询评价
+		mv.addObject("entrust", entrust);
+		mv.addObject("pd", pd);
+		mv.addObject(Const.SESSION_QX,this.getHC());	//按钮权限
+		mv.setViewName("system/entrust/selectEntrustUserReply");
+		return mv;
+	}
+	
+	
+//	/**
+//	 * 打开评审页面
+//	 * @throws Exception 
+//	 */
+//	@RequestMapping(value="/selectEntrust")
+//	public ModelAndView selectEntrust() throws Exception{
+//		ModelAndView mv = this.getModelAndView();
+//		PageData pd = new PageData();
+//		pd=this.getPageData();
+//		Subject currentUser = SecurityUtils.getSubject();  
+//		Session session = currentUser.getSession();
+//		String structId = session.getAttribute(Const.SESSION_STRUCTID).toString();
+//		pd.put("FOREIGNID", pd.getString("sealReviewId"));
+//		pd.put("FILETYPE", "tribune");
+//		List<Fileinfo> fileinfolist=fileinfoService.findFileinfoByForeignId(pd);
+//		mv.addObject("fileinfolist", fileinfolist);//查询文件
+//		List<PageData> sealReviewUserList=sealReviewService.selectByTribune(pd);//查询评审人员
+//		mv.addObject("sealReviewUserList", sealReviewUserList);
+//		List<TtSealReviewUserReply> replyList=sealReviewService.listSealReivweUserReply(pd);
+//		mv.addObject("replyList",replyList);
+//		PageData sealReview=sealReviewService.findSealReviewByTribune(pd);
+//		mv.addObject("sealReview",sealReview);//查询信息
+//		mv.setViewName("system/entrust/selectEntrustUserReply");
+//		mv.addObject("pd", pd);
+//		return mv;
+//	}
+	
+	/**
+	 * @author xujian 2016/04/25 head页面交流评审
+	 * @return
+	 * @throws Exception
+	 */
+	 
+	@RequestMapping(value="/selectItemReview")
+	public ModelAndView selectItemReview() throws Exception{
+		ModelAndView mv = this.getModelAndView();
+		PageData pd = new PageData();
+		pd = this.getPageData();
+		pd=this.getPageData();
+		Subject currentUser = SecurityUtils.getSubject();  
+		Session session = currentUser.getSession();
+		User userinfo = (User) session.getAttribute(Const.SESSION_USER);
+		pd.put("USER_ID", userinfo.getUSER_ID());
+		pd.put("itemReviewId", pd.getString("ID"));
+		pd.put("FOREIGNID", pd.getString("itemReviewId"));
+		pd.put("FILETYPE", "itemReview");
+		List<Fileinfo> fileinfolist=fileinfoService.findFileinfoByForeignId(pd);
+		mv.addObject("fileinfolist", fileinfolist);//查询文件
+		
+		List dqUserList=userService.findDQTribuneUserIdItem(pd);//查询当前审批人
+		List xjUserList=userService.findXJTribuneUserIdItem(pd);//查询下级审批人
+		mv.addObject("dqUserList",dqUserList);
+		mv.addObject("xjUserList",xjUserList);
+
+		List<PageData> itemReviewUserList=itemReviewService.findItemReviewUser(pd);//查询当前参与评审人员
+		mv.addObject("itemReviewUserList", itemReviewUserList);//参与人员
+		
+		List<PageData> replyList=itemReviewService.listItemReivweUserReply(pd);//已评审人员
+		mv.addObject("replyList",replyList);//已评审人员
+		
+		PageData itemReview=itemReviewService.findByPK(pd);//查询信息根据主键
+		mv.addObject("itemReview",itemReview);
+		if(pd.getString("pactId")!=null){
+			pd.put("sf", "pact");
+		}
+		mv.addObject("pd", pd);
+		
+		int IS_WAGE = 0 ;
+		try {
+			IS_WAGE = (Integer) itemReview.get("IS_WAGE");
+		} catch (Exception e) {
+			// TODO: handle exception
+			IS_WAGE = 0; 
+		}
+		if(IS_WAGE!=2){//劳务信息 或者其他  交流评审
+			List<PageData> taskPerson=itemReviewService.taskPersonForhead(pd);
+			
+			mv.addObject("taskPerson", taskPerson);
+			mv.addObject("msg","saveItemReviewUserReply");
+			mv.setViewName("system/itemReview/itemReviewUserReply_edit");
+			return mv;
+		}else{//奖罚信息 交流评审
+			pd.put("LW_SANCTION_ID", itemReview.get("FOREIGN_KEY_ID"));
+			PageData aSanction=lwSanctionService.aSanction(pd);//查询信息根据主键
+			mv.addObject("aSanction",aSanction);
+			List<PageData> CheckedPerson=itemReviewService.sanctionPersonForhead(pd);
+			mv.addObject("CheckedPerson", CheckedPerson);
+			mv.addObject("msg", "saveReply");
+			mv.setViewName("system/lwSanction/ReviewUserReply_edit");
+			return mv;
+		}
+		
+		
+		
+		
+	}
+
+	
+	
+ 
+
+	/* ===============================权限================================== */
+	public Map<String, String> getHC(){
+		Subject currentUser = SecurityUtils.getSubject();  //shiro管理的session
+		Session session = currentUser.getSession();
+		return (Map<String, String>)session.getAttribute(Const.SESSION_QX);
+	}
+	/* ===============================权限================================== */
+}

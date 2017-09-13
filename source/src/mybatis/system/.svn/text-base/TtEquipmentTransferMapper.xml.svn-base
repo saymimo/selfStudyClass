@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtEquipmentTransferMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtEquipmentTransfer" >
+    <id column="EQUIPMENT_TRANSFER_ID" property="equipmentTransferId" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_ID" property="equipmentId" jdbcType="VARCHAR" />
+    <result column="TRANSFER_OUT_ITEM_ID" property="transferOutItemId" jdbcType="VARCHAR" />
+    <result column="TRANSFER_IN_ITEM_ID" property="transferInItemId" jdbcType="VARCHAR" />
+    <result column="TRANSFER_DATE" property="transferDate" jdbcType="DATE" />
+    <result column="TRANSFER_NUMBER" property="transferNumber" jdbcType="INTEGER" />
+    <result column="TRANSFER_STAUTS" property="transferStauts" jdbcType="INTEGER" />
+    <result column="CONFIRM_USER" property="confirmUser" jdbcType="VARCHAR" />
+    <result column="CONFIRM_DATE" property="confirmDate" jdbcType="DATE" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    EQUIPMENT_TRANSFER_ID, EQUIPMENT_ID, TRANSFER_OUT_ITEM_ID, TRANSFER_IN_ITEM_ID, TRANSFER_DATE, 
+    TRANSFER_NUMBER, TRANSFER_STAUTS, CONFIRM_USER, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY,CONFIRM_DATE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_equipment_transfer  
+    where EQUIPMENT_TRANSFER_ID = #{equipmentTransferId,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- sf 通过设备ID查找 -->
+  <select id="findeByeqPK" resultType="pd" parameterType="pd" >
+    SELECT 
+ IFNULL((SELECT t.`ITEM_NAME` FROM tt_iteminfo  t  WHERE t.`ITEM_ID`=t.TRANSFER_IN_ITEM_ID),'公司') AS TRANSFER_IN_ITEM_ID, 
+    (SUM(TRANSFER_NUMBER)) as TRANSFER_NUMBER
+    FROM tt_equipment_transfer t
+    WHERE t.`EQUIPMENT_ID`= #{equipmentId,jdbcType=VARCHAR} AND t.`TRANSFER_STAUTS`=1
+    GROUP BY t.`TRANSFER_IN_ITEM_ID`
+  </select>
+   <!-- sf 通过设备ID查找 -->
+   
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_equipment_transfer
+    where EQUIPMENT_TRANSFER_ID = #{equipmentTransferId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtEquipmentTransfer" >
+    insert into tt_equipment_transfer (EQUIPMENT_TRANSFER_ID, EQUIPMENT_ID, 
+      TRANSFER_OUT_ITEM_ID, TRANSFER_IN_ITEM_ID, TRANSFER_DATE, 
+      TRANSFER_NUMBER, TRANSFER_STAUTS, CONFIRM_USER, 
+      IS_DEL, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY,CONFIRM_DATE)
+    values (#{equipmentTransferId,jdbcType=VARCHAR}, #{equipmentId,jdbcType=VARCHAR}, 
+      #{transferOutItemId,jdbcType=VARCHAR}, #{transferInItemId,jdbcType=VARCHAR}, #{transferDate,jdbcType=DATE}, 
+      #{transferNumber,jdbcType=INTEGER}, #{transferStauts,jdbcType=INTEGER}, #{confirmUser,jdbcType=VARCHAR}, 
+      #{isDel,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR},#{confirmDate,jdbcType=DATE})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_equipment_transfer
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="equipmentTransferId != null" >
+        EQUIPMENT_TRANSFER_ID,
+      </if>
+      <if test="equipmentId != null" >
+        EQUIPMENT_ID,
+      </if>
+      <if test="transferOutItemId != null" >
+        TRANSFER_OUT_ITEM_ID,
+      </if>
+      <if test="transferInItemId != null" >
+        TRANSFER_IN_ITEM_ID,
+      </if>
+      <if test="transferDate != null" >
+        TRANSFER_DATE,
+      </if>
+      <if test="transferNumber != null" >
+        TRANSFER_NUMBER,
+      </if>
+      <if test="transferStauts != null" >
+        TRANSFER_STAUTS,
+      </if>
+      <if test="confirmUser != null" >
+        CONFIRM_USER,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+       <if test="confirmDate != null" >
+        CONFIRM_DATE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="equipmentTransferId != null" >
+        #{equipmentTransferId,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentId != null" >
+        #{equipmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="transferOutItemId != null" >
+        #{transferOutItemId,jdbcType=VARCHAR},
+      </if>
+      <if test="transferInItemId != null" >
+        #{transferInItemId,jdbcType=VARCHAR},
+      </if>
+      <if test="transferDate != null" >
+        #{transferDate,jdbcType=DATE},
+      </if>
+      <if test="transferNumber != null" >
+        #{transferNumber,jdbcType=INTEGER},
+      </if>
+      <if test="transferStauts != null" >
+        #{transferStauts,jdbcType=INTEGER},
+      </if>
+      <if test="confirmUser != null" >
+        #{confirmUser,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+       <if test="confirmDate != null" >
+       #{confirmDate,jdbcType=DATE},
+      </if>
+      
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_equipment_transfer
+    <set >
+      <if test="equipmentId != null" >
+        EQUIPMENT_ID = #{equipmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="transferOutItemId != null" >
+        TRANSFER_OUT_ITEM_ID = #{transferOutItemId,jdbcType=VARCHAR},
+      </if>
+      <if test="transferInItemId != null" >
+        TRANSFER_IN_ITEM_ID = #{transferInItemId,jdbcType=VARCHAR},
+      </if>
+      <if test="transferDate != null" >
+        TRANSFER_DATE = #{transferDate,jdbcType=DATE},
+      </if>
+      <if test="transferNumber != null" >
+        TRANSFER_NUMBER = #{transferNumber,jdbcType=INTEGER},
+      </if>
+      <if test="transferStauts != null" >
+        TRANSFER_STAUTS = #{transferStauts,jdbcType=INTEGER},
+      </if>
+      <if test="confirmUser != null" >
+        CONFIRM_USER = #{confirmUser,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+       <if test="confirmDate != null" >
+      CONFIRM_DATE= #{confirmDate,jdbcType=DATE},
+      </if>
+    </set>
+    where EQUIPMENT_TRANSFER_ID = #{equipmentTransferId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtEquipmentTransfer" >
+    update tt_equipment_transfer
+    set EQUIPMENT_ID = #{equipmentId,jdbcType=VARCHAR},
+      TRANSFER_OUT_ITEM_ID = #{transferOutItemId,jdbcType=VARCHAR},
+      TRANSFER_IN_ITEM_ID = #{transferInItemId,jdbcType=VARCHAR},
+      TRANSFER_DATE = #{transferDate,jdbcType=DATE},
+      TRANSFER_NUMBER = #{transferNumber,jdbcType=INTEGER},
+      TRANSFER_STAUTS = #{transferStauts,jdbcType=INTEGER},
+      CONFIRM_USER = #{confirmUser,jdbcType=VARCHAR},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+       CONFIRM_DATE= #{confirmDate,jdbcType=DATE},
+    where EQUIPMENT_TRANSFER_ID = #{equipmentTransferId,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="listPageAllEquimpentTransferStructid" resultMap="BaseResultMap" parameterType="page" >
+   SELECT 
+ EQUIPMENT_TRANSFER_ID, EQUIPMENT_ID, IFNULL((SELECT t.`ITEM_NAME` FROM tt_iteminfo  t  WHERE t.`ITEM_ID`=t.TRANSFER_OUT_ITEM_ID),'公司') AS TRANSFER_OUT_ITEM_ID,
+
+ IFNULL((SELECT t.`ITEM_NAME` FROM tt_iteminfo  t  WHERE t.`ITEM_ID`=t.TRANSFER_IN_ITEM_ID),'公司') AS TRANSFER_IN_ITEM_ID, TRANSFER_DATE, 
+    TRANSFER_NUMBER, TRANSFER_STAUTS, CONFIRM_USER, IS_DEL, CREATE_DATE,  (SELECT s.`NAME` FROM `sys_user` s WHERE s.`USER_ID`=t.CREATE_BY) as CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY,CONFIRM_DATE
+    
+    FROM tt_equipment_transfer t
+    where EQUIPMENT_ID = #{pd.equipmentId,jdbcType=VARCHAR} and IS_DEL=0
+  </select>
+  
+  
+   <select id="listPageAllEquimpentTransferStructidLarge" resultMap="BaseResultMap" parameterType="page" >
+   SELECT 
+ EQUIPMENT_TRANSFER_ID, EQUIPMENT_ID, 
+    CASE
+    WHEN t.TRANSFER_OUT_ITEM_ID = '0' 
+    THEN '外借' 
+   WHEN  (SELECT   ti.`ITEM_NAME`       FROM        tt_iteminfo ti       WHERE ti.`ITEM_ID` = t.TRANSFER_OUT_ITEM_ID) IS NULL
+   THEN (SELECT s.STRUCT_NAME FROM `sys_structinfo` s  WHERE s.`STRUCT_ID`= t.TRANSFER_OUT_ITEM_ID) 
+   WHEN (SELECT s.STRUCT_NAME FROM `sys_structinfo` s  WHERE s.`STRUCT_ID`= t.TRANSFER_OUT_ITEM_ID)  IS NULL
+   THEN (SELECT   ti.`ITEM_NAME`       FROM        tt_iteminfo ti       WHERE ti.`ITEM_ID` = t.TRANSFER_OUT_ITEM_ID)
+  END TRANSFER_OUT_ITEM_ID,
+  CASE
+    WHEN t.TRANSFER_IN_ITEM_ID = '0' 
+    THEN '外借' 
+   WHEN  (SELECT   ti.`ITEM_NAME`       FROM        tt_iteminfo ti       WHERE ti.`ITEM_ID` = t.TRANSFER_IN_ITEM_ID) IS NULL
+   THEN (SELECT s.STRUCT_NAME FROM `sys_structinfo` s  WHERE s.`STRUCT_ID`= t.TRANSFER_IN_ITEM_ID) 
+   WHEN (SELECT s.STRUCT_NAME FROM `sys_structinfo` s  WHERE s.`STRUCT_ID`= t.TRANSFER_IN_ITEM_ID)  IS NULL
+   THEN (SELECT   ti.`ITEM_NAME`       FROM        tt_iteminfo ti       WHERE ti.`ITEM_ID` = t.TRANSFER_IN_ITEM_ID)
+  END TRANSFER_IN_ITEM_ID,
+ 
+ 
+  TRANSFER_DATE, 
+    TRANSFER_NUMBER, TRANSFER_STAUTS, CONFIRM_USER, IS_DEL, CREATE_DATE,  (SELECT s.`NAME` FROM `sys_user` s WHERE s.`USER_ID`=t.CREATE_BY) as UPDATE_BY, UPDATE_DATE, 
+    CREATE_BY,CONFIRM_DATE
+    
+    FROM tt_equipment_transfer t
+    where EQUIPMENT_ID = #{pd.equipmentId,jdbcType=VARCHAR} and IS_DEL=0
+     <if test="pd.NAME != null and pd.NAME != ''">
+				AND  (SELECT     s.`NAME`   FROM    `sys_user` s   WHERE s.`USER_ID` = t.CREATE_BY) LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+		</if><!-- 关键词检索 -->
+  </select>
+  <!-- 通过id查询数据 -->
+  <select id="findEquipmentTransferByTransferId" resultType="pd" parameterType="pd" >
+	 SELECT 
+   	EQUIPMENT_TRANSFER_ID, EQUIPMENT_ID, TRANSFER_OUT_ITEM_ID, TRANSFER_IN_ITEM_ID, TRANSFER_DATE, 
+    TRANSFER_NUMBER, TRANSFER_STAUTS, CONFIRM_USER, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY,CONFIRM_DATE,
+     CASE 
+	(SELECT COUNT(1) FROM `tt_iteminfo` i WHERE i.`ITEM_ID`=e.TRANSFER_OUT_ITEM_ID) 
+      WHEN 0 THEN <!--  如果 查不到 就是公司  调出-->
+      (  SELECT 
+		  (SELECT SUM(b.`BUY_NUMBER`) FROM `tt_equipment_buy` b WHERE b.`EQUIPMENT_ID`=t.`EQUIPMENT_ID` AND  b.`IS_DEL`=0)
+		  -(SELECT IFNULL(SUM(i.NUMBER),0) FROM tt_item_equipment  i WHERE i.EQUIPMENT_ID=t.EQUIPMENT_ID)  AS Number
+		    FROM tt_equipment t  
+		    WHERE t.`EQUIPMENT_ID`=e.EQUIPMENT_ID)
+	ELSE
+	 (SELECT IFNULL(SUM(t.`NUMBER`),0) AS Number FROM  tt_item_equipment t WHERE t.`EQUIPMENT_ID`=e.EQUIPMENT_ID AND t.`ITEM_ID`=e.TRANSFER_OUT_ITEM_ID)
+	 
+	 END  AS  outNumber ,<!-- 可调拨数量 -->
+	  CASE 
+	(SELECT COUNT(1) FROM `tt_iteminfo` i WHERE i.`ITEM_ID`=e.TRANSFER_IN_ITEM_ID) 
+      WHEN 0 THEN <!--  如果 查不到 就是公司   调入 -->
+      (  SELECT 
+		  (SELECT SUM(b.`BUY_NUMBER`) FROM `tt_equipment_buy` b WHERE b.`EQUIPMENT_ID`=t.`EQUIPMENT_ID` AND  b.`IS_DEL`=0)
+		  -(SELECT IFNULL(SUM(i.NUMBER),0) FROM tt_item_equipment  i WHERE i.EQUIPMENT_ID=t.EQUIPMENT_ID)  AS Number
+		    FROM tt_equipment t  
+		    WHERE t.`EQUIPMENT_ID`=e.EQUIPMENT_ID)
+	ELSE
+	 (SELECT IFNULL(SUM(t.`NUMBER`),0) AS Number FROM  tt_item_equipment t WHERE t.`EQUIPMENT_ID`=e.EQUIPMENT_ID AND t.`ITEM_ID`=e.TRANSFER_IN_ITEM_ID)
+	 
+	 END  AS  inNumber<!-- 库存数量 -->
+	  
+    FROM tt_equipment_transfer e
+    where e.EQUIPMENT_TRANSFER_ID = #{equipmentTransferId,jdbcType=VARCHAR} and e.IS_DEL=0
+  </select>
+  <!-- 删除 -->
+	  <update id="updateByIsDel" parameterType="pd">
+  		 update tt_equipment_transfer   set   IS_DEL = 1 where EQUIPMENT_TRANSFER_ID=#{equipmentTransferId}
+	  </update>
+	  <!-- 批量删除 -->
+	<delete id="deleteAllEquipmentTransfer" parameterType="String" flushCache="false">
+		update tt_equipment_transfer
+		 set
+			IS_DEL =1 where EQUIPMENT_TRANSFER_ID in 
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+	<!-- 查询公司 数量 -->
+	 <select id="hasEquipmentNumber" resultType="pd" parameterType="pd" >
+		 SELECT 
+		  (SELECT IFNULL(SUM(b.BUY_NUMBER),0) FROM `tt_equipment_buy` b WHERE b.`EQUIPMENT_ID`=t.`EQUIPMENT_ID` AND  b.`IS_DEL`=0)
+		  -(SELECT IFNULL(SUM(i.NUMBER),0) FROM tt_item_equipment  i WHERE i.EQUIPMENT_ID=t.EQUIPMENT_ID)  AS Number
+		    FROM tt_equipment t  
+		    WHERE t.`EQUIPMENT_ID`=#{equipmentId}
+	  </select>
+	  
+	  <!-- 查询  项目  数量 -->
+	  	 <select id="hasEquipmentItemNumber" resultType="pd" parameterType="pd" >
+		
+			SELECT IFNULL(SUM(t.`NUMBER`),0) AS Number FROM  tt_item_equipment t WHERE t.`EQUIPMENT_ID`=#{equipmentId} AND t.`ITEM_ID`=#{ITEMID}
+	  </select>
+	
+</mapper>

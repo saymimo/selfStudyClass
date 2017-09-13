@@ -1,0 +1,1997 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="UserXMapper">
+	
+    <cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>  
+	
+	<!-- 微信绑定用户-->
+	<update id="bindingUser" parameterType="pd" flushCache="false">
+		update sys_user set 
+		OPEN_ID = #{OPEN_ID} 
+		where USER_ID = #{USER_ID}
+	</update>
+	
+	<!-- 微信解绑用户-->
+	<update id="unBindingUser" parameterType="pd" flushCache="false">
+		update sys_user set 
+		OPEN_ID = null 
+		where USER_ID = #{userId}
+	</update>
+	
+	
+	<!-- 换皮肤-->
+	<update id="setSKIN" parameterType="pd" flushCache="false">
+		update sys_user set 
+		SKIN = #{SKIN} 
+		where USERNAME = #{USERNAME}
+	</update>
+	
+	<!-- 更新登录时间 -->
+	<update id="updateLastLogin" parameterType="pd" flushCache="false">
+		update sys_user set 
+		LAST_LOGIN = #{LAST_LOGIN} 
+		where USER_ID = #{USER_ID}
+	</update>
+	
+	<!-- 判断用户名和密码 -->
+	<select id="getUserInfo" parameterType="pd" resultType="pd" useCache="false"><!-- insert update delete (flushCache="true/false") -->
+		select * from sys_user 
+		where 1=1 
+		<if test="USERNAME != null and PASSWORD != null">
+	  	and	(
+	  		(USERNAME = #{USERNAME} and PASSWORD = #{PASSWORD})
+	  		or
+	  		(EMAIL = #{USERNAME} and PASSWORD = #{PASSWORD})
+	  		or
+	  		(NUMBER = #{USERNAME} and PASSWORD = #{PASSWORD})
+	  		OR
+	  		(LOG_ACCOUNT = #{USERNAME} and PASSWORD = #{PASSWORD})
+	  		)
+		</if>
+		<if test="USER_ID != null and USER_ID != ''">
+		and USER_ID = #{USER_ID}
+		</if>
+	</select>
+	
+  <select id="selectCreateBy" resultType="pd" parameterType="pd" >
+    select 
+   	 (select CONCAT(NAME,USERNAME) from sys_user where sys_user.USER_ID= tt_tribune.CREATE_BY) as WEBSOCKETUSER
+    from tt_tribune
+    where TRIBUNE_ID = #{tribuneId,jdbcType=VARCHAR}
+  </select>
+  
+  
+  
+    <select id="selectCreateByXMDP" resultType="pd" parameterType="pd" >
+   SELECT 
+  (SELECT 
+    CONCAT(NAME, USERNAME) 
+  FROM
+    sys_user 
+  WHERE sys_user.USER_ID = t.CREATE_BY) AS WEBSOCKETUSER 
+FROM
+  `tt_item_review` t 
+WHERE t.`ITEM_REVIEW_ID` = #{tribuneId,jdbcType=VARCHAR}
+  </select>
+	
+	<!-- 查询需要发短信的人的信息 -->
+	<select id="findSmsUser" parameterType="String" resultType="pd" useCache="false"> 
+		 	SELECT c.USER_ID,NAME ,STRUCT_NAME,STRUCTST_AGE,(SELECT GROUP_CONCAT(NAME) FROM `sys_dictionaries` WHERE  
+ 			FIND_IN_SET(ZD_ID,c.`BM`)) AS BM ,c.`PHONE`
+ 			FROM sys_user c LEFT JOIN `sys_structinfo` d  ON c.`STRUCT_ID` =d.`STRUCT_ID` 
+ 			WHERE FIND_IN_SET(c.`USER_ID`, #{USER_ID}  ) 
+ 			ORDER BY STRUCTST_AGE ASC  
+ 
+	</select>
+	
+	
+	<!-- websocketUser -->
+	<select id="findWebsocketUser" parameterType="String" resultType="pd" useCache="false"> 
+		 	SELECT CONCAT(NAME,USERNAME) AS WEBSOCKETUSER,REVIEW_TYPE FROM `sys_user` WHERE 
+  			FIND_IN_SET(user_id,#{USER_ID} )
+ 			ORDER BY REVIEW_TYPE DESC
+	</select>
+	
+		<!-- websocketUserByFlowState -->
+	<select id="findWebsocketUserByFlowState" parameterType="pd" resultType="pd" useCache="false"> 
+SELECT 
+  u.USER_ID
+FROM
+  `sys_user`  u
+WHERE 
+ FIND_IN_SET(u.USER_ID,
+ (SELECT 
+      tr.USER_ID 
+    FROM
+      `tt_tribune` tr 
+    WHERE tr.`REVIEW_OBJ_ID` = #{REVIEW_OBJ_ID} 
+    <if test="type != null and type != ''" >
+   	 AND tr.`TYPE`=#{type}
+    </if>
+    ))
+	</select>
+	
+	
+	
+	
+	
+	<select id="findWebsocketTribuneIdByReviewObjid" parameterType="pd" resultType="pd" useCache="false"> 
+		SELECT t.`TRIBUNE_ID` FROM `tt_tribune` t WHERE t.`REVIEW_OBJ_ID`=#{REVIEW_OBJ_ID} 
+		<if test="type != null and type != ''" >
+  			 AND t.`TYPE`=#{type}
+   		 </if>
+		
+		
+		</select>
+		
+	
+		<!-- websocketUserByTribuneid -->
+	<select id="findWebsocketUserByTribuneId" parameterType="pd" resultType="pd" useCache="false"> 
+SELECT 
+  USER_ID 
+FROM
+  `sys_user` u
+WHERE 
+    FIND_IN_SET(u.USER_ID,
+ (SELECT 
+      tr.USER_ID 
+    FROM
+      `tt_tribune` tr 
+    WHERE  tr.`TRIBUNE_ID` = #{TRIBUNE_ID}
+    ))
+	</select>
+	
+		<select id="findWebsocketUserByItemReviewId" parameterType="pd" resultType="pd" useCache="false"> 
+SELECT 
+  USER_ID 
+FROM
+  `sys_user` u
+WHERE 
+    FIND_IN_SET(u.USER_ID,
+ ( SELECT t.`USER_ID` FROM  `tt_item_review`  t WHERE t.`ITEM_REVIEW_ID`=#{itemReviewId}
+    ))
+	</select>
+	
+	
+	
+	<!-- findWebsocketReplyUser -->
+	<select id="findWebsocketReplyUser" parameterType="pd" resultType="pd" useCache="false"> 
+		 SELECT CONCAT(NAME,USERNAME) AS WEBSOCKETUSER,REVIEW_TYPE FROM `tt_tribune_user` LEFT JOIN `sys_user` ON tt_tribune_user.`USER_ID`= sys_user.`USER_ID`
+WHERE TRIBUNE_ID= #{tribuneId,jdbcType=VARCHAR} AND STATE=0 and tt_tribune_user.USER_ID != #{userId,jdbcType=VARCHAR} ORDER BY REVIEW_TYPE DESC
+	</select>
+	
+	<select id="getUseName" parameterType="pd" resultType="String">
+	SELECT USERNAME FROM `sys_user` t WHERE  t.`LOG_ACCOUNT`=#{userName,jdbcType=VARCHAR} 
+	</select>
+
+	
+	<!-- 存入IP -->
+	<update id="saveIP" parameterType="pd" flushCache="false">
+		update sys_user 
+			set 
+				IP = #{IP}
+			where 
+				USERNAME = #{USERNAME}
+	</update>
+	
+	<!-- 修改保存====用户    sf-->
+	<update id="editFirstU" parameterType="pd" flushCache="false">
+		update  sys_user
+			set	UPDATE_DATE   			=#{UPDATE_DATE},
+				UPDATE_BY				=#{UPDATE_BY},
+				ROLE_ID                 =#{ROLE_ID},
+				USERNAME	            =#{USERNAME},
+				PASSWORD                =#{PASSWORD},
+				IS_DEL                  =#{IS_DEL},
+				RIGHTS                  =#{RIGHTS},
+				LAST_LOGIN              =#{LAST_LOGIN},
+				IP                      =#{IP},
+				SKIN                    =#{default},
+				STATUS                  =#{STATUS},
+				LOG_ACCOUNT				=#{LOG_ACCOUNT},
+				STRUCT_ID               =#{STRUCT_ID}
+			where 
+				USER_ID = #{USER_ID}
+	</update>
+	
+	<select id="checkFinNo" parameterType="pd" resultType="Integer">
+	 SELECT 
+ 	 COUNT(1) 
+	FROM
+ 	 `sys_user` o 
+	WHERE o.`LOG_ACCOUNT` = #{log_account,jdbcType=VARCHAR}
+	AND IS_DEL = 0
+	</select>
+	
+	
+		<!-- 修改保存====用户    sf-->
+	<update id="updatePassWord" parameterType="pd" flushCache="false">
+		update  sys_user
+			set	PASSWORD                =#{PASSWORD}
+			where 
+				USER_ID = #{USER_ID}
+	</update>
+	
+	<!-- 修改保存====部门    sf-->
+	<update id="saveUBM" parameterType="pd" flushCache="false">
+		update  sys_user
+			set	UPDATE_DATE   			=#{UPDATE_DATE},
+				UPDATE_BY				=#{UPDATE_BY},
+				BM                      =#{BM},
+				EMAIL					=#{EMAIL},
+				PHONE					=#{PHONE},
+				identitycode            =#{identitycode},
+				sex      				=#{sex},
+				birthday 			    =#{birthday},
+				DUTYDEPICT				=#{DUTYDEPICT},
+				NAME                    =#{NAME},
+			<if test="STRUCT_ID != null" >
+				STRUCT_ID               =#{STRUCT_ID},
+				LOG_ACCOUNT				=null,
+				USERNAME				=null,
+				PASSWORD				=null,
+				REVIEW_TYPE				=#{reviewType},	
+			</if>
+				TECHNICAL_TITLE=#{TECHNICAL_TITLE},
+				DIPLOMA=#{DIPLOMA}
+			where 
+				USER_ID = #{USER_ID}
+	</update>
+	
+	
+	
+	<!-- 修改保存====用户名密码    -->
+	<update id="saveUBMI" parameterType="pd" flushCache="false">
+		update  sys_user
+			set	UPDATE_DATE   			=#{UPDATE_DATE},
+				UPDATE_BY				=#{UPDATE_BY},
+				EMAIL					=#{EMAIL},
+				PHONE					=#{PHONE},
+				identitycode            =#{identitycode},
+				sex      				=#{sex},
+				birthday 			    =#{birthday},
+				DUTYDEPICT				=#{DUTYDEPICT},
+				NAME                    =#{NAME},
+				BM                      =#{BM}
+			where 
+				USER_ID = #{USER_ID}
+	</update>
+	<!-- 修改 -->
+	<update id="editU" parameterType="pd" flushCache="false">
+		update  sys_user
+			set NAME 					= #{NAME},
+				EMAIL					= #{EMAIL},
+				PHONE					= #{PHONE},
+				identitycode            =#{identitycode},
+				sex      				=#{sex},
+				birthday 			    =#{birthday},
+				DUTYDEPICT				=#{DUTYDEPICT},
+				UPDATE_DATE   			=#{UPDATE_DATE},
+				UPDATE_BY				=#{UPDATE_BY},
+				ROLE_ID                 =#{ROLE_ID}	
+			where 
+				USER_ID = #{USER_ID}
+	</update>
+	
+	
+	<!-- 重置密码为111111 -->
+	<update id="reset" parameterType="pd" flushCache="false">
+		update  sys_user
+			set 
+				UPDATE_DATE   			=#{UPDATE_DATE},
+				UPDATE_BY				=#{UPDATE_BY},
+				PASSWORD				=#{PASSWORD},
+				OPEN_ID					=null
+			where 
+				USER_ID = #{USER_ID}
+	</update>
+	
+	<update id="updatePasswordByUsername" parameterType="pd" flushCache="false">
+		update  sys_user
+			set 
+				PASSWORD				=#{PASSWORD}
+			where 
+				USERNAME = #{USERNAME}
+	</update>
+	
+	<!-- 通过user_id获取数据 -->
+	<select id="findByUiId" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			USER_ID,
+			STRUCT_ID,
+			USERNAME,
+			PASSWORD,
+			NAME,
+			RIGHTS,
+			ROLE_ID,
+			LAST_LOGIN,
+			LOG_ACCOUNT,
+			IP,
+			STATUS,
+			BZ,
+			SKIN,
+			EMAIL,
+			NUMBER,
+			PHONE,
+			identitycode,
+			sex,
+			birthday,
+			DUTYDEPICT,
+			REVIEW_TYPE
+		from 
+			sys_user s
+		where 
+			USER_ID = #{USER_ID}
+	</select>
+	
+	<!-- 通过user_id获取带部门的数据======sf -->
+	<select id="findToBM" parameterType="pd" resultType="pd"  flushCache="false"  useCache="false">
+		select 
+			USER_ID,
+			USERNAME,
+			STRUCT_ID,
+			PASSWORD,
+			NAME,
+			RIGHTS,
+			ROLE_ID,
+			LAST_LOGIN,
+			IP,
+			STATUS,
+			BZ,
+			SKIN,
+			EMAIL,
+			NUMBER,
+			PHONE,
+			identitycode,
+			sex,
+			birthday,
+			DUTYDEPICT,
+			BM,
+			TECHNICAL_TITLE,
+			DIPLOMA,
+			CC_USER_ID,
+			(SELECT NAME FROM `sys_dictionaries` d WHERE d.`ZD_ID`=s.BM) as BMNAME
+		from 
+			sys_user s
+		where 
+			USER_ID = #{USER_ID}
+	</select>
+	
+	
+	<!-- 通过user_id获取带部门的数据======sf -->
+	<select id="findMI" parameterType="pd" resultType="pd"   useCache="false">
+		SELECT u.`PASSWORD` FROM sys_user u WHERE u.`USER_ID`= #{USER_ID}
+	</select>
+		
+	<!-- 通过邮箱获取数据 -->
+	<select id="findByUE" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			USER_ID,
+			USERNAME,
+			PASSWORD,
+			NAME,
+			RIGHTS,
+			ROLE_ID,
+			LAST_LOGIN,
+			IP,
+			STATUS,
+			BZ,
+			SKIN,
+			EMAIL,
+			NUMBER,
+			PHONE
+		from 
+			sys_user
+		where 
+			EMAIL = #{EMAIL}
+		<if test="USERNAME != null and USERNAME != ''">
+			and USERNAME != #{USERNAME} 
+		</if>
+	</select>
+	
+	
+	<!-- 通过身份证获取数据 -->
+	<select id="findByUIden" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			USER_ID,
+			USERNAME,
+			PASSWORD,
+			NAME,
+			IDENTITYCODE,
+			RIGHTS,
+			ROLE_ID,
+			LAST_LOGIN,
+			IP,
+			STATUS,
+			BZ,
+			SKIN,
+			EMAIL,
+			NUMBER,
+			PHONE
+		from 
+			sys_user
+		where 
+			IDENTITYCODE = #{IDENTITYCODE}
+		<if test="USERNAME != null and USERNAME != ''">
+			and USERNAME != #{USERNAME} 
+		</if>
+	</select>
+	<!-- 通过身份证获取数据 -->
+	<select id="hasIdentiTwo" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			USER_ID,
+			USERNAME,
+			PASSWORD,
+			NAME,
+			IDENTITYCODE,
+			RIGHTS,
+			ROLE_ID,
+			LAST_LOGIN,
+			IP,
+			STATUS,
+			BZ,
+			SKIN,
+			EMAIL,
+			NUMBER,
+			PHONE
+		from 
+			sys_user
+		where 
+			IDENTITYCODE = #{IDENTITYCODE}
+		<if test="USER_ID != null and USER_ID != ''">
+			and USER_ID != #{USER_ID} 
+		</if>
+	</select>
+	
+	<!-- 通过手机获取数据 -->
+	<select id="findByUPhone" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			USER_ID,
+			USERNAME,
+			PASSWORD,
+			NAME,
+			IDENTITYCODE,
+			RIGHTS,
+			ROLE_ID,
+			LAST_LOGIN,
+			IP,
+			STATUS,
+			BZ,
+			SKIN,
+			EMAIL,
+			NUMBER,
+			PHONE
+		from 
+			sys_user
+		where 
+			PHONE = #{PHONE}
+		<if test="USERNAME != null and USERNAME != ''">
+			and USERNAME != #{USERNAME} 
+		</if>
+	</select>
+	<!-- 通过手机获取数据 -->
+	<select id="findByUPhoneTwo" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			USER_ID,
+			USERNAME,
+			PASSWORD,
+			NAME,
+			IDENTITYCODE,
+			RIGHTS,
+			ROLE_ID,
+			LAST_LOGIN,
+			IP,
+			STATUS,
+			BZ,
+			SKIN,
+			EMAIL,
+			NUMBER,
+			PHONE
+		from 
+			sys_user
+		where 
+			PHONE = #{PHONE}
+		<if test="USER_ID != null and USER_ID != ''">
+			and USER_ID != #{USER_ID} 
+		</if>
+	</select>
+	
+	<!-- 通过编号获取数据 -->
+	<select id="findByUN" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			USER_ID,
+			USERNAME,
+			PASSWORD,
+			NAME,
+			RIGHTS,
+			ROLE_ID,
+			LAST_LOGIN,
+			IP,
+			STATUS,
+			BZ,
+			SKIN,
+			EMAIL,
+			NUMBER,
+			PHONE
+		from 
+			sys_user
+		where 
+			NUMBER = #{NUMBER}
+		<if test="USERNAME != null and USERNAME != ''">
+			and USERNAME != #{USERNAME} 
+		</if>
+	</select>
+	
+	<!-- 通过z主键ID获取数据      sf-->
+	<select id="findByUPKId" parameterType="pd" resultType="pd"  useCache="false">
+		select 
+			a.USER_ID,
+			a.USERNAME,
+			a.PASSWORD,
+			a.NAME,
+			a.RIGHTS,
+			a.LAST_LOGIN,
+			a.IP,
+			a.STATUS,
+			a.BZ,
+			a.SKIN,
+			a.EMAIL,
+			a.NUMBER,
+			a.PHONE
+		from 
+			sys_user a
+			
+		where 
+			a.USER_ID = #{pid} 
+		
+	</select>
+	
+	<!-- 通过USERNAME获取数据 -->
+	<select id="findByUId" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			a.USER_ID,
+			a.USERNAME,
+			a.PASSWORD,
+			a.NAME,
+			a.RIGHTS,
+			GROUP_CONCAT(b.ROLE_ID) ROLE_ID,
+			
+			a.LAST_LOGIN,
+			a.IP,
+			a.STATUS,
+			a.BZ,
+			a.SKIN,
+			a.EMAIL,
+			a.NUMBER,
+			a.PHONE
+		from 
+			sys_user a
+			JOIN sys_user_role b ON a.USER_ID=b.USER_ID
+		where 
+			a.USERNAME = #{USERNAME} 
+		GROUP BY a.USER_ID
+	</select>
+	<!-- 通过USERNAME获取数据 -->
+	<select id="findUser" parameterType="pd" resultType="pd" useCache="false">
+		SELECT  t.`USERNAME`  FROM `sys_user` t WHERE t.`NAME`=#{NAME} 
+	</select>
+	<!-- 新增用户 -->
+	<insert id="saveU" parameterType="pd" flushCache="false">
+		insert into sys_user (
+			USER_ID,
+			NAME,
+			NUMBER,
+			USERNAME,
+			PASSWORD,
+			STRUCT_ID,
+			RIGHTS,
+			LAST_LOGIN,
+			IP,
+			STATUS,
+			SKIN,
+			EMAIL,
+			PHONE,
+			identitycode,
+			sex,
+			birthday,
+			CREATE_DATE,
+			DUTYDEPICT,
+			CREATE_BY,
+			ROLE_ID,
+			IS_DEL,
+			REVIEW_TYPE,
+			BM,
+			USE_STATE,
+			NUM,
+			TECHNICAL_TITLE,
+			DIPLOMA,
+			IS_JOB,
+			CC_USER_ID
+		) values (
+			#{USER_ID},
+			#{NAME},
+			#{NUMBER},
+			#{USERNAME},
+			#{PASSWORD},
+			#{STRUCT_ID},
+			#{RIGHTS},
+			#{LAST_LOGIN},
+			#{IP},
+			#{STATUS},
+			#{SKIN},
+			#{EMAIL},
+			#{PHONE},
+			#{identitycode},
+			#{sex},
+			#{birthday},
+			#{CREATE_DATE},
+			#{DUTYDEPICT},
+			#{CREATE_BY},
+			#{ROLE_ID},
+			#{IS_DEL},
+			#{REVIEW_TYPE},
+			#{BM},
+			#{USE_STATE},
+			#{NUM},
+			#{TECHNICAL_TITLE},
+			#{DIPLOMA},
+			#{IS_JOB},
+			#{CC_USER_ID}
+			
+		)
+	</insert>
+	 <!-- ***********查询用户当用户名为空==下拉列表********sf -->
+	<select id="findByBM" parameterType="pd" resultType="pd" useCache="false">
+	    select USER_ID,NAME,NUMBER,USERNAME,PASSWORD,STRUCT_ID,RIGHTS,
+			LAST_LOGIN,
+			IP,
+			STATUS,
+			SKIN,
+			EMAIL,
+			PHONE,
+			identitycode,
+			sex,
+			birthday,
+			CREATE_DATE,
+			DUTYDEPICT,
+			CREATE_BY,
+			ROLE_ID,
+			IS_DEL,
+			BM
+			from sys_user s
+			where s.`USERNAME` IS NULL and IS_DEL=0 and IS_JOB=0
+			order by STRUCT_ID desc
+	</select>
+          <!-- ***********新增用户及部门ID********sf ===-->
+	<insert id="saveUbyBM" parameterType="pd" flushCache="false">
+		insert into sys_user (
+			USER_ID,
+			NAME,
+			NUMBER,
+			USERNAME,
+			PASSWORD,
+			STRUCT_ID,
+			RIGHTS,
+			LAST_LOGIN,
+			IP,
+			STATUS,
+			SKIN,
+			EMAIL,
+			PHONE,
+			identitycode,
+			sex,
+			birthday,
+			CREATE_DATE,
+			DUTYDEPICT,
+			CREATE_BY,
+			ROLE_ID,
+			IS_DEL,
+			BM
+		) values(
+			#{USER_ID},
+			#{NAME},
+			#{NUMBER},
+			#{USERNAME},
+			#{PASSWORD},
+			#{STRUCT_ID},
+			#{RIGHTS},
+			#{LAST_LOGIN},
+			#{IP},
+			#{STATUS},
+			#{SKIN},
+			#{EMAIL},
+			#{PHONE},
+			#{identitycode},
+			#{sex},
+			#{birthday},
+			#{CREATE_DATE},
+			#{DUTYDEPICT},
+			#{CREATE_BY},
+			#{ROLE_ID},
+			#{IS_DEL},
+			#{BM}
+		)
+	</insert>
+	<!-- 用户列表(用户组) --><!-- userAction登录名的不为空    sf-->
+	<select id="userlistPage" parameterType="page"   resultType="pd" useCache="false">
+		select  u.USER_ID,
+				(SELECT   GROUP_CONCAT(ro.role_name) as ROLE_NAME_ALL  FROM      sys_user_role r LEFT JOIN `sys_role` ro ON r.role_id=ro.role_id
+			     WHERE r.USER_ID=u.USER_ID) as ROLE_NAME_ALL,
+				u.USERNAME,
+				u.PASSWORD,
+				u.LAST_LOGIN,
+				u.NAME,
+				u.IP,
+				u.EMAIL,
+				u.LOG_ACCOUNT,
+				u.NUMBER,
+				u.PHONE,
+				(select struct_name from sys_structinfo where sys_structinfo.struct_id=u.struct_id) as STRUCT_NAME
+		from sys_user u 
+		where 1=1 
+		 and u.IS_DEL=0 and u.USERNAME IS NOT NULL 
+		 and u.USERNAME != 'admin'
+		 <if test="pd.STRAGE!=0">
+		 	and u.STRUCT_ID=#{pd.STRUCT_ID} 
+		</if>
+		<if test="pd.USERNAME != null and pd.USERNAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 u.USERNAME LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+					 or 
+					 u.EMAIL LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%') 
+					 or
+					 u.NUMBER LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+					 or
+					 u.NAME LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+					 or
+					 u.PHONE LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+				)
+		</if>
+		<if test="pd.ROLE_ID != null and pd.ROLE_ID != ''"><!-- 角色检索 -->
+			and u.USER_ID in (  SELECT s.USER_ID FROM sys_user_role s WHERE s.ROLE_ID=#{pd.ROLE_ID}) 
+		</if>
+		<if test="pd.lastLoginStart!=null and pd.lastLoginStart!=''"><!-- 登录时间检索 -->
+			and u.LAST_LOGIN &gt;= #{pd.lastLoginStart} 
+		</if>
+		<if test="pd.lastLoginEnd!=null and pd.lastLoginEnd!=''"><!-- 登录时间检索 -->
+			and u.LAST_LOGIN &lt;= #{pd.lastLoginEnd} 
+		</if>
+		order by STRUCT_NAME desc
+	</select>
+	
+		<!-- 微信通讯录 查同一组织下的人员信息 2016/05/25 沈伟--> 
+	<select id="findMyContacts" parameterType="pd"   resultType="pd" useCache="false">
+		select  u.USER_ID,
+				u.LAST_LOGIN,
+				u.NAME,
+				u.IP,
+				u.EMAIL,
+				u.NUMBER,
+				u.PHONE
+				
+		from sys_user u 
+		where 1=1 
+		 and u.IS_DEL=0 and u.USERNAME IS NOT NULL 
+		 and u.USERNAME != 'admin'
+		 	and u.STRUCT_ID=(SELECT STRUCT_ID FROM `sys_user` WHERE OPEN_ID= #{OPEN_ID,jdbcType=VARCHAR})
+		order by u.LAST_LOGIN desc
+	</select>
+	
+	<!-- 用户列表(带部门)sf -->
+	<select id="userlistPagebm" parameterType="page"   resultType="pd" useCache="false">
+		select  u.USER_ID,
+				u.USERNAME,
+				u.PASSWORD,
+				u.LAST_LOGIN,
+				u.STRUCT_ID,
+				u.NAME,
+				u.IP,
+				u.EMAIL,
+				(SELECT 
+				  GROUP_CONCAT(REVIEW_GROUP_NAME) 
+				FROM
+				  `tt_review_group` g 
+				WHERE g.`REVIEW_GROUP_ID` IN 
+				  (SELECT 
+				    r.`TT_REVIEW_GROUP` 
+				  FROM
+				    tt_review_group_user r 
+				  WHERE r.`USER_ID`  = u.USER_ID)) AS GROUP_NAME ,
+				  (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_ID) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = u.USER_ID)) AS GROUP_ID,  
+				(SELECT ss.`STRUCT_NAME` FROM  sys_structinfo ss WHERE ss.`STRUCT_ID`=u.STRUCT_ID) as STRUCT_NAME,
+				u.NUMBER,
+				u.PHONE,
+				u.BM,
+				u.IS_JOB,
+				DIPLOMA
+				,TECHNICAL_TITLE,
+				(SELECT d.`NAME` FROM sys_dictionaries d WHERE d.`ZD_ID`=u.BM) as BM_NAME,
+				u.CC_USER_ID
+		from sys_user u 
+		
+		where 1=1
+		 and u.IS_DEL=0 
+		<if test="pd.CHECK!='aaaa'">
+		 	and u.STRUCT_ID=#{pd.STRUCT_ID}
+		</if>
+		<if test="pd.CHECK =='aaaa'">
+		AND u.STRUCT_ID IN 
+  (SELECT 
+    s.`STRUCT_ID` 
+  FROM
+    `sys_structinfo` s 
+  WHERE s.`STRUCT_ID` IN 
+    (SELECT 
+      t.`STRUCT_ID` 
+    FROM
+      `tt_item_struct` t 
+    WHERE (
+        t.`ITEM_ID` IN 
+        (SELECT 
+          tt.`ITEM_ID` 
+        FROM
+          tt_iteminfo tt 
+        WHERE tt.`STRUCT_ID` = #{pd.STRUCT_ID2}) 
+        OR t.`ITEM_ID` IN 
+        (SELECT 
+          tt.`TENDERINFO_ID` 
+        FROM
+          `tt_tenderinfo` tt 
+        WHERE tt.`STRUCT_ID` =#{pd.STRUCT_ID2})
+      ) 
+      AND t.`APPROVAL_STATUS` = 1) 
+    OR s.`STRUCT_ID` =#{pd.STRUCT_ID2})
+		</if>
+			
+		<if test="pd.USERNAME != null and pd.USERNAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 u.USERNAME LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+					 or 
+					 u.EMAIL LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%') 
+					 or
+					 u.NUMBER LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+					 or
+					 u.NAME LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+					 or
+					 u.PHONE LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+				)
+		</if>
+		<if test="pd.ZD_ID!=null and pd.ZD_ID!='' "><!-- 部门检索 -->
+			and u.BM =#{pd.ZD_ID}
+		</if>
+		<if test="pd.lastLoginStart!=null and pd.lastLoginStart!=''"><!-- 登录时间检索 -->
+			and u.LAST_LOGIN &gt;= #{pd.lastLoginStart} 
+		</if>
+		<if test="pd.lastLoginEnd!=null and pd.lastLoginEnd!=''"><!-- 登录时间检索 -->
+			and u.LAST_LOGIN &lt;= #{pd.lastLoginEnd} 
+		</if>
+		
+		
+		
+		order by u.LAST_LOGIN desc
+	</select>
+	
+	
+	
+	<!-- 抄送   用户列表(带部门)sf -->
+	<select id="ccUserlistPbmTri" parameterType="page"   resultType="pd" useCache="false">
+		SELECT 
+  u.USER_ID,
+  u.USERNAME,
+  u.PASSWORD,
+  u.LAST_LOGIN,
+  u.STRUCT_ID,
+  u.NAME,
+  u.IP,
+  u.EMAIL,
+  (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_NAME) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = u.USER_ID)) AS GROUP_NAME,
+  (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_ID) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = u.USER_ID)) AS GROUP_ID,
+  (SELECT 
+    ss.`STRUCT_NAME` 
+  FROM
+    sys_structinfo ss 
+  WHERE ss.`STRUCT_ID` = u.STRUCT_ID) AS STRUCT_NAME,
+  u.NUMBER,
+  u.PHONE,
+  u.BM,
+  u.IS_JOB,
+  DIPLOMA,
+  TECHNICAL_TITLE,
+  (SELECT 
+    d.`NAME` 
+  FROM
+    sys_dictionaries d 
+  WHERE d.`ZD_ID` = u.BM) AS BM_NAME,
+  u.CC_USER_ID 
+FROM
+  sys_user u 
+WHERE 1 = 1 
+  AND u.IS_DEL = 0 
+  AND u.USERNAME IS NOT NULL 
+  
+  		<if test="pd.ZD_ID!=null and pd.ZD_ID!='' "><!-- 部门检索 -->
+			and u.BM =#{pd.ZD_ID}
+		</if>
+		<if test="pd.STRUCT_ID!=null and pd.STRUCT_ID!='' "><!-- 部门检索 -->
+			and u.STRUCT_ID =#{pd.STRUCT_ID}
+		</if>
+	</select>
+	
+	
+	
+	
+	<!-- 用户列表(带部门)sf 查询全部人员 -->
+	<select id="userlistPagebmAll" parameterType="page"   resultType="pd" useCache="false">
+		select  u.USER_ID,
+				u.USERNAME,
+				u.PASSWORD,
+				u.LAST_LOGIN,
+				u.STRUCT_ID,
+				u.NAME,
+				u.IP,
+				u.EMAIL,
+				(SELECT 
+				  GROUP_CONCAT(REVIEW_GROUP_NAME) 
+				FROM
+				  `tt_review_group` g 
+				WHERE g.`REVIEW_GROUP_ID` IN 
+				  (SELECT 
+				    r.`TT_REVIEW_GROUP` 
+				  FROM
+				    tt_review_group_user r 
+				  WHERE r.`USER_ID`  = u.USER_ID)) AS GROUP_NAME ,
+				  (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_ID) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = u.USER_ID)) AS GROUP_ID,  
+				(SELECT ss.`STRUCT_NAME` FROM  sys_structinfo ss WHERE ss.`STRUCT_ID`=u.STRUCT_ID) as STRUCT_NAME,
+				u.NUMBER,
+				u.PHONE,
+				u.BM,
+				u.IS_JOB,
+				(SELECT d.`NAME` FROM sys_dictionaries d WHERE d.`ZD_ID`=u.BM) as BM_NAME,
+				u.CC_USER_ID
+		from sys_user u 
+		
+		where 1=1
+		 and u.IS_DEL=0 
+		
+		<if test="pd.USERNAME != null and pd.USERNAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 u.USERNAME LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+					 or 
+					 u.EMAIL LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%') 
+					 or
+					 u.NUMBER LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+					 or
+					 u.NAME LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+					 or
+					 u.PHONE LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+				)
+		</if>
+		<if test="pd.ZD_ID!=null and pd.ZD_ID!='' "><!-- 部门检索 -->
+			and u.BM =#{pd.ZD_ID}
+		</if>
+		<if test="pd.lastLoginStart!=null and pd.lastLoginStart!=''"><!-- 登录时间检索 -->
+			and u.LAST_LOGIN &gt;= #{pd.lastLoginStart} 
+		</if>
+		<if test="pd.lastLoginEnd!=null and pd.lastLoginEnd!=''"><!-- 登录时间检索 -->
+			and u.LAST_LOGIN &lt;= #{pd.lastLoginEnd} 
+		</if>
+		
+		
+		
+		order by u.LAST_LOGIN desc
+	</select>
+	
+	
+	
+	<select id="ccuserListByCcuserId" parameterType="pd"   resultType="pd">
+	
+	
+	
+SELECT 
+  u.USER_ID,
+  u.USERNAME,
+  u.PASSWORD,
+  u.LAST_LOGIN,
+  u.STRUCT_ID,
+  (SELECT s.`STRUCT_NAME` FROM `sys_structinfo` s WHERE s.`STRUCT_ID`=u.STRUCT_ID) AS STRUCT_NAME,
+  u.NAME,
+  u.IP,
+  u.EMAIL,
+  u.BM,
+  CASE WHEN u.BM IS NULL THEN '' ELSE 
+  (SELECT 
+    d.`NAME` 
+  FROM
+    sys_dictionaries d 
+  WHERE d.`ZD_ID` = u.BM) END AS BM_NAME  
+FROM
+  `sys_user` u 
+WHERE FIND_IN_SET(
+    u.`USER_ID`,
+    #{userId}
+  )
+	</select>
+	
+	
+		<select id="findReviewGroupUserinfo" parameterType="pd"   resultType="pd">
+  
+SELECT 
+  ts.USER_ID,
+  ts.USERNAME,
+  ts.PASSWORD,
+  ts.LAST_LOGIN,
+  ts.STRUCT_ID,
+  ts.NAME,
+  ts.IP,
+  ts.IDENTITYCODE,
+  ts.EMAIL,
+  (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_NAME) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = ts.USER_ID)) AS GROUP_NAME,
+    (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_ID) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = ts.USER_ID)) AS GROUP_ID,  
+  (SELECT 
+    ss.`STRUCT_NAME` 
+  FROM
+    sys_structinfo ss 
+  WHERE ss.`STRUCT_ID` = ts.STRUCT_ID) AS STRUCT_NAME,
+  ts.NUMBER,
+  ts.PHONE,
+  ts.BM,
+  (SELECT 
+    d.`NAME` 
+  FROM
+    sys_dictionaries d 
+  WHERE d.`ZD_ID` = ts.BM) AS BM_NAME 
+FROM
+  `sys_user` ts 
+WHERE ts.`USER_ID` IN 
+
+(SELECT 
+    r.`USER_ID` 
+  FROM
+    `tt_review_group_user` r 
+  WHERE r.`TT_REVIEW_GROUP` = #{reviewGroupId}
+    AND (
+      r.`STRUCT_ID` = #{STRUCT_ID} 
+      OR r.`STRUCT_ID` = 
+      (SELECT 
+        s.`STRUCT_ID` 
+      FROM
+        `sys_structinfo` s 
+      WHERE s.`STRUCTST_AGE` = 0)
+    ))
+	</select>
+	
+	<!-- 查询抄送人员-->
+	<select id="ccuserListToChooseAll" parameterType="page"   resultType="pd" useCache="false">
+		select  u.USER_ID,
+				u.USERNAME,
+				u.PASSWORD,
+				u.LAST_LOGIN,
+				u.STRUCT_ID,
+				u.NAME,
+				u.IP,
+				u.EMAIL,
+				(SELECT 
+				  GROUP_CONCAT(REVIEW_GROUP_NAME) 
+				FROM
+				  `tt_review_group` g 
+				WHERE g.`REVIEW_GROUP_ID` IN 
+				  (SELECT 
+				    r.`TT_REVIEW_GROUP` 
+				  FROM
+				    tt_review_group_user r 
+				  WHERE r.`USER_ID`  = u.USER_ID)) AS GROUP_NAME ,
+				  (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_ID) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = u.USER_ID)) AS GROUP_ID,  
+				(SELECT ss.`STRUCT_NAME` FROM  sys_structinfo ss WHERE ss.`STRUCT_ID`=u.STRUCT_ID) as STRUCT_NAME,
+				u.NUMBER,
+				u.PHONE,
+				u.BM,
+				u.IS_JOB,
+				(SELECT d.`NAME` FROM sys_dictionaries d WHERE d.`ZD_ID`=u.BM) as BM_NAME,
+				u.CC_USER_ID
+		from sys_user u 
+		where 1=1
+		 and u.IS_DEL=0 
+		 and u.USERNAME IS NOT NULL
+		<if test="pd.USERNAME != null and pd.USERNAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 u.USERNAME LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+					 or 
+					 u.EMAIL LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%') 
+					 or
+					 u.NUMBER LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+					 or
+					 u.NAME LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+					 or
+					 u.PHONE LIKE CONCAT(CONCAT('%', #{pd.USERNAME}),'%')
+				)
+		</if>
+		<if test="pd.ZD_ID!=null and pd.ZD_ID!='' "><!-- 部门检索 -->
+			and u.BM =#{pd.ZD_ID}
+		</if>
+		<if test="pd.lastLoginStart!=null and pd.lastLoginStart!=''"><!-- 登录时间检索 -->
+			and u.LAST_LOGIN &gt;= #{pd.lastLoginStart} 
+		</if>
+		<if test="pd.lastLoginEnd!=null and pd.lastLoginEnd!=''"><!-- 登录时间检索 -->
+			and u.LAST_LOGIN &lt;= #{pd.lastLoginEnd} 
+		</if>
+		
+		
+		
+		order by u.LAST_LOGIN desc
+	</select>
+	
+	
+	
+	<!-- 用户列表(全部)tab切换带部门 =======sf== -->
+	<select id="listAlltabUser" parameterType="pd" resultType="pd" useCache="false">
+		select  u.USER_ID,
+				u.USERNAME,
+				u.PASSWORD,
+				u.LAST_LOGIN,
+				u.NAME,
+				u.IP,
+				u.EMAIL,
+				u.NUMBER,
+				u.PHONE,
+				u.BM,
+				(SELECT d.`NAME` FROM sys_dictionaries d WHERE d.`ZD_ID`=u.BM) as BM_NAME
+		from sys_user u
+		where 1=1 
+		and u.IS_DEL=0 
+        <!-- STRUCT_ID  当前用户登陆组  -->
+		and u.IS_DEL=0 and u.STRUCT_ID=#{STRUCT_ID}
+		
+	
+		<if test="USERNAME != null and USERNAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 u.USERNAME LIKE CONCAT(CONCAT('%', #{USERNAME}),'%')
+					 or 
+					 u.EMAIL LIKE CONCAT(CONCAT('%', #{USERNAME}),'%') 
+					 or
+					 u.NUMBER LIKE CONCAT(CONCAT('%', #{USERNAME}),'%')
+					 or
+					 u.NAME LIKE CONCAT(CONCAT('%', #{USERNAME}),'%')
+					  or
+					 u.PHONE LIKE CONCAT(CONCAT('%', #{USERNAME}),'%')
+				)
+		</if>
+		<if test="ZD_ID != null and ZD_ID!='' "><!-- 部门检索 -->
+			and u.BM =#{pd.ZD_ID}
+		</if>
+		<if test="lastLoginStart!=null and lastLoginStart!=''"><!-- 登录时间检索 -->
+			and u.LAST_LOGIN &gt;= #{lastLoginStart} 
+		</if>
+		<if test="lastLoginEnd!=null and lastLoginEnd!=''"><!-- 登录时间检索 -->
+			and u.LAST_LOGIN &lt;= #{lastLoginEnd} 
+		</if>
+		order by u.LAST_LOGIN desc
+	</select>
+	<!-- 用户列表(全部) -->
+	<select id="listAllUser" parameterType="pd" resultType="pd" useCache="false">
+		select  u.USER_ID,
+		(SELECT   GROUP_CONCAT(ro.role_name) AS ROLE_NAME_ALL  FROM      sys_user_role r LEFT JOIN `sys_role` ro ON r.role_id=ro.role_id
+			     WHERE r.USER_ID=u.USER_ID) AS ROLE_NAME_ALL,
+				u.USERNAME,
+				u.PASSWORD,
+				u.LAST_LOGIN,
+				u.NAME,
+				u.IP,
+				u.EMAIL,
+				u.NUMBER,
+				u.PHONE,
+				u.ROLE_ID,
+				u.BM,
+				u.LOG_ACCOUNT,
+				(SELECT d.`NAME` FROM sys_dictionaries d WHERE d.`ZD_ID`=u.BM) AS BM_NAME,
+				(select struct_name from sys_structinfo where sys_structinfo.struct_id=u.struct_id) as STRUCT_NAME
+		from sys_user u
+		where 1=1 
+		and u.IS_DEL=0 and u.USERNAME IS NOT NULL 
+		and u.USERNAME != 'admin'
+		 
+		
+		<if test="USERNAME != null and USERNAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 u.USERNAME LIKE CONCAT(CONCAT('%', #{USERNAME}),'%')
+					 or 
+					 u.EMAIL LIKE CONCAT(CONCAT('%', #{USERNAME}),'%') 
+					 or
+					 u.NUMBER LIKE CONCAT(CONCAT('%', #{USERNAME}),'%')
+					 or
+					 u.NAME LIKE CONCAT(CONCAT('%', #{USERNAME}),'%')
+					  or
+					 u.PHONE LIKE CONCAT(CONCAT('%', #{USERNAME}),'%')
+				)
+		</if>
+		<if test="ROLE_ID != null and ROLE_ID != ''"><!-- 角色检索 -->
+			and u.ROLE_ID=#{ROLE_ID} 
+		</if>
+		<if test="lastLoginStart!=null and lastLoginStart!=''"><!-- 登录时间检索 -->
+			and u.LAST_LOGIN &gt;= #{lastLoginStart} 
+		</if>
+		<if test="lastLoginEnd!=null and lastLoginEnd!=''"><!-- 登录时间检索 -->
+			and u.LAST_LOGIN &lt;= #{lastLoginEnd} 
+		</if>
+		order by STRUCT_NAME desc
+	</select>
+	
+	<!-- 删除用户 -->
+	<delete id="deleteU" parameterType="pd" flushCache="false">
+	 update sys_user set   IS_DEL = 1 where
+			USER_ID = #{USER_ID}
+	</delete>
+	<update id="updateLogin" parameterType="pd">
+	UPDATE 
+  sys_user 
+SET
+  USERNAME=NULL,
+  PASSWORD=NULL
+WHERE USER_ID = #{USER_ID,jdbcType=VARCHAR}
+	</update>
+	
+	<!-- 员工管理删除人员 -->
+	<update id="updateLoginDictionaries" parameterType="pd">
+	UPDATE 
+  sys_user 
+SET
+  IS_DEL=1,
+  USERNAME=NULL,
+  PASSWORD=NULL
+WHERE USER_ID = #{USER_ID,jdbcType=VARCHAR}
+	</update>
+	
+	
+	<delete id="deleteUserRole" parameterType="pd">
+	DELETE 
+FROM
+  sys_user_role 
+WHERE USER_ID = #{USER_ID,jdbcType=VARCHAR}
+	</delete>
+		<!-- 根据用户id删除角色数据 -->
+	<delete id="deleteRoleUser" parameterType="pd" flushCache="false">
+		delete from sys_user_role
+		where 
+			USER_ID = #{USER_ID}
+	</delete>
+	<!-- 批量删除用户 -->
+	<delete id="deleteAllU" parameterType="String" flushCache="false">
+	 update sys_user set   
+	 USERNAME=NULL,
+  PASSWORD=NULL
+		where 
+			USER_ID in
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+		<!-- 通过structid获取数据 -->
+	<select id="listUserAllByStructid" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			USER_ID,
+			USERNAME,
+			PASSWORD,
+			STRUCT_ID,
+			NAME,
+			RIGHTS,
+			ROLE_ID,
+			LAST_LOGIN,
+			IP,
+			STATUS,
+			BZ,
+			SKIN,
+			EMAIL,
+			NUMBER,
+			PHONE,
+			identitycode,
+			sex,
+			birthday,
+			DUTYDEPICT
+		from 
+			sys_user
+		where 
+			STRUCT_ID = #{structId} and IS_DEL=0 
+	</select>
+		<!-- 通过structid获取数据 -->
+	<select id="listUserAllByStructidTwo" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			USER_ID,
+			USERNAME,
+			PASSWORD,
+			STRUCT_ID,
+			NAME,
+			RIGHTS,
+			ROLE_ID,
+			LAST_LOGIN,
+			IP,
+			STATUS,
+			BZ,
+			SKIN,
+			EMAIL,
+			NUMBER,
+			PHONE,
+			identitycode,
+			sex,
+			birthday,
+			DUTYDEPICT
+		from 
+			sys_user
+		where 
+			STRUCT_ID = #{structId} and IS_DEL=0  AND USERNAME IS NOT NULL  AND USERNAME!='' AND PASSWORD IS NOT NULL AND PASSWORD!=''
+	</select>
+	<!-- 查询有证书的人员 -->
+	<select id="findUserinfoByCitificate" parameterType="pd" resultType="pd">
+	SELECT 
+  u.USER_ID,
+  USERNAME,
+  PASSWORD,
+  u.STRUCT_ID,
+  NAME,
+  RIGHTS,
+  ROLE_ID,
+  LAST_LOGIN,
+  IP,
+  STATUS,
+  BZ,
+  SKIN,
+  EMAIL,
+  NUMBER,
+  PHONE,
+  identitycode,
+  sex,
+  birthday,
+  DUTYDEPICT,
+  u.USE_STATE,
+  c.`CERTIFICATE_ID`, 
+  c.`SPECIALTY_TYPE`
+FROM
+  `sys_user` u  LEFT JOIN `tt_certificate` c ON u.`USER_ID`=c.`USER_ID`
+  WHERE  c.`USER_ID` IS NOT NULL GROUP BY c.`USER_ID`,c.`SPECIALTY_TYPE`
+
+	</select>
+		<!-- 通过structid获取数据 -->
+	<select id="listUserAllByStructByPerson" parameterType="pd" resultType="pd" useCache="false">
+			SELECT a.role_id,a.role_name, GROUP_CONCAT(b.user_id) as xmzuserid ,GROUP_CONCAT(c.user_id) as user_id FROM sys_role a
+		LEFT JOIN tt_item_person b ON a.role_id=b.role_id  AND b.`ITEM_ID`=#{ITEM_ID}
+		LEFT JOIN sys_user c ON b.`USER_ID`=c.`USER_ID`
+		WHERE a.STRUCT_ID='' and  a.PARENT_ID=4
+		GROUP BY a.`ROLE_ID`
+	</select>
+	
+	<select id="findItem" parameterType="pd" resultType="pd" useCache="false">
+SELECT 
+  tt.`ITEM_REVIEW_ID` AS ID,
+  tt.`TITLE` ,
+   tt.`CREATE_DATE`,
+  tt.`STATE`,
+  tt.TYPE,
+  (SELECT s.`NAME` FROM `sys_user` s WHERE s.`USER_ID`=tt.CREATE_BY)AS CREATE_NAME
+FROM
+  tt_item_review tt 
+WHERE tt.`ITEM_REVIEW_ID` IN 
+  (SELECT 
+    tir.TRIBUNE_ID 
+  FROM
+    tt_tribune_user tir 
+  WHERE tir.`USER_ID` = #{USER_ID,jdbcType=VARCHAR} 
+    AND tir.`STATE` = 0) 
+  AND tt.`IS_DEL` = 0 
+  AND tt.STATE=1
+  AND RIGHT(tt.REVIEW_TYPE, 1) = 
+  (SELECT 
+    u.`REVIEW_TYPE` 
+  FROM
+    sys_user u 
+  WHERE u.`USER_ID` = #{USER_ID,jdbcType=VARCHAR})
+	</select>
+
+	<select id="findItemLevel" parameterType="pd" resultType="pd" useCache="false">
+SELECT 
+  tt.`ITEM_REVIEW_ID` AS ID,
+   CONCAT(tt.`TITLE`,'(',(SELECT 
+  s.`STRUCT_NAME` 
+FROM
+  `sys_structinfo` s 
+WHERE s.`STRUCT_ID` = 
+  (SELECT 
+    u.`STRUCT_ID` 
+  FROM
+    `sys_user` u 
+  WHERE u.`USER_ID` =tt.CREATE_BY)),')') AS TITLE,
+   tt.`CREATE_DATE`,
+  tt.`STATE`,
+  tt.TYPE,
+  (SELECT s.`NAME` FROM `sys_user` s WHERE s.`USER_ID`=tt.CREATE_BY)AS CREATE_NAME
+FROM
+  tt_item_review tt 
+WHERE tt.`ITEM_REVIEW_ID` IN 
+  (SELECT 
+    tir.TRIBUNE_ID 
+  FROM
+    tt_tribune_user tir 
+  WHERE tir.`USER_ID` = #{USER_ID,jdbcType=VARCHAR} 
+    AND tir.`STATE` = 0) 
+  AND tt.`IS_DEL` = 0 
+  AND tt.STATE=1
+   AND   FIND_IN_SET(#{USER_ID},tt.`USER_ID`) 
+	</select>
+	
+	<!-- 委托查询 -->
+	<select id="findEntrust" parameterType="pd" resultType="pd" useCache="false">
+	SELECT 
+  t.`ENTRUST_ID`,
+  t.`ENTRUST_NO`,
+  t.`ENTRUST_USER`,
+  t.`BE_ENTRUSTED_USER`,
+  t.`ENTRUST_AUTHORITY`,
+  t.`ENTRUST_VALIDITY_TIME`,
+  t.`ENTRUST_OPEN_TIME`,
+  t.`ENTRUST_DESCRIBE`,
+  t.`ENTRUST_UNIT`,
+  (SELECT 
+    NAME 
+  FROM
+    sys_user u 
+  WHERE u.user_id = t.`CREATE_BY`) AS CREATE_BY,
+  t.`CREATE_DATE` 
+FROM
+  `tt_entrust` t 
+WHERE t.`ENTRUST_ID` IN 
+  (SELECT 
+    tribune_id 
+  FROM
+    `tt_tribune_user` 
+  WHERE user_id = #{USER_ID,jdbcType=VARCHAR}) 
+  AND t.`FLOW_STATE`='1'
+  AND RIGHT(t.`REVIEW_TYPE`, 1) = 
+  (SELECT 
+    u.`REVIEW_TYPE` 
+  FROM
+    sys_user u 
+  WHERE u.`USER_ID` =  #{USER_ID,jdbcType=VARCHAR}) 
+  AND 
+  (SELECT 
+    state 
+  FROM
+    `tt_tribune_user` 
+  WHERE user_id = #{USER_ID,jdbcType=VARCHAR} 
+    AND tribune_id = t.`ENTRUST_ID`) = 0 
+ORDER BY CREATE_DATE DESC 
+	</select>
+	
+	
+	<!-- 招标查询 -->
+	<select id="findTenderInfo" parameterType="pd" resultType="pd" useCache="false">
+	SELECT 
+  TENDERINFO_ID AS tenderinfoId,
+  ITEM_NUMBER AS itemNumber
+FROM
+  `tt_tenderinfo` t 
+WHERE  t.IS_DEL=0 and t.FLOW_STATE=1 and t.`TENDERINFO_ID` IN 
+  (SELECT 
+    tribune_id 
+  FROM
+    `tt_tribune_user` 
+  WHERE user_id = #{USER_ID,jdbcType=VARCHAR}) 
+    AND RIGHT(t.`REVIEW_TYPE`, 1) = 
+    (SELECT 
+      u.`REVIEW_TYPE` 
+    FROM
+      sys_user u 
+    WHERE u.`USER_ID` = #{USER_ID,jdbcType=VARCHAR}) 
+      AND 
+      (SELECT 
+        state 
+      FROM
+        `tt_tribune_user` 
+      WHERE user_id = #{USER_ID,jdbcType=VARCHAR}
+        AND tribune_id = t.`TENDERINFO_ID`) = 0 
+    ORDER BY CREATE_DATE DESC 
+    
+	</select>
+	<!-- shenwei 2016/03/30 head页面评审人 type 1印章2投标 -->
+	<select id="findReviewUser" parameterType="pd" resultType="pd" useCache="false">
+  SELECT 
+  tt.`TRIBUNE_ID` AS ID,
+  tt.`TRIBUNE_TITLE` AS TITLE ,
+  tt.REVIEW_TYPE,
+   tt.`CREATE_DATE`,
+   tt.`READING_NUMBER`,
+   tt.`STATE`,
+   (SELECT COUNT(*) FROM `tt_tribune_user_reply` t WHERE t.TRIBUNE_ID=tt.`TRIBUNE_ID`)AS NUMBER,
+  (SELECT s.`NAME` FROM `sys_user` s WHERE s.`USER_ID`=tt.CREATE_BY)AS CREATE_NAME
+FROM
+  tt_tribune tt 
+WHERE tt.`STATE` = 1  
+  AND tt.REVIEW_OBJ_ID IS NOT NULL 
+  AND tt.`TRIBUNE_ID` IN 
+  (SELECT 
+    t.`TRIBUNE_ID` 
+  FROM
+    `tt_tribune_user` t 
+  WHERE t.`USER_ID` = #{USER_ID} 
+    AND t.`STATE` = 0) 
+  AND RIGHT(tt.REVIEW_TYPE, 1) = 
+  (SELECT 
+    u.`REVIEW_TYPE` 
+  FROM
+    sys_user u 
+  WHERE u.`USER_ID` =#{USER_ID}) order by tt.`CREATE_DATE` desc
+	</select>
+	<!--  新审批 层次-->
+	<select id="findReviewUserLevel" parameterType="pd" resultType="pd" useCache="false">
+  SELECT 
+  tt.`TRIBUNE_ID` AS ID,
+  CONCAT(
+    tt.`TRIBUNE_TITLE`,
+    '(',
+    (SELECT 
+      s.`STRUCT_NAME` 
+    FROM
+      `sys_structinfo` s 
+    WHERE s.`STRUCT_ID` = 
+      (SELECT 
+        u.`STRUCT_ID` 
+      FROM
+        `sys_user` u 
+      WHERE u.`USER_ID` = tt.CREATE_BY)),
+    ')'
+  ) AS TITLE ,
+  tt.REVIEW_TYPE,
+   tt.`CREATE_DATE`,
+   tt.`READING_NUMBER`,
+   tt.`STATE`,
+   (SELECT COUNT(*) FROM `tt_tribune_user_reply` t WHERE t.TRIBUNE_ID=tt.`TRIBUNE_ID`)AS NUMBER,
+  (SELECT s.`NAME` FROM `sys_user` s WHERE s.`USER_ID`=tt.CREATE_BY)AS CREATE_NAME
+FROM
+  tt_tribune tt 
+WHERE tt.`STATE` = 1  
+  AND tt.REVIEW_OBJ_ID IS NOT NULL 
+  AND tt.`TRIBUNE_ID` IN 
+  (SELECT 
+    t.`TRIBUNE_ID` 
+  FROM
+    `tt_tribune_user` t 
+  WHERE t.`USER_ID` = #{USER_ID} 
+    AND t.`STATE` = 0) 
+  AND   FIND_IN_SET(#{USER_ID},tt.`USER_ID`) 
+  order by tt.`CREATE_DATE` desc
+	</select>
+	
+	
+	
+	<update id="updateUserinfoByUseState" parameterType="String" flushCache="false">
+		update sys_user
+		 set
+			USE_STATE =USE_STATE+1 where USER_ID in 
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</update>
+	
+	
+	
+	<select id="findBinding" parameterType="pd" resultType="pd" useCache="false">
+ 		select * from 
+			sys_user
+		where 
+			OPEN_ID = #{OPEN_ID}
+	</select>
+	
+	<!-- 删除用户 -->
+	<delete id="clearOpenId" parameterType="pd" flushCache="false">
+	 update sys_user set   OPEN_ID = null where
+			OPEN_ID = #{OPEN_ID}
+	</delete>
+	
+	 <select id="findtype" parameterType="pd" resultType="pd" >
+  SELECT t.`STRUCTST_AGE` FROM `sys_structinfo` t WHERE  t.`STRUCT_ID`=#{STRUCT_ID}
+  </select>
+  
+  <select id="listPdPageUserHYJY" parameterType="pd" resultType="pd">
+    SELECT 
+  ts.USER_ID,
+  ts.USERNAME,
+  ts.PASSWORD,
+  ts.LAST_LOGIN,
+  ts.STRUCT_ID,
+  ts.NAME,
+  (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_NAME) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = ts.USER_ID)) AS GROUP_NAME,
+    (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_ID) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = ts.USER_ID)) AS GROUP_ID,  
+  (SELECT 
+    ss.`STRUCT_NAME` 
+  FROM
+    sys_structinfo ss 
+  WHERE ss.`STRUCT_ID` = ts.STRUCT_ID) AS STRUCT_NAME,
+  ts.NUMBER,
+  ts.PHONE,
+  ts.BM,
+  (SELECT 
+    d.`NAME` 
+  FROM
+    sys_dictionaries d 
+  WHERE d.`ZD_ID` = ts.BM) AS BM_NAME 
+FROM
+  `sys_user` ts 
+WHERE ts.`USERNAME` IS NOT NULL 
+  AND ts.`PASSWORD` IS NOT NULL 
+  AND ts.`USER_ID` NOT IN 
+  (SELECT 
+    t.`USER_ID` 
+  FROM
+    `tt_meeting_person` t 
+  WHERE t.MEETINGINFO_ID =#{meetinginfoId})
+  AND (ts.`STRUCT_ID` IN 
+  (SELECT 
+    t.`STRUCT_ID` 
+  FROM
+    `tt_item_struct` t 
+  WHERE t.`STRUCT_ID` =#{structId}
+     OR t.`CURRENT_STRUCT_ID` = #{structId} )
+			    OR ts.`STRUCT_ID`= #{structId}
+			    
+			    
+			    ) 
+  OR ts.`STRUCT_ID` IN 
+  (SELECT 
+    t.`CURRENT_STRUCT_ID` 
+  FROM
+    `tt_item_struct` t 
+  WHERE t.`STRUCT_ID` =#{structId}
+    OR t.`CURRENT_STRUCT_ID` =#{structId}) 
+    AND ts.`USER_ID` NOT IN 
+  (SELECT 
+    t.`USER_ID` 
+  FROM
+    `tt_meeting_person` t 
+  WHERE t.`MEETINGINFO_ID` = #{meetinginfoId})
+  </select>
+  
+ <!-- sf 身份证校验 --> 
+<select id="countUserForIC" parameterType="String" resultType="Integer">
+SELECT 
+  COUNT(*) 
+FROM
+  sys_user t 
+WHERE t.`IDENTITYCODE` = #{IC}
+AND t.IS_DEL=0
+</select>  
+  
+  <!-- 根据主键Id查询已选择的人员 -->
+   <select id="findUserByIdHYJY" parameterType="pd" resultType="pd">
+  SELECT 
+    u.`USER_ID`,
+  u.`NAME`,
+  (SELECT 
+    i.STRUCT_NAME 
+  FROM
+    `sys_structinfo` i 
+  WHERE i.STRUCT_ID = u.`STRUCT_ID`) AS STRUCT_NAME,
+  (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_NAME) 
+  FROM
+    `tt_review_group` o 
+  WHERE o.STRUCT_ID = u.`STRUCT_ID`) AS GROUP_NAME 
+FROM
+  `tt_meeting_person` t,
+  `sys_user` u 
+WHERE t.`MEETINGINFO_ID` =  #{meetinginfoId}
+  AND t.`USER_ID` = u.`USER_ID` 
+   </select>
+   
+     <!-- 根据组织Id查询人员 -->
+   <select id="findUserinfoListbyStructId" parameterType="pd" resultType="pd">
+   
+   SELECT 
+  ts.USER_ID,
+  ts.USERNAME,
+  ts.PASSWORD,
+  ts.LAST_LOGIN,
+  ts.STRUCT_ID,
+  ts.NAME,
+  ts.IP,
+  ts.IDENTITYCODE,
+  ts.EMAIL,
+  (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_NAME) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = ts.USER_ID)) AS GROUP_NAME,
+    (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_ID) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = ts.USER_ID)) AS GROUP_ID,  
+  (SELECT 
+    ss.`STRUCT_NAME` 
+  FROM
+    sys_structinfo ss 
+  WHERE ss.`STRUCT_ID` = ts.STRUCT_ID) AS STRUCT_NAME,
+  ts.NUMBER,
+  ts.PHONE,
+  ts.BM,
+  (SELECT 
+    d.`NAME` 
+  FROM
+    sys_dictionaries d 
+  WHERE d.`ZD_ID` = ts.BM) AS BM_NAME 
+FROM
+  `sys_user` ts 
+WHERE ts.`USERNAME` IS NOT NULL 
+  AND ts.`PASSWORD` IS NOT NULL 
+  AND ts.`STRUCT_ID`=#{STRUCT_ID}
+  AND  NOT  FIND_IN_SET(ts.USER_ID,#{USER_LIST})
+     </select>
+     
+      <!-- 查询集团的人 -->
+   <select id="findUserinfoListbyStructIdJiTuan" parameterType="pd" resultType="pd">
+   SELECT 
+  ts.USER_ID,
+  ts.USERNAME,
+  ts.PASSWORD,
+  ts.LAST_LOGIN,
+  ts.STRUCT_ID,
+  ts.NAME,
+  ts.IP,
+  ts.IDENTITYCODE,
+  ts.EMAIL,
+  (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_NAME) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = ts.USER_ID)) AS GROUP_NAME,
+    (SELECT 
+    GROUP_CONCAT(REVIEW_GROUP_ID) 
+  FROM
+    `tt_review_group` g 
+  WHERE g.`REVIEW_GROUP_ID` IN 
+    (SELECT 
+      r.`TT_REVIEW_GROUP` 
+    FROM
+      tt_review_group_user r 
+    WHERE r.`USER_ID` = ts.USER_ID)) AS GROUP_ID,  
+  (SELECT 
+    ss.`STRUCT_NAME` 
+  FROM
+    sys_structinfo ss 
+  WHERE ss.`STRUCT_ID` = ts.STRUCT_ID) AS STRUCT_NAME,
+  ts.NUMBER,
+  ts.PHONE,
+  ts.BM,
+  (SELECT 
+    d.`NAME` 
+  FROM
+    sys_dictionaries d 
+  WHERE d.`ZD_ID` = ts.BM) AS BM_NAME 
+FROM
+  `sys_user` ts 
+WHERE ts.`USERNAME` IS NOT NULL 
+  AND ts.`PASSWORD` IS NOT NULL 
+  AND ts.`STRUCT_ID`=(SELECT t.`STRUCT_ID` FROM `sys_structinfo` t WHERE t.`STRUCTST_AGE`=0)
+    AND  NOT  FIND_IN_SET(ts.USER_ID,#{USER_LIST})
+     </select>
+ 
+<!-- 新增审批组时添加所在组织的所有人  chen -->
+     <select id="findUserListbyStructId" parameterType="pd" resultType="pd"> 
+        SELECT 
+  ts.USER_ID,
+  ts.USERNAME,
+  ts.LAST_LOGIN,
+  ts.STRUCT_ID,
+  ts.NAME,
+  ts.IP,
+  ts.IDENTITYCODE,
+  ts.EMAIL,
+  (SELECT 
+    ss.`STRUCT_NAME` 
+  FROM
+    sys_structinfo ss 
+  WHERE ss.`STRUCT_ID` = ts.STRUCT_ID) AS STRUCT_NAME,
+  ts.NUMBER,
+  ts.PHONE,
+  ts.BM,
+  (SELECT 
+    d.`NAME` 
+  FROM
+    sys_dictionaries d 
+  WHERE d.`ZD_ID` = ts.BM) AS BM_NAME 
+FROM
+  `sys_user` ts 
+WHERE ts.`USERNAME` IS NOT NULL 
+  AND ts.`PASSWORD` IS NOT NULL  and ts.STRUCT_ID=#{STRUCT_ID}
+	   and 	 NOT  FIND_IN_SET(ts.USER_ID,#{existUserId})
+  
+     </select>
+     
+     <!-- 查询当前审批人  日常审批-->
+   <select id="findDQTribuneUserId" parameterType="pd" resultType="pd" useCache="false">
+   SELECT 
+ 	 u.`USER_ID`,u.`NAME`
+	FROM
+  `sys_user` u 
+	WHERE FIND_IN_SET(u.`USER_ID`,
+  (SELECT 
+    t.`USER_ID` 
+  FROM
+    `tt_tribune` t 
+  WHERE t.`TRIBUNE_ID` = #{tribuneId})) 
+  
+   </select>
+    <!-- 查询当前审批人  项目待批-->
+   <select id="findDQTribuneUserIdItem" parameterType="pd" resultType="pd" useCache="false">
+  
+  SELECT 
+  u.`USER_ID`,
+  u.`NAME` 
+FROM
+  `sys_user` u 
+WHERE FIND_IN_SET(
+    u.`USER_ID`,
+    (SELECT 
+      t.`USER_ID` 
+    FROM
+      `tt_item_review` t 
+    WHERE t.`ITEM_REVIEW_ID` = #{itemReviewId})
+  ) 
+  
+   </select>
+   
+      
+    <!-- 查询下级审批人 项目待批-->
+    <select id="findXJTribuneUserIdItem" parameterType="pd" resultType="pd" useCache="false">
+      
+SELECT 
+ (SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`= t.`USER_ID`) AS userName,
+ t.`LEVEL`
+FROM
+  `tt_tribune_user` t 
+WHERE t.`TRIBUNE_ID` = #{itemReviewId}
+  AND t.`STATE` = 0 
+  AND t.`LEVEL` = 
+  (SELECT 
+    MIN(t.`LEVEL`) 
+  FROM
+    `tt_tribune_user` t 
+  WHERE t.`TRIBUNE_ID` = #{itemReviewId} 
+    AND t.`STATE` = 0 
+    AND NOT FIND_IN_SET(
+      t.`USER_ID`,
+      (SELECT 
+        t.`USER_ID` 
+      FROM
+        `tt_item_review` t 
+      WHERE t.`ITEM_REVIEW_ID` = #{itemReviewId})
+    ))
+   </select>
+   
+   
+    <!-- 查询下级审批人 日常审批-->
+    <select id="findXJTribuneUserId" parameterType="pd" resultType="pd" useCache="false">
+      
+SELECT 
+ (SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`= t.`USER_ID`) AS userName,
+ t.`LEVEL`
+FROM
+  `tt_tribune_user` t 
+WHERE t.`TRIBUNE_ID` = #{tribuneId}
+  AND t.`STATE` = 0 
+  AND t.`LEVEL` = 
+  (SELECT 
+    MIN(t.`LEVEL`) 
+  FROM
+    `tt_tribune_user` t 
+  WHERE t.`TRIBUNE_ID` = #{tribuneId} 
+    AND t.`STATE` = 0 
+    AND NOT FIND_IN_SET(
+      t.`USER_ID`,
+      (SELECT 
+        t.`USER_ID` 
+      FROM
+        `tt_tribune` t 
+      WHERE t.`TRIBUNE_ID` = #{tribuneId})
+    ))
+   </select>
+   
+</mapper>

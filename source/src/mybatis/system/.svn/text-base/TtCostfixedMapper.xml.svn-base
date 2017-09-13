@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtCostfixedMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtCostfixed" >
+    <id column="COSTFIXED_ID" property="costfixedId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="COSTFIXED_NUMBER" property="costfixedNumber" jdbcType="VARCHAR" />
+    <result column="COSTFIXED_ITEM_NAME" property="costfixedItemName" jdbcType="VARCHAR" />
+    <result column="COSTFIXED_UNIT" property="costfixedUnit" jdbcType="VARCHAR" />
+    <result column="COSTFIXED_COMPREHENSIVE" property="costfixedComprehensive" jdbcType="DECIMAL" />
+    <result column="LABOR_MONEY" property="laborMoney" jdbcType="DECIMAL" />
+    <result column="DATUM_MONEY" property="datumMoney" jdbcType="DECIMAL" />
+    <result column="ENQINE_MONEY" property="enqineMoney" jdbcType="DECIMAL" />
+    <result column="COST_TYPE" property="costType" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="PARENT_ID" property="parentId" jdbcType="VARCHAR" />
+      <result column="COST_CONTENT" property="costContent" jdbcType="VARCHAR" />
+    
+    
+  </resultMap>
+  <sql id="Base_Column_List" >
+    COSTFIXED_ID, STRUCT_ID, COSTFIXED_NUMBER, COSTFIXED_ITEM_NAME, COSTFIXED_UNIT, COSTFIXED_COMPREHENSIVE, 
+    LABOR_MONEY, DATUM_MONEY, ENQINE_MONEY, COST_TYPE, CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY,IS_DEL
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_costfixed
+    where COSTFIXED_ID = #{costfixedId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_costfixed
+    where COSTFIXED_ID = #{costfixedId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtCostfixed" >
+    insert into tt_costfixed (COSTFIXED_ID, STRUCT_ID, COSTFIXED_NUMBER, 
+      COSTFIXED_ITEM_NAME, COSTFIXED_UNIT, COSTFIXED_COMPREHENSIVE, 
+      LABOR_MONEY, DATUM_MONEY, ENQINE_MONEY, 
+      COST_TYPE, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY,IS_DEL)
+    values (#{costfixedId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{costfixedNumber,jdbcType=VARCHAR}, 
+      #{costfixedItemName,jdbcType=VARCHAR}, #{costfixedUnit,jdbcType=VARCHAR}, #{costfixedComprehensive,jdbcType=DECIMAL}, 
+      #{laborMoney,jdbcType=DECIMAL}, #{datumMoney,jdbcType=DECIMAL}, #{enqineMoney,jdbcType=DECIMAL}, 
+      #{costType,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR},0)
+  </insert>
+  
+  <insert id="insertSW" parameterType="pd" >
+    insert into tt_costfixed (COSTFIXED_ID, STRUCT_ID, COSTFIXED_NUMBER, 
+      COSTFIXED_ITEM_NAME, COSTFIXED_UNIT,  
+      CREATE_DATE, CREATE_BY, 
+      IS_DEL,   
+	       PARENT_ID,
+      COST_CONTENT)
+    values (#{COSTFIXED_ID,jdbcType=VARCHAR}, #{STRUCT_ID,jdbcType=VARCHAR}, #{COSTFIXED_NUMBER,jdbcType=VARCHAR}, 
+      #{COSTFIXED_ITEM_NAME,jdbcType=VARCHAR}, #{COSTFIXED_UNIT,jdbcType=VARCHAR},
+      #{CREATE_DATE,jdbcType=TIMESTAMP}, #{CREATE_BY,jdbcType=VARCHAR},#{IS_DEL,jdbcType=INTEGER},
+       #{PARENT_ID,jdbcType=VARCHAR}, #{COST_CONTENT,jdbcType=VARCHAR})
+  </insert>
+  
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.TtCostfixed" >
+    insert into tt_costfixed
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="costfixedId != null" >
+        COSTFIXED_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="costfixedNumber != null" >
+        COSTFIXED_NUMBER,
+      </if>
+      <if test="costfixedItemName != null" >
+        COSTFIXED_ITEM_NAME,
+      </if>
+      <if test="costfixedUnit != null" >
+        COSTFIXED_UNIT,
+      </if>
+      <if test="costfixedComprehensive != null" >
+        COSTFIXED_COMPREHENSIVE,
+      </if>
+      <if test="laborMoney != null" >
+        LABOR_MONEY,
+      </if>
+      <if test="datumMoney != null" >
+        DATUM_MONEY,
+      </if>
+      <if test="enqineMoney != null" >
+        ENQINE_MONEY,
+      </if>
+      <if test="costType != null" >
+        COST_TYPE,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      IS_DEL,
+      PARENT_ID,
+      COST_CONTENT
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="costfixedId != null" >
+        #{costfixedId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="costfixedNumber != null" >
+        #{costfixedNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="costfixedItemName != null" >
+        #{costfixedItemName,jdbcType=VARCHAR},
+      </if>
+      <if test="costfixedUnit != null" >
+        #{costfixedUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="costfixedComprehensive != null" >
+        #{costfixedComprehensive,jdbcType=DECIMAL},
+      </if>
+      <if test="laborMoney != null" >
+        #{laborMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="datumMoney != null" >
+        #{datumMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="enqineMoney != null" >
+        #{enqineMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="costType != null" >
+        #{costType,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      0,
+      #{parentId,jdbcType=VARCHAR},
+      #{costContent,jdbcType=VARCHAR}
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtCostfixed" >
+    update tt_costfixed
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="costfixedNumber != null" >
+        COSTFIXED_NUMBER = #{costfixedNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="costfixedItemName != null" >
+        COSTFIXED_ITEM_NAME = #{costfixedItemName,jdbcType=VARCHAR},
+      </if>
+      <if test="costfixedUnit != null" >
+        COSTFIXED_UNIT = #{costfixedUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="costfixedComprehensive != null" >
+        COSTFIXED_COMPREHENSIVE = #{costfixedComprehensive,jdbcType=DECIMAL},
+      </if>
+      <if test="laborMoney != null" >
+        LABOR_MONEY = #{laborMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="datumMoney != null" >
+        DATUM_MONEY = #{datumMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="enqineMoney != null" >
+        ENQINE_MONEY = #{enqineMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="costType != null" >
+        COST_TYPE = #{costType,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where COSTFIXED_ID = #{costfixedId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtCostfixed" >
+    update tt_costfixed
+    set STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      COSTFIXED_NUMBER = #{costfixedNumber,jdbcType=VARCHAR},
+      COSTFIXED_ITEM_NAME = #{costfixedItemName,jdbcType=VARCHAR},
+      COSTFIXED_UNIT = #{costfixedUnit,jdbcType=VARCHAR},
+      COSTFIXED_COMPREHENSIVE = #{costfixedComprehensive,jdbcType=DECIMAL},
+      LABOR_MONEY = #{laborMoney,jdbcType=DECIMAL},
+      DATUM_MONEY = #{datumMoney,jdbcType=DECIMAL},
+      ENQINE_MONEY = #{enqineMoney,jdbcType=DECIMAL},
+      COST_TYPE = #{costType,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      IS_DEL = #{isDel,jdbcType=VARCHAR}
+    where COSTFIXED_ID = #{costfixedId,jdbcType=VARCHAR}
+  </update>
+  
+  
+  	<!-- 用户列表(全部tab) -->
+	<select id="listTtCostfixed" parameterType="pd"  resultType="com.ssc.entity.system.TreeList"  >
+		(SELECT id,TEXT,parentId,LEVEL,ORDY_BY FROM 	
+	(SELECT P_BM AS id,NAME AS TEXT,'pid' AS parentId , '1' AS LEVEL,ORDY_BY FROM sys_dictionaries WHERE P_BM LIKE '%ZYMC_%'
+	 ORDER BY ORDY_BY) pp )
+	 UNION
+	(SELECT id,TEXT,parentId,LEVEL,ORDY_BY FROM 
+	(SELECT a.COSTFIXED_ID AS id, a.COSTFIXED_ITEM_NAME AS TEXT,a.PARENT_ID AS parentId , 
+	IF(a.PARENT_ID LIKE '%DEZYMC_%',2,3)  AS LEVEL,  5 AS ORDY_BY  ,a.CREATE_DATE
+   	    FROM tt_costfixed a  WHERE 1=1 AND a.IS_DEL=0 AND STRUCT_ID=#{STRUCT_ID} 
+   	     ORDER BY a.CREATE_DATE DESC) aa )
+	</select>
+	
+	<!-- 任务下面的成本定额 -->
+	<select id="listTtCostfixedInTask" parameterType="pd"  resultType="com.ssc.entity.system.TreeList"  >
+		SELECT P_BM AS id,NAME AS TEXT,'pid' AS parentId , '1' AS level FROM sys_dictionaries WHERE P_BM LIKE '%ZYMC_%' 
+		UNION
+		SELECT 
+		a.COSTFIXED_ID AS id, a.COSTFIXED_ITEM_NAME AS TEXT,a.PARENT_ID AS parentId , IF(a.PARENT_ID LIKE '%DEZYMC_%',2,3)  AS level
+   	    FROM tt_costfixed a
+   	    WHERE 1=1 AND a.IS_DEL=0 and STRUCT_ID=#{STRUCT_ID}
+	</select>
+  
+	<!-- 用户列表(全部) -->
+	<select id="listPageTtCostfixed"  parameterType="page"  resultMap="BaseResultMap"  >
+		select 
+		a.COSTFIXED_ID, a.STRUCT_ID, a.COSTFIXED_NUMBER, a.COSTFIXED_ITEM_NAME, a.COSTFIXED_UNIT, a.COSTFIXED_COMPREHENSIVE, a.
+    LABOR_MONEY, a.DATUM_MONEY, a.ENQINE_MONEY,b.NAME AS COST_TYPE, a.CREATE_DATE, a.CREATE_BY, a.UPDATE_DATE, 
+    a.UPDATE_BY
+   	    from tt_costfixed a
+   	    left join sys_dictionaries b ON a.COST_TYPE=b.ZD_ID
+   	    where 1=1 and a.IS_DEL=0 
+   	    
+      <if test="pd.costItemName != null and pd.costItemName!=''" >
+        and a.COSTFIXED_ITEM_NAME like CONCAT(CONCAT('%', #{pd.costItemName}),'%')
+      </if>
+      <if test="pd.costType != null and pd.costType!=''" >
+        and a.COST_TYPE = #{pd.costType}
+      </if>
+   	    order by a.CREATE_DATE desc
+	</select>
+  
+	
+	<!-- 通过id获取数据 -->
+	<select id="findCostfixedById" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			 COSTFIXED_ID, COSTFIXED_NUMBER, COSTFIXED_ITEM_NAME, COSTFIXED_UNIT,COST_CONTENT ,COST_TYPE, (SELECT NAME FROM sys_dictionaries WHERE `ZD_ID`=COST_TYPE) as COST_TYPE2
+		from 
+			tt_costfixed
+		where 
+			COSTFIXED_ID = #{COSTFIXED_ID}
+			 and IS_DEL=0 
+	</select>
+  
+    <!--删除成本定额 -->
+	<update id="deleteCostfixed" parameterType="pd" flushCache="false">
+	 <!--	delete from tt_costfixed where COSTFIXED_ID = #{COSTFIXED_ID} -->
+	 	update tt_costfixed set IS_DEL=1  where COSTFIXED_ID = #{COSTFIXED_ID} or PARENT_ID= #{COSTFIXED_ID}
+	</update>
+  	
+  		<!-- 新增 -->
+	<insert id="insertCostfixed" parameterType="pd" flushCache="false">
+  		insert into tt_costfixed
+	    <trim prefix="(" suffix=")" suffixOverrides="," >
+	      <if test="costfixedId != null" >
+	        COSTFIXED_ID,
+	      </if>
+	      <if test="structId != null" >
+	        STRUCT_ID,
+	      </if>
+	      <if test="costfixedNumber != null" >
+	        COSTFIXED_NUMBER,
+	      </if>
+	      <if test="costfixedItemName != null" >
+	        COSTFIXED_ITEM_NAME,
+	      </if>
+	      <if test="costfixedUnit != null" >
+	        COSTFIXED_UNIT,
+	      </if>
+	      <if test="costfixedComprehensive != null" >
+	        COSTFIXED_COMPREHENSIVE,
+	      </if>
+	      <if test="laborMoney != null" >
+	        LABOR_MONEY,
+	      </if>
+	      <if test="datumMoney != null" >
+	        DATUM_MONEY,
+	      </if>
+	      <if test="enqineMoney != null" >
+	        ENQINE_MONEY,
+	      </if>
+	      <if test="costType != null" >
+	        COST_TYPE,
+	      </if>
+	      <if test="createDate != null" >
+	        CREATE_DATE,
+	      </if>
+	      <if test="createBy != null" >
+	        CREATE_BY,
+	      </if>
+	      <if test="updateDate != null" >
+	        UPDATE_DATE,
+	      </if>
+	      <if test="updateBy != null" >
+	        UPDATE_BY,
+	      </if>
+	      IS_DEL,
+	       PARENT_ID,
+      COST_CONTENT
+	    </trim>
+	    <trim prefix="values (" suffix=")" suffixOverrides="," >
+	      <if test="costfixedId != null" >
+	        #{costfixedId},
+	      </if>
+	      <if test="structId != null" >
+	        #{structId},
+	      </if>
+	      <if test="costfixedNumber != null" >
+	        #{costfixedNumber},
+	      </if>
+	      <if test="costfixedItemName != null" >
+	        #{costfixedItemName},
+	      </if>
+	      <if test="costfixedUnit != null" >
+	        #{costfixedUnit},
+	      </if>
+	      <if test="costfixedComprehensive != null" >
+	        #{costfixedComprehensive},
+	      </if>
+	      <if test="laborMoney != null" >
+	        #{laborMoney},
+	      </if>
+	      <if test="datumMoney != null" >
+	        #{datumMoney},
+	      </if>
+	      <if test="enqineMoney != null" >
+	        #{enqineMoney},
+	      </if>
+	      <if test="costType != null" >
+	        #{costType},
+	      </if>
+	      <if test="createDate != null" >
+	        #{createDate},
+	      </if>
+	      <if test="createBy != null" >
+	        #{createBy},
+	      </if>
+	      <if test="updateDate != null" >
+	        #{updateDate},
+	      </if>
+	      <if test="updateBy != null" >
+	        #{updateBy},
+	      </if>
+	      0,
+	       #{parentId,jdbcType=VARCHAR},
+      #{costContent,jdbcType=VARCHAR}
+	    </trim>
+  	</insert>
+  	
+  	
+  		<!-- 编辑 -->
+	<update id="updateCostfixed" parameterType="pd" flushCache="false">
+  		update tt_costfixed
+	    set 
+	      COSTFIXED_NUMBER = #{costfixedNumber},
+	      COSTFIXED_ITEM_NAME = #{costfixedItemName},
+	      COSTFIXED_UNIT = #{costfixedUnit},
+	      COST_TYPE = #{costType},
+	      UPDATE_DATE = #{updateDate},
+	      UPDATE_BY = #{updateBy}
+	    where COSTFIXED_ID = #{costfixedId} 
+  	</update>
+  
+  	<select id="checkCostQuota" parameterType="pd" resultType="pd" useCache="false">
+  		select 
+			<include refid="Base_Column_List" />
+		from 
+			tt_costfixed
+		where 
+			COST_TYPE=#{costType} and COSTFIXED_NUMBER=#{costfixedNumber}
+		  
+		  <if test="costfixedId != null" >
+	        and COSTFIXED_ID!=#{costfixedId}
+	      </if>	
+		   and IS_DEL=0 
+  		limit 0,1
+  	</select>
+  	
+  	<!-- 批量删除用户 -->
+	<select id="selectAllById" parameterType="String" flushCache="false" resultType="pd">
+	 select COSTFIXED_ID, STRUCT_ID, COSTFIXED_NUMBER, COSTFIXED_ITEM_NAME, COSTFIXED_UNIT,
+     COST_TYPE,COST_CONTENT
+    from tt_costfixed  
+		where 
+			COSTFIXED_ID in
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</select>
+  
+</mapper>

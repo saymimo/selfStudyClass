@@ -6,8 +6,12 @@ import com.ssc.util.PageData;
 import com.ssc.util.UuidUtil;
 import java.io.PrintStream;
 import java.util.Date;
+import java.util.Map;
 import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
+
+import net.sf.json.JSONObject;
+
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.ModelAndView;
@@ -17,9 +21,13 @@ public class BaseController
   protected Logger logger = Logger.getLogger(getClass());
   private static final long serialVersionUID = 6357869213649815390L;
   
-  public PageData getPageData()
-  {
+  public PageData getPageData(){
     return new PageData(getRequest());
+  }
+  
+  public PageData getPdFromJson(String req){
+	  Map<String, Object> map = JSONObject.fromObject(req);
+	  return new PageData(map);
   }
   
   public ModelAndView getModelAndView()

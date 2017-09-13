@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="taxEnterpriseMapper" >
+
+<select id="taxEnterprise" parameterType="pd" resultType="pd">
+<if test="selectType != 'forItem' ">
+SELECT 
+<if test="selectType != 'forStruct' ">
+   #{structId,jdbcType=VARCHAR} STRUCT_ID,
+   (SELECT s.STRUCT_NAME FROM sys_structinfo s WHERE s.STRUCT_ID = #{structId,jdbcType=VARCHAR} ) STRUCT_NAME,
+</if>
+<if test="selectType == 'forStruct' ">
+   b.STRUCT_ID,
+   (SELECT s.STRUCT_NAME FROM sys_structinfo s WHERE s.STRUCT_ID = b.STRUCT_ID) STRUCT_NAME,
+</if>
+   SUM(MANAGE_TAX) MANAGE_TAX, 
+   SUM(ENTERPRISE_TAX) ENTERPRISE_TAX, 
+   SUM(PERSONAL_TAX) PERSONAL_TAX, 
+   SUM(IN_TAX_RZ) IN_TAX_RZ, 
+   SUM(TAX_RETAINED) TAX_RETAINED,
+   SUM(SETTLEMENT_TAX) SETTLEMENT_TAX,
+   SUM(ADD_TAX_ATTACH) ADD_TAX_ATTACH,
+   SUM(DEPOSIT_TAX) DEPOSIT_TAX, 
+   SUM(BALANCE) BALANCE
+FROM (
+</if>
+SELECT 
+   *,
+   ROUND(SETTLEMENT_TAX * 0.1,2) ADD_TAX_ATTACH,
+   ROUND((DEPOSIT_TAX - SETTLEMENT_TAX - SETTLEMENT_TAX * 0.1),2) BALANCE 
+FROM (
+SELECT 
+  ch.*,
+  CASE 
+   WHEN TAXATION_TYPE =1 
+   THEN 0
+   WHEN SETTLEMENT_TAX>0
+   THEN 0
+   ELSE IFNULL(IN_TAX_RZ,0) - IFNULL(ADD_TAX_MONEY,0) + IFNULL(PAY_TAX,0) - IFNULL(IN_OUT_TAX,0) - IFNULL(TAX_ADJUSTMENT,0)
+  END TAX_RETAINED
+FROM(
+SELECT *,
+  ROUND(
+     IFNULL((IFNULL(ADD_TAX_MONEY_0,0)) * 0.11,0) +IFNULL( ((IFNULL(ADD_TAX_MONEY_1,0) - IFNULL(PACT_TAX_NO_MONEY_1,0)  ) * 0.03),0)
+   ,2) ADD_TAX_MONEY,
+  ROUND(
+     IFNULL(ADD_TAX_MONEY_0/ 1.11 * 0.11,0) +IFNULL( ((IFNULL(ADD_TAX_MONEY_1,0)  - IFNULL(PACT_TAX_NO_MONEY_1,0) ) / 1.03 * 0.03),0) -
+        IFNULL(PAY_TAX_3,0) -  IFNULL(PAY_TAX_2,0) -  IFNULL(IN_TAX,0)  +  IFNULL(IN_OUT_TAX ,0)+  IFNULL(TAX_ADJUSTMENT,0)
+   ,2) SETTLEMENT_TAX,
+   IFNULL(PAY_TAX_3,0) +  IFNULL(PAY_TAX_2,0) PAY_TAX,
+   IFNULL(IN_TAX,0)  IN_TAX_RZ,
+   IFNULL(INCOME,0) - IFNULL(EXPENDITURE,0) DEPOSIT_TAX 
+FROM (
+SELECT 
+  t.`ITEM_ID`,
+  ti.`ITEM_NAME`,
+  ti.`STRUCT_ID`,
+  ti.TAXATION_TYPE,
+  SUM(t.`ENTERPRISE_TAX`) ENTERPRISE_TAX,
+  SUM(t.`PERSONAL_TAX`) PERSONAL_TAX,
+  SUM(t.`MANAGE_TAX`) MANAGE_TAX,
+  SUM((
+   SELECT SUM(toi.INVOICE_MONEY) FROM tt_output_invoice toi WHERE toi.IS_DEL = 0  
+   AND ti.TAXATION_TYPE =0 AND toi.BILL_APPLY_ID = t.`BILL_APPLY_ID`
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=toi.TAX_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND toi.TAX_DATE BETWEEN DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if>   
+  ))ADD_TAX_MONEY_0,
+  SUM((
+   SELECT SUM(toi.INVOICE_MONEY) FROM tt_output_invoice toi WHERE toi.IS_DEL = 0  
+   AND ti.TAXATION_TYPE =1 AND toi.BILL_APPLY_ID = t.`BILL_APPLY_ID`
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=toi.TAX_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND toi.TAX_DATE BETWEEN DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if>   
+  ))ADD_TAX_MONEY_1,
+  (
+    SELECT SUM(tii.TAX_NO_INCLUDED) FROM tt_in_invoice tii  WHERE tii.IS_DEL=0 
+    AND tii.IN_INVOICE_ID IN (SELECT tit.IN_INVOICE_ID FROM tt_invoice_type tit 
+    WHERE tit.BILL_APPLY_ID IN (SELECT tba.BILL_APPLY_ID FROM tt_bill_apply tba WHERE tba.STATE>=7 AND tba.ITEM_ID = t.ITEM_ID)) AND ti.TAXATION_TYPE = 1 
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tii.RZ_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tii.RZ_DATE BETWEEN DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if>    
+  )PACT_TAX_NO_MONEY_1,
+  SUM((
+   SELECT SUM(tpt.TAX_MONEY) FROM tt_pay_tax tpt WHERE t.`BILL_APPLY_ID` = tpt.BILL_APPLY_ID AND tpt.IS_DEL=0 AND (tpt.RATE_MONEY =2 OR tpt.RATE_MONEY =11) 
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tpt.CREATE_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tpt.CREATE_DATE BETWEEN DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if>   
+   )) PAY_TAX_2,
+  SUM((
+   SELECT SUM(tpt.TAX_MONEY) FROM tt_pay_tax tpt WHERE t.`BILL_APPLY_ID` = tpt.BILL_APPLY_ID AND tpt.IS_DEL=0 AND tpt.RATE_MONEY =3
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tpt.CREATE_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tpt.CREATE_DATE BETWEEN DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if>   
+   )) PAY_TAX_3,
+  (
+   SELECT SUM(tii.TAX_MONEY) FROM tt_in_invoice tii WHERE tii.IS_DEL=0 AND ti.TAXATION_TYPE =0 
+   AND tii.IN_STATE =0 AND tii.ITEM_ID = t.`ITEM_ID` AND tii.STATE>=1 
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tii.RZ_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tii.RZ_DATE BETWEEN DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if>   
+  )IN_TAX,
+  (
+   SELECT SUM(tio.TAX_MONEY) FROM tt_invoice_out tio WHERE tio.IS_DEL=0 AND tio.IN_INVOICE_ID IN (SELECT tii.IN_INVOICE_ID FROM tt_in_invoice tii WHERE tii.IS_DEL=0 AND tii.ITEM_ID =t.`ITEM_ID`)  
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tio.CREATE_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tio.CREATE_DATE  BETWEEN DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if>  
+  )IN_OUT_TAX,
+  SUM((
+   SELECT SUM(tta.TAX) FROM tt_tax_adjustment tta WHERE tta.TAX_ADJUSTMENT_ID IN 
+   (SELECT tit.IN_INVOICE_ID FROM tt_invoice_type tit WHERE tit.BILL_APPLY_ID = t.`BILL_APPLY_ID` AND tit.IS_SUBPACKAGE =2 )
+    AND tta.DK_STATE =1 AND tta.IS_DEL = 0
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tta.APPROVAL_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tta.APPROVAL_DATE BETWEEN DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if>  
+  )) TAX_ADJUSTMENT,
+  (
+  SELECT SUM(MONEY) FROM tt_bond tb WHERE tb.IS_DEL=0 AND tb.TYPE = 0 AND tb.ITEM_ID = t.`ITEM_ID`
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tb.CONFIRM_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tb.CONFIRM_DATE BETWEEN DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if>  
+  ) INCOME,
+  (
+  SELECT SUM(MONEY) FROM tt_bond tb WHERE tb.IS_DEL=0 AND tb.TYPE = 1 AND tb.ITEM_ID = t.`ITEM_ID`
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tb.CONFIRM_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tb.CONFIRM_DATE BETWEEN DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if>  
+  ) EXPENDITURE
+FROM
+  tt_bill_apply t 
+  LEFT JOIN tt_iteminfo ti ON t.`ITEM_ID`=ti.`ITEM_ID`
+WHERE t.`IS_DEL` = 0 
+  AND t.`STATE` >= 2 
+<if test="selectType == 'forItem' ">
+  AND t.`STRUCT_ID` = #{STRUCT_ID,jdbcType=VARCHAR}
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND t.CREATE_DATE BETWEEN DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if> 
+GROUP BY t.`ITEM_ID` 
+) sa
+) ch
+) a
+
+<if test="selectType != 'forItem' ">
+) b
+WHERE 1=1 
+<if test="isManager == 'no'">
+ AND b.STRUCT_ID =  #{structId,jdbcType=VARCHAR}
+</if>
+<if test="selectType == 'forStruct' ">
+GROUP BY b.STRUCT_ID
+</if>
+</if>
+</select>
+
+<select id="TaxCollection" parameterType="pd" resultType="pd">
+
+<if test="isManager == 'yes' ">
+SELECT *,
+	'0' DECLARE_RETAINED,
+	SETTLEMENT_TAX - TAX_RETAINED - DECLARE_NO_BILL  DECLARE_SETTLEMENT
+FROM (
+</if>
+
+<if test="selectType != 'forItem'">
+
+SELECT 
+<if test="selectType != 'forStruct' ">
+   #{structId,jdbcType=VARCHAR} STRUCT_ID,
+   (SELECT s.STRUCT_NAME FROM sys_structinfo s WHERE s.STRUCT_ID = #{structId,jdbcType=VARCHAR} ) STRUCT_NAME,
+</if>
+<if test="selectType == 'forStruct' ">
+   a.STRUCT_ID,
+   (SELECT s.STRUCT_NAME FROM sys_structinfo s WHERE s.STRUCT_ID = a.STRUCT_ID) STRUCT_NAME,
+</if>
+   SUM(OUT_TAX_NO_INCLUDED_3 ) OUT_TAX_NO_INCLUDED_3,
+   SUM(OUT_TAX_MONEY_3 )       OUT_TAX_MONEY_3,
+   SUM(OUT_INVOICE_MONEY_3 )   OUT_INVOICE_MONEY_3, 
+   SUM(OUT_TAX_NO_INCLUDED_11 ) OUT_TAX_NO_INCLUDED_11,
+   SUM(OUT_TAX_MONEY_11 )       OUT_TAX_MONEY_11,
+   SUM(OUT_INVOICE_MONEY_11 )   OUT_INVOICE_MONEY_11,
+   SUM(PACT_MONEY_1 ) PACT_MONEY_1,
+   SUM(PACT_MONEY_0 ) PACT_MONEY_0,
+   SUM(ADD_TAX_MONEY  ) ADD_TAX_MONEY ,
+   SUM(PAY_TAX_3 ) PAY_TAX_3,
+   SUM(PAY_TAX_2 ) PAY_TAX_2,
+   SUM(IN_OUT_TAX ) IN_OUT_TAX,
+   SUM(IN_TAX_RZ ) IN_TAX_RZ,
+   SUM(IN_OUT_TAX_1) IN_OUT_TAX_1,
+   (SELECT SUM(tii.`TAX_MONEY`) FROM tt_in_invoice tii LEFT JOIN tt_iteminfo ti ON tii.`ITEM_ID`=ti.`ITEM_ID` 
+   WHERE tii.`ITEM_ID` NOT IN (SELECT tba.`ITEM_ID` FROM tt_bill_apply tba WHERE tba.`IS_DEL`=0 AND tba.`STATE`>=7)
+   AND tii.`IS_DEL`=0 AND ti.`TAXATION_TYPE`=0
+	<if test="isManager == 'no'"> 
+	    AND tii.STRUCT_ID = #{structId,jdbcType=VARCHAR} 
+	</if>
+	<if test="selectType == 'forStruct'">
+	AND tii.STRUCT_ID = a.STRUCT_ID 
+	</if>   
+	<if test="seachDate ==null or seachDate == '' ">
+	    AND NOW() >=tii.RZ_DATE
+	</if>
+	<if test="seachDate !=null and seachDate != '' ">
+		AND tii.RZ_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tii.RZ_DATE
+	</if>
+   ) DECLARE_NO_BILL,   
+   (
+    SELECT SUM(tii.TAX_MONEY) FROM tt_in_invoice tii LEFT JOIN tt_iteminfo ti ON tii.ITEM_ID = ti.ITEM_ID 
+    WHERE tii.IS_DEL=0 AND tii.STATE>=1 AND ti.TAXATION_TYPE = 0  
+<if test="isManager == 'no'"> 
+    AND tii.STRUCT_ID = #{structId,jdbcType=VARCHAR} 
+</if>
+<if test="selectType == 'forStruct'">
+	AND tii.STRUCT_ID = a.STRUCT_ID 
+</if>      
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tii.RZ_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tii.RZ_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tii.RZ_DATE
+</if>
+   ) IN_TAX_MONEY,
+   (
+   SELECT SUM(tii.TAX_MONEY)
+  	FROM tt_in_invoice tii LEFT JOIN tt_iteminfo ti ON tii.`ITEM_ID`=ti.`ITEM_ID`
+   WHERE tii.`IS_DEL`=0 AND tii.`STATE`>=1 AND ti.`TAXATION_TYPE`= 1  
+  	AND tii.`ITEM_ID` NOT IN (SELECT tba.`ITEM_ID` FROM tt_bill_apply tba WHERE tba.`STATE`>=7)
+<if test="isManager == 'no'"> 
+    AND tii.STRUCT_ID = #{structId,jdbcType=VARCHAR} 
+</if>
+<if test="selectType == 'forStruct'">
+	AND tii.STRUCT_ID = a.STRUCT_ID 
+</if> 
+ <if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tii.RZ_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tii.RZ_DATE BETWEEN  DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if>
+   ) NOBILL_MONEY_1,
+   (
+   SELECT SUM(tii.TAX_MONEY)
+  	FROM tt_in_invoice tii LEFT JOIN tt_iteminfo ti ON tii.`ITEM_ID`=ti.`ITEM_ID`
+   WHERE tii.`IS_DEL`=0 AND tii.`STATE`>=1 AND ti.`TAXATION_TYPE`= 0 
+  	AND tii.`ITEM_ID` NOT IN (SELECT tba.`ITEM_ID` FROM tt_bill_apply tba WHERE tba.`STATE`>=7)
+<if test="isManager == 'no'"> 
+    AND tii.STRUCT_ID = #{structId,jdbcType=VARCHAR} 
+</if>
+<if test="selectType == 'forStruct'">
+	AND tii.STRUCT_ID = a.STRUCT_ID 
+</if> 
+ <if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tii.RZ_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tii.RZ_DATE BETWEEN  DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )
+</if>
+   ) NOBILL_MONEY_0,
+   
+   SUM((
+   CASE 
+     WHEN 0 > SETTLEMENT_TAX AND TAXATION_TYPE != 1
+     THEN 0
+     ELSE SETTLEMENT_TAX
+    END 
+    )) SETTLEMENT_TAX,
+   SUM((
+   CASE
+    WHEN 0 >TAX_RETAINED
+    THEN 0
+    ELSE TAX_RETAINED
+   END
+   ))  TAX_RETAINED,
+   SUM(IN_DECLARE_MONEY ) IN_DECLARE_MONEY,
+   SUM(
+   ifnull((
+   case 
+     when TAX_BEARING_RATE>=3
+     then 0
+     when TAX_BEARING_RATE &lt; 3
+     then 1
+   end
+   ),0) 
+   ) COUNT_BEARING_RATE
+FROM (
+
+</if>
+SELECT 
+  de.*,
+  ROUND((
+  CASE TAXATION_TYPE
+    WHEN 1 
+    THEN (IFNULL(OUT_TAX_MONEY_11,0) + IFNULL(OUT_TAX_MONEY_3,0) + IFNULL(TAX_ADJUSTMENT,0))  / (IFNULL(OUT_TAX_NO_INCLUDED_3, 0)+ IFNULL(OUT_TAX_NO_INCLUDED_11, 0))*100
+    WHEN 0
+    THEN (IFNULL(OUT_TAX_MONEY_11,0) + IFNULL(OUT_TAX_MONEY_3,0) - IFNULL(IN_DECLARE_MONEY,0) +  IFNULL(IN_OUT_TAX,0) + IFNULL(TAX_ADJUSTMENT,0))  / (IFNULL(OUT_TAX_NO_INCLUDED_3, 0)+ IFNULL(OUT_TAX_NO_INCLUDED_11, 0))*100
+  END),2) TAX_BEARING_RATE
+FROM (
+SELECT 
+  ch.*,
+  ROUND((
+  CASE 
+   WHEN TAXATION_TYPE = 1
+   THEN 0
+   WHEN SETTLEMENT_TAX>0
+   THEN 0
+   ELSE IFNULL(IN_TAX_RZ,0) - IFNULL(ADD_TAX_MONEY,0) + IFNULL(PAY_TAX,0) - IFNULL(IN_OUT_TAX,0) - IFNULL(TAX_ADJUSTMENT,0)
+  END 
+  ),2) TAX_RETAINED,
+  ROUND((
+  CASE 
+   WHEN TAXATION_TYPE = 1
+   THEN 0
+   WHEN SETTLEMENT_TAX>0
+   THEN IN_TAX_RZ
+   ELSE IFNULL(ADD_TAX_MONEY,0) - IFNULL(PAY_TAX,0) + IFNULL(IN_OUT_TAX,0) + IFNULL(TAX_ADJUSTMENT,0)
+  END
+  ),2) IN_DECLARE_MONEY,
+  (
+    SELECT SUM(tii.TAX_MONEY) FROM tt_in_invoice tii LEFT JOIN tt_iteminfo ti ON tii.ITEM_ID = ti.ITEM_ID 
+    WHERE tii.IS_DEL=0 AND tii.STATE>=1 AND ti.TAXATION_TYPE = 0 AND tii.ITEM_ID = ch.ITEM_ID 
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tii.RZ_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tii.RZ_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tii.RZ_DATE
+</if>
+   ) IN_TAX_MONEY
+FROM(
+SELECT 
+  sa.*,
+  ROUND(
+     IFNULL(ADD_TAX_MONEY_0  * 0.11,0) +
+     IFNULL( ((IFNULL(ADD_TAX_MONEY_1,0) - IFNULL(PACT_TAX_NO_MONEY_1,0) ) * 0.03),0)
+   ,2) ADD_TAX_MONEY,
+  ROUND(
+     IFNULL(ADD_TAX_MONEY_0 * 0.11,0) +IFNULL( ((IFNULL(ADD_TAX_MONEY_1,0) - IFNULL(PACT_TAX_NO_MONEY_1,0) ) * 0.03),0) -
+        IFNULL(PAY_TAX_3,0) -  IFNULL(PAY_TAX_2,0) -  IFNULL(IN_TAX,0) -  IFNULL(ESTATE_MONEY,0)  +  IFNULL(IN_OUT_TAX ,0)+  IFNULL(TAX_ADJUSTMENT,0)
+   ,2) SETTLEMENT_TAX,
+   IFNULL(PAY_TAX_3,0) +  IFNULL(PAY_TAX_2,0) PAY_TAX,
+   IFNULL(IN_TAX,0) + IFNULL(ESTATE_MONEY,0) IN_TAX_RZ 
+FROM (
+SELECT 
+  SUM((
+   SELECT SUM(toi.INVOICE_MONEY) FROM tt_output_invoice toi WHERE toi.BILL_APPLY_ID = t.`BILL_APPLY_ID` AND toi.IS_DEL=0 AND toi.TAX_RATE =3
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=toi.TAX_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND toi.TAX_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=toi.TAX_DATE
+</if>
+  ))OUT_TAX_NO_INCLUDED_3,
+  SUM((
+   SELECT SUM(toi.TAX_MONEY) FROM tt_output_invoice toi WHERE toi.BILL_APPLY_ID = t.`BILL_APPLY_ID` AND toi.IS_DEL=0 AND toi.TAX_RATE =3
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=toi.TAX_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND toi.TAX_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=toi.TAX_DATE
+</if>
+  )) OUT_TAX_MONEY_3,
+  SUM((
+   SELECT SUM(toi.INVOICE_MONEY + toi.TAX_MONEY) FROM tt_output_invoice toi WHERE toi.BILL_APPLY_ID = t.`BILL_APPLY_ID` AND toi.IS_DEL=0 AND toi.TAX_RATE =3
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=toi.TAX_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND toi.TAX_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=toi.TAX_DATE
+</if>
+  )) OUT_INVOICE_MONEY_3,
+  SUM((
+   SELECT SUM(toi.INVOICE_MONEY) FROM tt_output_invoice toi WHERE toi.BILL_APPLY_ID = t.`BILL_APPLY_ID` AND toi.IS_DEL=0 AND toi.TAX_RATE =11
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=toi.TAX_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND toi.TAX_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=toi.TAX_DATE
+</if>
+  )) OUT_TAX_NO_INCLUDED_11,
+  SUM((
+   SELECT SUM(toi.TAX_MONEY) FROM tt_output_invoice toi WHERE toi.BILL_APPLY_ID = t.`BILL_APPLY_ID` AND toi.IS_DEL=0 AND toi.TAX_RATE =11
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=toi.TAX_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND toi.TAX_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=toi.TAX_DATE
+</if>
+  )) OUT_TAX_MONEY_11,
+  SUM((
+   SELECT SUM(toi.INVOICE_MONEY + toi.TAX_MONEY) FROM tt_output_invoice toi WHERE toi.BILL_APPLY_ID = t.`BILL_APPLY_ID` AND toi.IS_DEL=0 AND toi.TAX_RATE =11
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=toi.TAX_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND toi.TAX_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=toi.TAX_DATE
+</if>
+  )) OUT_INVOICE_MONEY_11,
+  (
+    SELECT SUM(tii.INVOICE_MONEY) FROM tt_in_invoice tii LEFT JOIN tt_iteminfo ti ON tii.ITEM_ID = ti.ITEM_ID  WHERE tii.IS_DEL=0 
+    AND tii.IN_INVOICE_ID IN (SELECT tit.IN_INVOICE_ID FROM tt_invoice_type tit 
+    WHERE tit.BILL_APPLY_ID IN (SELECT tba.BILL_APPLY_ID FROM tt_bill_apply tba WHERE tba.STATE>=7 AND tba.ITEM_ID = t.ITEM_ID)) AND ti.TAXATION_TYPE = 1 
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tii.RZ_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tii.RZ_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tii.RZ_DATE
+</if>
+  )PACT_MONEY_1,
+  (
+    SELECT SUM(tii.TAX_NO_INCLUDED) FROM tt_in_invoice tii LEFT JOIN tt_iteminfo ti ON tii.ITEM_ID = ti.ITEM_ID  WHERE tii.IS_DEL=0 
+    AND tii.IN_INVOICE_ID IN (SELECT tit.IN_INVOICE_ID FROM tt_invoice_type tit 
+    WHERE tit.BILL_APPLY_ID IN (SELECT tba.BILL_APPLY_ID FROM tt_bill_apply tba WHERE tba.STATE>=7 AND tba.ITEM_ID = t.ITEM_ID)) AND ti.TAXATION_TYPE = 1 
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tii.RZ_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tii.RZ_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tii.RZ_DATE
+</if>    
+  )PACT_TAX_NO_MONEY_1,
+  (
+    SELECT SUM(tii.INVOICE_MONEY) FROM tt_in_invoice tii LEFT JOIN tt_iteminfo ti ON tii.ITEM_ID = ti.ITEM_ID  WHERE tii.IS_DEL=0 
+    AND tii.IN_INVOICE_ID IN (SELECT tit.IN_INVOICE_ID FROM tt_invoice_type tit 
+    WHERE tit.BILL_APPLY_ID IN (SELECT tba.BILL_APPLY_ID FROM tt_bill_apply tba WHERE tba.STATE>=7 AND tba.ITEM_ID = t.ITEM_ID)) AND ti.TAXATION_TYPE = 0 
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tii.RZ_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tii.RZ_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tii.RZ_DATE
+</if>
+  )PACT_MONEY_0,
+  (
+   SELECT SUM(toi.INVOICE_MONEY) FROM tt_output_invoice toi LEFT JOIN tt_iteminfo ti ON toi.ITEM_ID = ti.ITEM_ID WHERE toi.IS_DEL = 0 AND toi.BILL_APPLY_ID IS NOT NULL AND toi.BILL_APPLY_ID !=''  
+   AND ti.TAXATION_TYPE =0 AND toi.ITEM_ID = t.`ITEM_ID`
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=toi.TAX_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND toi.TAX_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=toi.TAX_DATE
+</if>
+  )ADD_TAX_MONEY_0,
+  (
+   SELECT SUM(toi.INVOICE_MONEY) FROM tt_output_invoice toi LEFT JOIN tt_iteminfo ti ON toi.ITEM_ID = ti.ITEM_ID WHERE toi.IS_DEL = 0 AND toi.BILL_APPLY_ID IS NOT NULL AND toi.BILL_APPLY_ID !=''  
+   AND ti.TAXATION_TYPE =1 AND toi.ITEM_ID = t.`ITEM_ID`
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=toi.TAX_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND toi.TAX_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=toi.TAX_DATE
+</if>
+  )ADD_TAX_MONEY_1,
+  SUM((
+   SELECT SUM(tpt.TAX_MONEY) FROM tt_pay_tax tpt WHERE t.`BILL_APPLY_ID` = tpt.BILL_APPLY_ID AND tpt.IS_DEL=0 AND (tpt.RATE_MONEY =2 OR tpt.RATE_MONEY =11) 
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tpt.CREATE_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tpt.CREATE_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tpt.CREATE_DATE
+</if>
+   )) PAY_TAX_2,
+  SUM((
+   SELECT SUM(tpt.TAX_MONEY) FROM tt_pay_tax tpt WHERE t.`BILL_APPLY_ID` = tpt.BILL_APPLY_ID AND tpt.IS_DEL=0 AND tpt.RATE_MONEY =3
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tpt.CREATE_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tpt.CREATE_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tpt.CREATE_DATE
+</if>   
+   )) PAY_TAX_3,
+  (
+   SELECT SUM(tii.TAX_MONEY) FROM tt_in_invoice tii LEFT JOIN tt_iteminfo ti ON tii.ITEM_ID = ti.ITEM_ID WHERE tii.IS_DEL=0 
+   AND ti.TAXATION_TYPE =0 AND tii.IN_STATE =0 AND tii.ITEM_ID = t.`ITEM_ID` AND tii.STATE>=1 AND  tii.IS_ESTATE = 0
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tii.RZ_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tii.RZ_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tii.RZ_DATE
+</if>  
+  ) IN_TAX,
+  (
+   SELECT SUM(tio.TAX_MONEY) FROM tt_invoice_out tio WHERE tio.IS_DEL=0 AND tio.IN_INVOICE_ID IN (SELECT tii.IN_INVOICE_ID FROM tt_in_invoice tii WHERE tii.IS_DEL=0 AND tii.ITEM_ID =t.`ITEM_ID`)  
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tio.CREATE_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tio.CREATE_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tio.CREATE_DATE
+</if> 
+  ) IN_OUT_TAX,
+  (
+   SELECT SUM(tii.TAX_MONEY) FROM tt_in_invoice tii LEFT JOIN tt_iteminfo ti ON tii.ITEM_ID = ti.ITEM_ID WHERE tii.IS_DEL=0 
+   AND ti.TAXATION_TYPE =1 AND tii.ITEM_ID = t.`ITEM_ID` AND tii.STATE>=1
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tii.RZ_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tii.RZ_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tii.RZ_DATE
+</if>  
+  ) IN_OUT_TAX_1,  
+  SUM((
+   SELECT SUM(tta.TAX) FROM tt_tax_adjustment tta WHERE tta.TAX_ADJUSTMENT_ID IN 
+   (SELECT tit.IN_INVOICE_ID FROM tt_invoice_type tit WHERE tit.BILL_APPLY_ID = t.`BILL_APPLY_ID` AND tit.IS_SUBPACKAGE =2 )
+    AND tta.DK_STATE =1 AND tta.IS_DEL = 0
+<if test="seachDate ==null or seachDate == '' ">
+    AND NOW() >=tta.APPROVAL_DATE
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tta.APPROVAL_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tta.APPROVAL_DATE
+</if>
+  )) TAX_ADJUSTMENT,
+  CASE
+    WHEN TIMESTAMPDIFF(MONTH,(SELECT tii.TAX_DATE FROM tt_in_invoice tii WHERE tii.ITEM_ID = t.ITEM_ID AND tii.IS_ESTATE = 1 AND tii.IS_DEL=0 AND tii.STATE>=1 ),NOW())&lt;=12
+    THEN (
+          SELECT SUM(tii.TAX_MONEY*0.6) FROM tt_in_invoice tii WHERE tii.ITEM_ID = t.ITEM_ID AND tii.IS_ESTATE = 1 AND tii.IS_DEL=0 AND tii.STATE>=1 
+          AND 12>= TIMESTAMPDIFF(MONTH,tii.TAX_DATE,NOW())
+      <if test="seachDate ==null or seachDate == '' ">
+          AND NOW() >=tii.RZ_DATE 
+      </if>
+      <if test="seachDate !=null and seachDate != '' ">
+      	  AND tii.RZ_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=tii.RZ_DATE
+      </if> 
+         )
+    ELSE (
+          SELECT SUM(tii.TAX_MONEY*0.4) FROM tt_in_invoice tii WHERE tii.ITEM_ID = t.ITEM_ID AND tii.IS_ESTATE = 1 AND tii.IS_DEL=0 AND tii.STATE>=1 
+      <if test="seachDate ==null or seachDate == '' "> 
+          AND TIMESTAMPDIFF(MONTH,tii.TAX_DATE,NOW()) >= 13
+      </if>
+      <if test="seachDate !=null and seachDate != '' ">
+      	  AND TIMESTAMPDIFF(MONTH,tii.TAX_DATE, LAST_DAY( #{seachDate} ) ) = 13
+      </if>
+         )
+  END ESTATE_MONEY,
+  t.`ITEM_ID`,
+  (SELECT ITEM_NAME FROM tt_iteminfo ti WHERE ti.ITEM_ID = t.ITEM_ID) ITEM_NAME,
+  (SELECT ti.TAXATION_TYPE FROM tt_iteminfo ti WHERE ti.ITEM_ID = t.ITEM_ID) TAXATION_TYPE,
+  t.STRUCT_ID 
+FROM
+  tt_bill_apply t 
+WHERE  t.`IS_DEL` = 0
+AND t.STATE >= 7
+
+<if test="selectType == 'forItem' ">
+
+AND t.STRUCT_ID = #{STRUCT_ID,jdbcType=VARCHAR} 
+</if>
+GROUP BY t.`ITEM_ID`
+) sa
+) ch
+) de
+<if test="selectType != 'forItem' ">
+) a
+where 1=1
+<if test="isManager == 'no'">
+and a.STRUCT_ID = #{structId,jdbcType=VARCHAR} 
+</if>
+<if test="selectType == 'forStruct' ">
+GROUP BY a.STRUCT_ID
+</if>
+</if>
+
+<if test="isManager =='yes'">
+) b
+</if>
+</select>
+
+</mapper>

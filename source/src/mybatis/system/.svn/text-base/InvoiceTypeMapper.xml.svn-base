@@ -1,0 +1,901 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="InvoiceTypeMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.InvoiceType" >
+    <result column="BILL_APPLY_ID" property="billApplyId" jdbcType="VARCHAR" />
+    <result column="IN_INVOICE_ID" property="inInvoiceId" jdbcType="VARCHAR" />
+    <result column="IS_SUBPACKAGE" property="isSubpackage" jdbcType="INTEGER" />
+    <result column="D_MONEY" property="dMoney" jdbcType="DECIMAL" />
+    <result column="D_DATE" property="dDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+
+<select id="listPageAllForAdjust" parameterType="page" resultType="pd">
+SELECT 
+  sa.* 
+FROM
+  (SELECT 
+    t.*,
+    tit.`D_MONEY`,
+    tit.`D_DATE`,
+    (SELECT 
+      su.NAME 
+    FROM
+      sys_user su 
+    WHERE su.USER_ID = t.`CREATE_BY`) CREATE_NAME 
+  FROM
+    tt_tax_adjustment t,
+    tt_invoice_type tit 
+  WHERE t.`TAX_ADJUSTMENT_ID` = tit.`IN_INVOICE_ID` 
+    AND tit.`IS_SUBPACKAGE` = 2 
+    AND t.`APPLY_ITEM` = 
+    (SELECT 
+      tba.`ITEM_ID` 
+    FROM
+      tt_bill_apply tba 
+    WHERE tba.`BILL_APPLY_ID` = tit.`BILL_APPLY_ID`) 
+    AND tit.`BILL_APPLY_ID` = #{pd.billApplyId,jdbcType=VARCHAR}) sa 
+WHERE 1 = 1 
+<if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR sa.`APPLY_CAUSE` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.`CREDENTIALS_CODE` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`CREATE_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`CREATE_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+ </if>
+</select>
+
+<select id="listPageAllToAddFour" parameterType="page" resultType="pd">
+SELECT 
+  sa.* 
+FROM
+  (SELECT 
+    t.*,
+    su.`NAME` CREATE_NAME  
+  FROM
+    tt_tax_adjustment t,
+    sys_user su 
+  WHERE t.`CREATE_BY` = su.`USER_ID` 
+    AND t.`APPLY_ITEM` = 
+    (SELECT 
+      tba.`ITEM_ID` 
+    FROM
+      tt_bill_apply tba 
+    WHERE tba.`BILL_APPLY_ID` = #{pd.billApplyId,jdbcType=VARCHAR}) 
+    AND t.`STATE` = 1 
+    AND t.`DK_STATE` = 0 
+    AND t.`IS_DEL` = 0) sa 
+WHERE 1 = 1 
+<if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR sa.`APPLY_CAUSE` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.`CREDENTIALS_CODE` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`CREATE_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`CREATE_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+ </if>
+</select>
+
+<update id="toUpAdjustDkState" parameterType="pd">
+UPDATE tt_tax_adjustment t 
+SET t.`DK_STATE`=1
+WHERE t.`TAX_ADJUSTMENT_ID`=#{PK,jdbcType=VARCHAR}
+</update>
+
+<update id="delAdjustDkState" parameterType="pd">
+UPDATE tt_tax_adjustment t
+SET t.`DK_STATE` = 0
+WHERE t.`TAX_ADJUSTMENT_ID`=#{taxAdjustmentId,jdbcType=VARCHAR}
+</update>
+
+<select id="forPayCheck" parameterType="pd" resultType="pd">
+
+SELECT 
+  IFNULL(
+    (
+      CASE
+        WHEN tt.STATE IN (0,1, 2) 
+        THEN 'no' 
+        ELSE 'yes' 
+      END
+    ),
+    'yes'
+  ) payCheck,
+  COUNT(*) num
+FROM
+  tt_pay_tax t,
+  tt_tribune tt 
+WHERE t.`PAY_TAX_ID` = tt.`REVIEW_OBJ_ID` 
+  AND t.BILL_APPLY_ID = #{billApplyId,jdbcType=VARCHAR} 
+  AND t.IS_DEL = 0 
+</select>
+
+  
+<select id="listAllToExcel" parameterType="pd" resultType="pd">
+SELECT 
+  t.FINANCE_NO,
+  t.INVOICE_CODE,
+  t.INVOICE_NO,
+  t.TAX_DATE,
+  t.INVOICE_MONEY,
+  t.TAX_MONEY,
+  t.TAX_RATE,
+  CASE
+    WHEN t.FOREIGN_KEY IN 
+    (SELECT 
+      tp.PACT_ID 
+    FROM
+      tt_pactinfo tp 
+    WHERE tp.PACT_TYPE IN ('3002', '3005')) 
+    THEN '分包发票' 
+    ELSE '普通' 
+  END IN_TYPE 
+FROM
+  tt_in_invoice t,
+  sys_user u 
+WHERE t.CREATE_BY = u.USER_ID 
+  AND t.`IN_INVOICE_ID` IN 
+  (SELECT 
+    tit.IN_INVOICE_ID 
+  FROM
+    tt_invoice_type tit 
+  WHERE tit.`BILL_APPLY_ID` = #{billApplyId,jdbcType=VARCHAR}) 
+   <if test="ITEMCOLLECTNAME != null and ITEMCOLLECTNAME != ''">
+  AND (
+    t.FINANCE_NO LIKE #{ITEMCOLLECTNAME2} 
+    OR t.INVOICE_CODE LIKE #{ITEMCOLLECTNAME2} 
+    OR t.INVOICE_NO LIKE #{ITEMCOLLECTNAME2} 
+    OR u.NAME LIKE #{ITEMCOLLECTNAME2} 
+  ) 
+  </if>
+  <if test="LASTLOGINSTART1 !=null and LASTLOGINSTART1 != '' ">
+  <if test="LASTLOGINSTART2 !=null and LASTLOGINSTART2 != '' ">
+  AND (
+    t.TAX_DATE >= #{LASTLOGINSTART1} 
+    AND #{LASTLOGINSTART2}  >= t.TAX_DATE
+  )
+  </if>
+ </if>
+ 
+</select>
+  
+  
+  
+<!-- 开票时   --> 
+<!-- 分包发票 -->
+<select id="listAllToBillAddOne" parameterType="pd" resultType="pd">
+SELECT 
+  sa.*
+FROM
+  (SELECT 
+    ti.*,
+    (SELECT 
+    PACT_NAME 
+  FROM
+    tt_pactinfo tp 
+  WHERE tp.PACT_ID = ti.FOREIGN_KEY) PACT_NAME,
+    (SELECT 
+      NAME 
+    FROM
+      sys_user 
+    WHERE USER_ID = ti.`CREATE_BY`) AS CREATE_NAME,
+    ti.TAX_MONEY AS ESTATE_MONEY,
+    t.`ITEM_NAME`,
+    CASE
+      WHEN ti.IN_INVOICE_ID IN 
+      (SELECT 
+        IN_INVOICE_ID 
+      FROM
+        tt_invoice_type tit 
+      WHERE tit.BILL_APPLY_ID = #{billApplyId,jdbcType=VARCHAR}) 
+      THEN 'yes' 
+      ELSE 'no' 
+    END checked   
+  FROM
+    tt_in_invoice ti,
+    tt_iteminfo t 
+  WHERE ti.`ITEM_ID` = t.`ITEM_ID` 
+    AND ti.`FOREIGN_KEY` IN 
+  (SELECT 
+    tp.`PACT_ID` 
+  FROM
+    tt_pactinfo tp 
+  WHERE tp.`PACT_TYPE` IN ('3002', '3005')) 
+  AND (ti.`STATE` = 1
+  OR ti.IN_INVOICE_ID IN (SELECT tit.IN_INVOICE_ID FROM tt_invoice_type tit WHERE tit.BILL_APPLY_ID=#{billApplyId,jdbcType=VARCHAR} AND IS_SUBPACKAGE=0)
+  AND ti.IS_ESTATE = 0 
+  )
+  AND ti.IS_RIGHT=1
+  AND ti.STRUCT_ID = #{structId,jdbcType=VARCHAR}
+  ORDER BY ti.`CREATE_DATE` DESC
+) AS sa 
+WHERE 1 = 1 
+  AND sa.IS_DEL = 0 
+</select>
+ 
+<!-- 进项票 --> 
+<select id="listAllToBillAddTwo" parameterType="pd" resultType="pd">
+SELECT 
+  sa.* 
+FROM
+  (SELECT 
+    ti.*,  
+  (SELECT 
+    NAME 
+  FROM
+    sys_user 
+  WHERE USER_ID = ti.`CREATE_BY`) AS CREATE_NAME,
+  CASE
+    ti.IS_ESTATE 
+    WHEN 1 
+    THEN ti.TAX_MONEY * 0.6 
+    ELSE ti.TAX_MONEY 
+  END AS ESTATE_MONEY,
+  CASE
+    ti.IS_ESTATE 
+    WHEN 0 
+    THEN '否' 
+    WHEN 1 
+    THEN '是' 
+  END AS ESTATE_TYPE,
+   (SELECT t.`ITEM_NAME` FROM tt_iteminfo t WHERE t.`ITEM_ID`=ti.`ITEM_ID`)ITEM_NAME,
+    CASE
+      WHEN ti.IN_INVOICE_ID IN 
+      (SELECT 
+        IN_INVOICE_ID 
+      FROM
+        tt_invoice_type tit 
+      WHERE tit.BILL_APPLY_ID = #{billApplyId,jdbcType=VARCHAR}) 
+      THEN 'yes' 
+      ELSE 'no' 
+    END checked   
+  FROM
+    tt_in_invoice ti 
+  WHERE ti.`IN_INVOICE_ID` NOT IN 
+    (SELECT 
+      tii.`IN_INVOICE_ID` 
+    FROM
+      tt_in_invoice tii 
+    WHERE tii.`FOREIGN_KEY` IN 
+      (SELECT 
+        tp.`PACT_ID` 
+      FROM
+        tt_pactinfo tp 
+      WHERE tp.`PACT_TYPE` IN ('3002', '3005'))) 
+    AND ti.IS_RIGHT=1
+    AND (ti.STATE=1 OR ti.IN_INVOICE_ID IN (SELECT tit.IN_INVOICE_ID FROM tt_invoice_type tit WHERE tit.BILL_APPLY_ID=#{billApplyId,jdbcType=VARCHAR} AND IS_SUBPACKAGE=1)
+    AND ti.IS_ESTATE = 0 
+    )
+    AND ti.IS_ESTATE = 0
+    AND ti.STRUCT_ID = #{structId,jdbcType=VARCHAR}
+  ORDER BY ti.`CREATE_DATE` DESC) AS sa 
+WHERE 1 = 1  
+    AND  sa.IS_DEL = 0 
+</select>  
+
+<!-- 不动产发票 -->
+<select id="listAllToBillAddThree" parameterType="pd" resultType="pd">
+SELECT 
+ *,
+    (SELECT t.`ITEM_NAME` FROM tt_iteminfo t WHERE t.`ITEM_ID`=sa.`ITEM_ID`)ITEM_NAME
+FROM
+  (SELECT 
+  ti.*,
+  (SELECT 
+    NAME 
+  FROM
+    sys_user 
+  WHERE USER_ID = ti.`CREATE_BY`) AS CREATE_NAME,
+  ROUND(ti.TAX_MONEY * 0.6, 2) AS ESTATE_MONEY,
+  CASE
+    (
+      TIMESTAMPDIFF(YEAR, ti.TAX_DATE, NOW())
+    ) 
+    WHEN 0 
+    THEN ROUND((ti.TAX_MONEY * 0.6 - D_MONEY),2) 
+    ELSE '0' 
+  END D_FREE_MONEY 
+FROM
+  tt_in_invoice ti  
+  WHERE  ti.`IN_INVOICE_ID` NOT IN 
+    (SELECT 
+      tii.`IN_INVOICE_ID` 
+    FROM
+      tt_in_invoice tii 
+    WHERE tii.`FOREIGN_KEY` IN 
+      (SELECT 
+        tp.`PACT_ID` 
+      FROM
+        tt_pactinfo tp 
+      WHERE tp.`PACT_TYPE` IN ('3002', '3005'))) 
+    AND ti.IS_RIGHT = 1 
+    AND ti.IS_ESTATE = 1 
+    AND 1 > TIMESTAMPDIFF(YEAR, ti.TAX_DATE,NOW())  
+    AND ROUND(ti.TAX_MONEY * 0.6,2) > D_MONEY  
+  UNION
+  ALL 
+  SELECT 
+    ti.*,
+    (SELECT 
+      NAME 
+    FROM
+      sys_user 
+    WHERE USER_ID = ti.`CREATE_BY`) AS CREATE_NAME,
+    ti.TAX_MONEY  AS ESTATE_MONEY,
+  CASE
+    (
+      TIMESTAMPDIFF(YEAR, ti.TAX_DATE, NOW())
+    ) 
+    WHEN 1 
+    THEN (ti.TAX_MONEY  - D_MONEY) 
+    ELSE '0' 
+  END D_FREE_MONEY  
+  FROM
+    tt_in_invoice ti 
+  WHERE ti.`IN_INVOICE_ID` NOT IN 
+    (SELECT 
+      tii.`IN_INVOICE_ID` 
+    FROM
+      tt_in_invoice tii 
+    WHERE tii.`FOREIGN_KEY` IN 
+      (SELECT 
+        tp.`PACT_ID` 
+      FROM
+        tt_pactinfo tp 
+      WHERE tp.`PACT_TYPE` IN ('3002', '3005'))) 
+    AND (
+      ti.`ITEM_ID` IS NULL
+    ) 
+    AND ti.IS_RIGHT = 1 
+    AND ti.IS_ESTATE = 1 
+    AND ti.STRUCT_ID = #{structId,jdbcType=VARCHAR}
+    AND TIMESTAMPDIFF(YEAR, ti.TAX_DATE,NOW()) >= 1 
+    AND ti.TAX_MONEY > D_MONEY 
+    ) sa 
+WHERE 1 = 1 
+  AND sa.IS_DEL = 0 
+  AND sa.IN_INVOICE_ID NOT IN (
+  SELECT 
+  it.`IN_INVOICE_ID` 
+FROM
+  tt_invoice_type it 
+WHERE it.`BILL_APPLY_ID` = #{billApplyId,jdbcType=VARCHAR})
+  AND (
+  sa.ITEM_ID IS NULL 
+  OR
+  sa.ITEM_ID in (SELECT 
+  itm.`ITEM_ID` 
+FROM
+  tt_iteminfo itm 
+WHERE itm.TAXATION_TYPE = 0 ))
+</select>   
+<select id="listAllToBillAddlistFour" parameterType="pd" resultType="pd">
+SELECT 
+  tit.`D_MONEY`,
+  FINANCE_NO,
+  INVOICE_CODE,
+  INVOICE_NO,
+  TAX_DATE,
+  INVOICE_MONEY,
+  TAX_MONEY,
+  ROUND(t.TAX_MONEY * 0.6, 2) AS ESTATE_MONEY,
+  CASE
+    (
+      TIMESTAMPDIFF(YEAR, t.TAX_DATE, NOW())
+    ) 
+    WHEN 0 
+    THEN ROUND((t.TAX_MONEY * 0.6-t.D_MONEY+tit.D_MONEY), 2) 
+    ELSE '0' 
+  END D_FREE_MONEY,
+  t.IN_INVOICE_ID,
+  (SELECT 
+    ti.ITEM_NAME 
+  FROM
+    tt_iteminfo ti 
+  WHERE ti.ITEM_ID = t.ITEM_ID) ITEM_NAME,
+  'yes'  checked
+FROM
+  tt_in_invoice t,
+  tt_invoice_type tit 
+WHERE t.`IN_INVOICE_ID` = tit.`IN_INVOICE_ID` 
+  AND tit.`BILL_APPLY_ID` = #{billApplyId,jdbcType=VARCHAR} 
+  AND t.`IS_ESTATE` = 1 
+</select>
+
+   <!-- 分包发票    -->
+<select id="listPageAllToAddOne" parameterType="page" resultType="pd">
+SELECT 
+  sa.*
+FROM
+  (SELECT 
+    ti.*,
+    (SELECT 
+    PACT_NAME 
+  FROM
+    tt_pactinfo tp 
+  WHERE tp.PACT_ID = ti.FOREIGN_KEY) PACT_NAME,
+    (SELECT 
+      NAME 
+    FROM
+      sys_user 
+    WHERE USER_ID = ti.`CREATE_BY`) AS CREATE_NAME,
+    ti.TAX_MONEY AS ESTATE_MONEY 
+  FROM
+    tt_in_invoice ti 
+  WHERE ti.`FOREIGN_KEY` IN 
+  (SELECT 
+    tp.`PACT_ID` 
+  FROM
+    tt_pactinfo tp 
+  WHERE tp.`PACT_TYPE` IN ('3002', '3005')) 
+  AND ti.`STATE` = 1 
+  AND ti.`ITEM_ID` = 
+  (SELECT 
+    b.`ITEM_ID` 
+  FROM
+    tt_bill_apply b 
+  WHERE b.`BILL_APPLY_ID` = #{pd.billApplyId,jdbcType=VARCHAR})
+  AND ti.IS_RIGHT=1
+  ORDER BY ti.`CREATE_DATE` DESC
+) AS sa 
+WHERE 1 = 1 
+  AND sa.IS_DEL = 0 
+  <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR sa.`FINANCE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.`PACT_NAME` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.INVOICE_CODE LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.`INVOICE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`TAX_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`TAX_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+ </if>
+  </select>
+  <!-- 进项票 -->
+  <select id="listPageAllToAddTwo" parameterType="page" resultType="pd">
+SELECT 
+  sa.* 
+FROM
+  (SELECT 
+    ti.*,  
+  (SELECT 
+    NAME 
+  FROM
+    sys_user 
+  WHERE USER_ID = ti.`CREATE_BY`) AS CREATE_NAME,
+  CASE
+    ti.IS_ESTATE 
+    WHEN 1 
+    THEN ti.TAX_MONEY * 0.6 
+    ELSE ti.TAX_MONEY 
+  END AS ESTATE_MONEY,
+  CASE
+    ti.IS_ESTATE 
+    WHEN 0 
+    THEN '否' 
+    WHEN 1 
+    THEN '是' 
+  END AS ESTATE_TYPE  
+  FROM
+    tt_in_invoice ti 
+  WHERE ti.`IN_INVOICE_ID` NOT IN 
+    (SELECT 
+      tii.`IN_INVOICE_ID` 
+    FROM
+      tt_in_invoice tii 
+    WHERE tii.`FOREIGN_KEY` IN 
+      (SELECT 
+        tp.`PACT_ID` 
+      FROM
+        tt_pactinfo tp 
+      WHERE tp.`PACT_TYPE` IN ('3002', '3005'))) 
+    AND (
+      ti.`ITEM_ID` = 
+      (SELECT 
+        b.`ITEM_ID` 
+      FROM
+        tt_bill_apply b 
+      WHERE b.`BILL_APPLY_ID` = #{pd.billApplyId,jdbcType=VARCHAR}) 
+      OR ti.`ITEM_ID` IS NULL
+    ) AND ti.IS_RIGHT=1
+    AND ti.STATE=1
+    AND ti.IS_ESTATE = 0
+  ORDER BY ti.`CREATE_DATE` DESC) AS sa 
+WHERE 1 = 1  
+    AND  sa.IS_DEL = 0 
+  <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR sa.`FINANCE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.INVOICE_CODE LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.`INVOICE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`TAX_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`TAX_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+ </if>
+  </select>
+<!--  不动产发票 -->
+<select id="listPageAllToAddThree" parameterType="page" resultType="pd">
+SELECT 
+  * 
+FROM
+  (SELECT 
+  ti.*,
+  (SELECT 
+    NAME 
+  FROM
+    sys_user 
+  WHERE USER_ID = ti.`CREATE_BY`) AS CREATE_NAME,
+  ROUND(ti.TAX_MONEY * 0.6, 2) AS ESTATE_MONEY,
+  CASE
+    (
+      TIMESTAMPDIFF(YEAR, ti.TAX_DATE, NOW())
+    ) 
+    WHEN 0 
+    THEN ROUND((ti.TAX_MONEY * 0.6 - D_MONEY),2) 
+    ELSE '0' 
+  END D_FREE_MONEY 
+FROM
+  tt_in_invoice ti  
+  WHERE ti.`IN_INVOICE_ID` NOT IN 
+    (SELECT 
+      tii.`IN_INVOICE_ID` 
+    FROM
+      tt_in_invoice tii 
+    WHERE tii.`FOREIGN_KEY` IN 
+      (SELECT 
+        tp.`PACT_ID` 
+      FROM
+        tt_pactinfo tp 
+      WHERE tp.`PACT_TYPE` IN ('3002', '3005'))) 
+    AND (
+      ti.`ITEM_ID` = 
+      (SELECT 
+        b.`ITEM_ID` 
+      FROM
+        tt_bill_apply b 
+      WHERE b.`BILL_APPLY_ID` = #{pd.billApplyId,jdbcType=VARCHAR}) 
+      OR ti.`ITEM_ID` IS NULL
+    ) 
+    AND ti.IS_RIGHT = 1 
+    AND ti.IS_ESTATE = 1 
+    AND 1 > TIMESTAMPDIFF(YEAR, ti.TAX_DATE,NOW())  
+    AND ROUND(ti.TAX_MONEY * 0.6,2) > D_MONEY  
+  UNION
+  ALL 
+  SELECT 
+    ti.*,
+    (SELECT 
+      NAME 
+    FROM
+      sys_user 
+    WHERE USER_ID = ti.`CREATE_BY`) AS CREATE_NAME,
+    ti.TAX_MONEY  AS ESTATE_MONEY,
+  CASE
+    (
+      TIMESTAMPDIFF(YEAR, ti.TAX_DATE, NOW())
+    ) 
+    WHEN 1 
+    THEN (ti.TAX_MONEY  - D_MONEY) 
+    ELSE '0' 
+  END D_FREE_MONEY  
+  FROM
+    tt_in_invoice ti 
+  WHERE ti.`IN_INVOICE_ID` NOT IN 
+    (SELECT 
+      tii.`IN_INVOICE_ID` 
+    FROM
+      tt_in_invoice tii 
+    WHERE tii.`FOREIGN_KEY` IN 
+      (SELECT 
+        tp.`PACT_ID` 
+      FROM
+        tt_pactinfo tp 
+      WHERE tp.`PACT_TYPE` IN ('3002', '3005'))) 
+    AND (
+      ti.`ITEM_ID` = 
+      (SELECT 
+        b.`ITEM_ID` 
+      FROM
+        tt_bill_apply b 
+      WHERE b.`BILL_APPLY_ID` = #{pd.billApplyId,jdbcType=VARCHAR}) 
+      OR ti.`ITEM_ID` IS NULL
+    ) 
+    AND ti.IS_RIGHT = 1 
+    AND ti.IS_ESTATE = 1 
+    AND TIMESTAMPDIFF(YEAR, ti.TAX_DATE,NOW()) >= 1 
+    AND ti.TAX_MONEY > D_MONEY 
+    ) sa 
+WHERE 1 = 1 
+  AND sa.IS_DEL = 0 
+  AND sa.IN_INVOICE_ID NOT IN (
+  SELECT 
+  it.`IN_INVOICE_ID` 
+FROM
+  tt_invoice_type it 
+WHERE it.`BILL_APPLY_ID` = #{pd.billApplyId,jdbcType=VARCHAR})
+  AND (sa.ITEM_ID = (SELECT 
+  itm.`ITEM_ID` 
+FROM
+  tt_iteminfo itm 
+WHERE itm.TAXATION_TYPE = 0 
+  AND itm.`ITEM_ID` = 
+  (SELECT 
+    ba.`ITEM_ID` 
+  FROM
+    tt_bill_apply ba 
+  WHERE ba.`BILL_APPLY_ID` = #{pd.billApplyId,jdbcType=VARCHAR}))
+ OR sa.ITEM_ID IS NULL)
+  <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR sa.`FINANCE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.INVOICE_CODE LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.`INVOICE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`TAX_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`TAX_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+ </if>
+</select> 
+
+<select id="listAllToBill" parameterType="pd" resultType="pd">
+SELECT 
+  sa.* 
+FROM
+  (SELECT 
+    ti.*,
+    (SELECT 
+      NAME 
+    FROM
+      sys_user u 
+    WHERE u.USER_ID = ti.`CREATE_BY`) AS CREATE_NAME,
+    (SELECT 
+      PACT_NAME 
+    FROM
+      tt_pactinfo p 
+    WHERE p.PACT_ID = ti.`FOREIGN_KEY`) AS PACT_NAME,
+    (SELECT 
+      D_MONEY 
+    FROM
+      tt_invoice_type tit 
+    WHERE tit.IN_INVOICE_ID = ti.`IN_INVOICE_ID` 
+      AND tit.BILL_APPLY_ID = #{billApplyId,jdbcType=VARCHAR}
+      AND tit.`IS_SUBPACKAGE` = #{isSubpackage,jdbcType=INTEGER}
+      ) AS ESTATE_MONEY,
+    CASE
+      ti.IS_ESTATE 
+      WHEN 0 
+      THEN '否' 
+      WHEN 1 
+      THEN '是' 
+    END AS ESTATE_TYPE ,
+    (SELECT t.`ITEM_NAME` FROM tt_iteminfo t WHERE t.`ITEM_ID`=ti.ITEM_ID)ITEM_NAME
+  FROM
+    tt_in_invoice ti 
+  WHERE ti.`IN_INVOICE_ID` IN 
+    (SELECT 
+      it.`IN_INVOICE_ID` 
+    FROM
+      tt_invoice_type it 
+    WHERE it.`BILL_APPLY_ID` =  #{billApplyId,jdbcType=VARCHAR} 
+      AND it.`IS_SUBPACKAGE` = #{isSubpackage,jdbcType=INTEGER})
+    ORDER BY ti.`CREATE_DATE` DESC) AS sa 
+  WHERE 1 = 1 
+</select>
+
+
+  <!-- 主页面显示 -->
+<select id="listPageAll" parameterType="page" resultType="pd">
+SELECT 
+  sa.* 
+FROM
+  (SELECT 
+    ti.*,
+    (SELECT 
+      NAME 
+    FROM
+      sys_user u 
+    WHERE u.USER_ID = ti.`CREATE_BY`) AS CREATE_NAME,
+    (SELECT 
+      PACT_NAME 
+    FROM
+      tt_pactinfo p 
+    WHERE p.PACT_ID = ti.`FOREIGN_KEY`) AS PACT_NAME,
+    (SELECT 
+      D_MONEY 
+    FROM
+      tt_invoice_type tit 
+    WHERE tit.IN_INVOICE_ID = ti.`IN_INVOICE_ID` 
+      AND tit.BILL_APPLY_ID = #{pd.billApplyId,jdbcType=VARCHAR}
+      AND tit.`IS_SUBPACKAGE` = #{pd.isSubpackage,jdbcType=INTEGER}
+      ) AS ESTATE_MONEY,
+    CASE
+      ti.IS_ESTATE 
+      WHEN 0 
+      THEN '否' 
+      WHEN 1 
+      THEN '是' 
+    END AS ESTATE_TYPE 
+  FROM
+    tt_in_invoice ti 
+  WHERE ti.`IN_INVOICE_ID` IN 
+    (SELECT 
+      it.`IN_INVOICE_ID` 
+    FROM
+      tt_invoice_type it 
+    WHERE it.`BILL_APPLY_ID` = #{pd.billApplyId,jdbcType=VARCHAR} 
+      AND it.`IS_SUBPACKAGE` = #{pd.isSubpackage,jdbcType=INTEGER})
+    ORDER BY ti.`CREATE_DATE` DESC) AS sa 
+  WHERE 1 = 1 
+  <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR sa.`FINANCE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.`PACT_NAME` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.INVOICE_CODE LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.`INVOICE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`TAX_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`TAX_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+ </if> 
+</select>
+
+<delete id="deleteByPrimaryKey" parameterType="pd">
+DELETE 
+FROM
+  tt_invoice_type 
+WHERE BILL_APPLY_ID = #{billApplyId,jdbcType=VARCHAR} 
+and IN_INVOICE_ID = #{inInvoiceId,jdbcType=VARCHAR}
+</delete>
+<update id="updateIn" parameterType="pd">
+UPDATE 
+  tt_invoice tin 
+SET
+  tin.`IS_CHECK` = #{isCheck,jdbcType=VARCHAR} 
+WHERE tin.`IN_INVOICE_ID` = #{inInvoiceId,jdbcType=VARCHAR}
+</update>
+<update id="updateState" parameterType="pd">
+UPDATE 
+  tt_in_invoice tin 
+SET
+<if test="updateDate != null and updateDate != ''">
+  UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+</if>
+<if test="updateBy != null and updateBy != ''">
+  UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+</if>
+  STATE=2
+WHERE tin.`IN_INVOICE_ID` = #{inInvoiceId,jdbcType=VARCHAR} 
+</update>
+<update id="updateDnum" parameterType="pd">
+UPDATE 
+  tt_in_invoice tin 
+SET
+  D_NUM = D_NUM + 1,
+  tin.`D_MONEY` = tin.`D_MONEY` + #{dMoney,jdbcType=DECIMAL} 
+WHERE tin.`IN_INVOICE_ID` = #{inInvoiceId,jdbcType=VARCHAR} 
+</update>
+<update id="DlState" parameterType="pd">
+UPDATE 
+  tt_in_invoice tin 
+SET
+  STATE=1
+WHERE tin.`IN_INVOICE_ID` = #{inInvoiceId,jdbcType=VARCHAR} 
+</update>
+
+<update id="DlDnum" parameterType="pd">
+UPDATE 
+  tt_in_invoice tin 
+SET
+  D_NUM = D_NUM - 1,
+  tin.`D_MONEY` = IFNULL(tin.`D_MONEY` - 
+  (SELECT 
+    tit.`D_MONEY` 
+  FROM
+    tt_invoice_type tit 
+  WHERE tit.`IN_INVOICE_ID` = #{inInvoiceId,jdbcType=VARCHAR} 
+    AND tit.`IS_SUBPACKAGE` = 1 
+    AND tit.`BILL_APPLY_ID` = #{billApplyId,jdbcType=VARCHAR}),0) 
+WHERE tin.`IN_INVOICE_ID` = #{inInvoiceId,jdbcType=VARCHAR} 
+</update>
+<!-- 查询是否是 不动产的发票 第二次 选择 -->
+<select id="checkToDL" parameterType="pd" resultType="Integer">
+SELECT 
+  COUNT(*) 
+FROM
+  tt_in_invoice ti 
+WHERE ti.`IN_INVOICE_ID` = #{inInvoiceId,jdbcType=VARCHAR} 
+  AND ti.`IS_ESTATE` = 1 
+  AND ti.`STATE` > 1 
+  AND ti.`D_NUM` > 1
+  AND ti.`IS_DEL` = 0  
+</select>
+<!-- 查询当前ID是否是不动产 -->
+<select id="checkToSave" parameterType="pd" resultType="Integer">
+SELECT 
+  COUNT(*) 
+FROM
+  tt_in_invoice ti 
+WHERE ti.`IN_INVOICE_ID` = #{inInvoiceId,jdbcType=VARCHAR} 
+  AND ti.`IS_ESTATE` = 1
+  AND ti.`IS_DEL` = 0 
+</select>
+<select id="toDlInInvoiceIds" parameterType="pd" resultType="String">
+SELECT 
+  GROUP_CONCAT(tit.`IN_INVOICE_ID`) 
+FROM
+  tt_invoice_type tit 
+WHERE tit.`BILL_APPLY_ID` = #{billApplyId,jdbcType=VARCHAR} 
+</select>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_invoice_type
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="billApplyId != null" >
+        BILL_APPLY_ID,
+      </if>
+      <if test="inInvoiceId != null" >
+        IN_INVOICE_ID,
+      </if>
+      <if test="isSubpackage != null" >
+        IS_SUBPACKAGE,
+      </if>
+      <if test="dMoney != null and dMoney !='' " >
+        D_MONEY,
+      </if>
+      <if test="dDate != null and dDate !=''">
+      	D_DATE
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="billApplyId != null" >
+        #{billApplyId,jdbcType=VARCHAR},
+      </if>
+      <if test="inInvoiceId != null" >
+        #{inInvoiceId,jdbcType=VARCHAR},
+      </if>
+      <if test="isSubpackage != null" >
+        #{isSubpackage,jdbcType=INTEGER},
+      </if>
+      <if test="dMoney != null and dMoney !='' " >
+        #{dMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="dDate != null and dDate !=''">
+      	#{dDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+</mapper>

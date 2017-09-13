@@ -4,32 +4,74 @@
 <mapper namespace="UserXMapper">
 	
     <cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>  
-	<!-- 新增用户 -->
+	<!-- 保存用户 -->
 	<insert id="saveU" parameterType="pd">
 		insert into sys_user 
 		(user_id,phone,verification_code)
 		values (
-			#{USER_ID},		
-			#{PHONE},		
-			#{VERIFICATION_CODE}	
+			#{user_id},		
+			#{phone},		
+			#{verificationCode}	
 		)
 	</insert>
 	<!-- 通过手机获取数据 -->
 	<select id="findByUPhone" parameterType="pd" resultType="pd" useCache="false">
-		SELECT verification_code,state
-		from sys_user
-		where phone = #{PHONE}
+		SELECT u.user_id 'id',
+		u.email,u.phone,u.name,u.unit,u.nickname,
+		UNIX_TIMESTAMP(u.join_time) as 'joinTime',
+		UNIX_TIMESTAMP(u.update_time) as 'updateTime',
+		u.type,u.avatar,u.introduction,u.has_msg 'hasMessage',
+		(select count(1) from user_action where user_id = u.user_id and type=0) as 'starNum',
+		(select count(1) from user_action where obj_id = u.user_id and type=0) as 'funsNum',
+		(select count(1) from user_action where obj_belong = u.user_id and type=2) as 'getPraiseNum',
+		(select count(1) from sys_article where CREATE_BY = u.user_id) as 'articleNum'
+		from sys_user u 
+		where u.phone = #{phone}
 	</select>
-	<update id="updateUser" parameterType="pd">
+	
+	<update id="updateUserByUid" parameterType="pd">
 		update sys_user 
 		<set>
-			<if test="VERIFICATION_CODE!=null">
-				verification_code = #{VERIFICATION_CODE},
+			<if test="phone!=null">
+				phone = #{phone},
+			</if>
+			<if test="email!=null">
+				email = #{email},
+			</if>
+			<if test="nickname!=null">
+				nickname = #{nickname},
+			</if>
+			<if test="name!=null">
+				name = #{name},
+			</if>
+			<if test="unit!=null">
+				unit = #{unit},
+			</if>
+			<if test="type!=null">
+				type = #{type},
 			</if>
 			<if test="state!=null">
 				state = #{state},
 			</if>
+			<if test="join_time!=null">
+				join_time = #{join_time},
+			</if>
+			<if test="update_time!=null">
+				update_time = #{update_time},
+			</if>
+			<if test="readnews_time!=null">
+				readnews_time = #{readnews_time},
+			</if>
+			<if test="has_msg!=null">
+				has_msg = #{has_msg},
+			</if>
+			<if test="verification_code!=null">
+				verification_code = #{verification_code},
+			</if>
+			<if test="avatar!=null">
+				avatar = #{avatar},
+			</if>
 		</set> 
-		where phone=#{PHONE}
+		where user_id=#{user_id}
 	</update>
 </mapper>

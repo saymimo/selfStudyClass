@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="ttSysStatusMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.ttSysStatus" >
+    <id column="STATUS_CODE" property="statusCode" jdbcType="VARCHAR" />
+    <result column="STATUS_VALUE" property="statusValue" jdbcType="VARCHAR" />
+    <result column="STATUS_TYPE" property="statusType" jdbcType="VARCHAR" />
+    <result column="STATUS_TYPE_VALUE" property="statusTypeValue" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    STATUS_CODE, STATUS_VALUE, STATUS_TYPE, STATUS_TYPE_VALUE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_status
+    where STATUS_CODE = #{statusCode,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from sys_status
+    where STATUS_CODE = #{statusCode,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.ttSysStatus" >
+    insert into sys_status (STATUS_CODE, STATUS_VALUE, STATUS_TYPE, 
+      STATUS_TYPE_VALUE)
+    values (#{statusCode,jdbcType=VARCHAR}, #{statusValue,jdbcType=VARCHAR}, #{statusType,jdbcType=VARCHAR}, 
+      #{statusTypeValue,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.ttSysStatus" >
+    insert into sys_status
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="statusCode != null" >
+        STATUS_CODE,
+      </if>
+      <if test="statusValue != null" >
+        STATUS_VALUE,
+      </if>
+      <if test="statusType != null" >
+        STATUS_TYPE,
+      </if>
+      <if test="statusTypeValue != null" >
+        STATUS_TYPE_VALUE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="statusCode != null" >
+        #{statusCode,jdbcType=VARCHAR},
+      </if>
+      <if test="statusValue != null" >
+        #{statusValue,jdbcType=VARCHAR},
+      </if>
+      <if test="statusType != null" >
+        #{statusType,jdbcType=VARCHAR},
+      </if>
+      <if test="statusTypeValue != null" >
+        #{statusTypeValue,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.ttSysStatus" >
+    update sys_status
+    <set >
+      <if test="statusValue != null" >
+        STATUS_VALUE = #{statusValue,jdbcType=VARCHAR},
+      </if>
+      <if test="statusType != null" >
+        STATUS_TYPE = #{statusType,jdbcType=VARCHAR},
+      </if>
+      <if test="statusTypeValue != null" >
+        STATUS_TYPE_VALUE = #{statusTypeValue,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where STATUS_CODE = #{statusCode,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.ttSysStatus" >
+    update sys_status
+    set STATUS_VALUE = #{statusValue,jdbcType=VARCHAR},
+      STATUS_TYPE = #{statusType,jdbcType=VARCHAR},
+      STATUS_TYPE_VALUE = #{statusTypeValue,jdbcType=VARCHAR}
+    where STATUS_CODE = #{statusCode,jdbcType=VARCHAR}
+  </update>
+</mapper>

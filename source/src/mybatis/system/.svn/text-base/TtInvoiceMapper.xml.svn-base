@@ -1,0 +1,923 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtInvoiceMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtInvoice" >
+    <result column="IS_CHECK" property="isCheck" jdbcType="INTEGER" />
+    <result column="IS_IDENTIFY" property="isIdentify" jdbcType="INTEGER" />
+    <result column="INVOICE_CODE" property="invoiceCode" jdbcType="VARCHAR" />
+    <result column="INVOICE_NO" property="invoiceNo" jdbcType="VARCHAR" />
+    <result column="TAX_DATE" property="taxDate" jdbcType="DATE" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="INVOICE_MONEY" property="invoiceMoney" jdbcType="DECIMAL" />
+    <result column="TAX_MONEY" property="taxMoney" jdbcType="DECIMAL" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="IN_INVOICE_ID" property="inInvoiceId" jdbcType="VARCHAR" />
+    <result column="TAX_RATE" property="taxRate" jdbcType="DECIMAL" />
+    
+  </resultMap>
+  
+<select id="items" parameterType="pd" resultType="pd">
+SELECT 
+  ti.`ITEM_ID`,
+  ti.`ITEM_NAME` 
+FROM
+  tt_iteminfo ti 
+WHERE ti.`IS_DEL` = 0 
+  AND ti.`APPROVAL_STATUS` = 1 
+<if test="isManager == null or isManager == ''">
+  AND ti.`STRUCT_ID` = #{structId,jdbcType=VARCHAR}  
+</if>
+</select>  
+<select id="structList" parameterType="pd" resultType="pd">
+SELECT s.`STRUCT_NAME`,s.`STRUCT_ID` FROM sys_structinfo s WHERE s.`IS_DEL`=0
+</select>
+
+<select id="aIteminfo" parameterType="pd" resultType="pd">
+SELECT * FROM tt_iteminfo t WHERE t.`ITEM_NUMBER`= #{itemNumber,jdbcType=VARCHAR} AND t.IS_DEL = 0
+</select>
+
+<select id="aPactinfo" parameterType="pd" resultType="pd">
+SELECT t.*,(SELECT ti.STRUCT_ID FROM tt_iteminfo ti WHERE ti.ITEM_ID=t.`ITEM_ID`) STRUCT_ID 
+ FROM tt_pactinfo t 
+WHERE t.`PACT_ID`= #{pactId,jdbcType=VARCHAR}
+      AND t.IS_DEL = 0
+</select>
+
+<select id="aInvoice" parameterType="pd" resultType="pd">
+SELECT 
+  t.*,
+  (t.INVOICE_MONEY + t.`TAX_MONEY`) TOLAT_MONEY 
+FROM
+  tt_invoice t 
+WHERE t.`INVOICE_CODE` = #{invoiceCode,jdbcType=VARCHAR} 
+  AND t.`INVOICE_NO` = #{invoiceNo,jdbcType=VARCHAR} 
+</select>
+
+<select id="structinfo" parameterType="pd" resultType="pd">
+SELECT * FROM sys_structinfo s WHERE s.`STRUCT_ID`= #{structId,jdbcType=VARCHAR} 
+</select>
+  
+<select id="isSpecialInvoice" parameterType="pd" resultType="String">
+SELECT 
+  CASE
+    WHEN COUNT(*) > 0 
+    THEN 'yes' 
+    ELSE 'no' 
+  END 
+FROM
+  tt_pactinfo t 
+WHERE t.`PACT_TYPE` IN ('3002', '3005') 
+  AND t.`PACT_ID` = #{PACT_ID,jdbcType=VARCHAR} 
+</select>  
+
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_invoice
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="isCheck != null" >
+        IS_CHECK,
+      </if>
+      <if test="isIdentify != null" >
+        IS_IDENTIFY,
+      </if>
+      <if test="invoiceCode != null" >
+        INVOICE_CODE,
+      </if>
+      <if test="invoiceNo != null" >
+        INVOICE_NO,
+      </if>
+      <if test="taxDate != null" >
+        TAX_DATE,
+      </if>
+      <if test="name != null" >
+        NAME,
+      </if>
+      <if test="invoiceMoney != null" >
+        INVOICE_MONEY,
+      </if>
+      <if test="taxMoney != null" >
+        TAX_MONEY,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="taxRate != null" >
+        TAX_RATE,
+      </if>
+      
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="isCheck != null" >
+        #{isCheck,jdbcType=INTEGER},
+      </if>
+      <if test="isIdentify != null" >
+        #{isIdentify,jdbcType=INTEGER},
+      </if>
+      <if test="invoiceCode != null" >
+        #{invoiceCode,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceNo != null" >
+        #{invoiceNo,jdbcType=VARCHAR},
+      </if>
+      <if test="taxDate != null" >
+        #{taxDate,jdbcType=DATE},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="invoiceMoney != null" >
+        #{invoiceMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="taxMoney != null" >
+        #{taxMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="taxRate != null" >
+        #{taxRate,jdbcType=DECIMAL},
+      </if>
+      
+    </trim>
+  </insert>
+ 
+<select id="listPageAllForTtInvoice" parameterType="page" resultType="pd">
+select *
+from (
+SELECT 
+  IFNULL(tii.`STATE`, 0) STATE,
+  tii.RZ_DATE,
+  (SELECT 
+    ti.ITEM_NAME 
+  FROM
+    tt_iteminfo ti 
+  WHERE ti.ITEM_ID = tii.ITEM_ID) ITEM_NAME,
+  CASE
+    tii.`STATE` 
+    WHEN 1 
+    THEN '比对成功' 
+    WHEN 2 
+    THEN '已勾选未确认' 
+    WHEN 3 
+    THEN '已勾选已确认' 
+    ELSE '未必对' 
+  END STATE_NAME,
+  t.* 
+FROM
+  tt_invoice t 
+  LEFT JOIN tt_in_invoice tii 
+    ON t.`INVOICE_CODE` = tii.`INVOICE_CODE` 
+    AND t.`INVOICE_NO` = tii.`INVOICE_NO` 
+    AND t.`TAX_DATE` = tii.`TAX_DATE` 
+    AND tii.IS_DEL = 0 
+WHERE 1 = 1 
+<if test="pd.LEVEL== 'ITEM' "><!-- 项目 -->
+  AND tii.ITEM_ID = #{pd.ZD_ID}
+</if>
+<if test="pd.LEVEL=='STRUCT' and pd.isManager == 'no'"><!-- 组织 -->
+  AND tii.STRUCT_ID = #{pd.ZD_ID}
+</if>
+<if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+AND	(  t.INVOICE_CODE LIKE #{pd.NAME2}
+    OR t.INVOICE_NO LIKE #{pd.NAME2}   )
+</if>
+)sa
+where 1=1
+<if test="pd.ITEMCOLLECTTYPE!=null and pd.ITEMCOLLECTTYPE != ''   and pd.ITEMCOLLECTTYPE !=4">
+ 	AND STATE = #{pd.ITEMCOLLECTTYPE}
+</if>
+
+<if test="pd.LASTLOGINSTART1 != null and pd.LASTLOGINSTART1 != ''">
+ <if test="pd.LASTLOGINSTART2 != null and pd.LASTLOGINSTART2 != ''">
+ 	AND(sa.`RZ_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`RZ_DATE` &lt;= DATE_ADD(#{pd.LASTLOGINSTART2}, INTERVAL 1 DAY) )
+ </if>
+</if>
+ORDER BY CREATE_DATE DESC
+</select> 
+
+
+<select id="aObjForTtInvoice" parameterType="page" resultType="pd">
+SELECT 
+  sum(t.INVOICE_MONEY)  TOTAL_INVOICE_MONEY,
+  sum(t.TAX_MONEY)  TOTAL_TAX_MONEY
+FROM
+  tt_invoice t 
+  LEFT JOIN tt_in_invoice tii 
+    ON t.`INVOICE_CODE` = tii.`INVOICE_CODE` 
+    AND t.`INVOICE_NO` = tii.`INVOICE_NO` 
+    AND t.`TAX_DATE` = tii.`TAX_DATE` 
+    AND tii.IS_DEL = 0 
+WHERE 1 = 1 
+<if test="LEVEL == 'ITEM' "><!-- 项目 -->
+  AND tii.ITEM_ID = #{ZD_ID}
+</if>
+<if test="LEVEL == 'STRUCT' and isManager == 'no'"><!-- 组织 -->
+  AND tii.STRUCT_ID = #{ZD_ID}
+</if>
+<if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+AND	(  t.INVOICE_CODE LIKE #{NAME2}
+    OR t.INVOICE_NO LIKE #{NAME2}   )
+</if>
+<if test="ITEMCOLLECTTYPE !=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+ 	AND tii.STATE = #{ITEMCOLLECTTYPE}
+</if>
+
+<if test="LASTLOGINSTART1 != null and LASTLOGINSTART1 != ''">
+ <if test="LASTLOGINSTART2 != null and LASTLOGINSTART2 != ''">
+ 	AND(tii.`RZ_DATE`  &gt;=#{LASTLOGINSTART1} AND tii.`RZ_DATE` &lt;= DATE_ADD(#{LASTLOGINSTART2}, INTERVAL 1 DAY) )
+ </if>
+</if>
+</select> 
+
+
+<select id="listInvoiceALLToExcel" parameterType="pd" resultType="pd">
+select *
+from (
+SELECT 
+  IFNULL(tii.`STATE`, 0) STATE,
+  tii.RZ_DATE,
+  (SELECT 
+    ti.ITEM_NAME 
+  FROM
+    tt_iteminfo ti 
+  WHERE ti.ITEM_ID = tii.ITEM_ID) ITEM_NAME,
+ (SELECT s.STRUCT_NAME FROM sys_structinfo s WHERE s.STRUCT_ID = tii.`STRUCT_ID`) STRUCT_NAME,
+  CASE
+    tii.`STATE` 
+    WHEN 1 
+    THEN '比对成功' 
+    WHEN 2 
+    THEN '已勾选未确认' 
+    WHEN 3 
+    THEN '已勾选已确认' 
+    ELSE '未必对' 
+  END STATE_NAME,
+  t.* 
+FROM
+  tt_invoice t 
+  LEFT JOIN tt_in_invoice tii 
+    ON t.`INVOICE_CODE` = tii.`INVOICE_CODE` 
+    AND t.`INVOICE_NO` = tii.`INVOICE_NO` 
+    AND t.`TAX_DATE` = tii.`TAX_DATE` 
+    AND tii.IS_DEL = 0 
+WHERE 1 = 1 
+<if test="LEVEL== 'ITEM' ">
+  AND tii.ITEM_ID = #{ZD_ID}
+</if>
+<if test="LEVEL=='STRUCT' and isManager == 'no'">
+  AND tii.STRUCT_ID = #{ZD_ID}
+</if>
+<if test="NAME != null and NAME != ''">
+AND	(  t.INVOICE_CODE LIKE #{NAME2}
+    OR t.INVOICE_NO LIKE #{NAME2}   )
+</if>
+)sa
+where 1=1
+<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+ 	AND STATE = #{ITEMCOLLECTTYPE}
+</if>
+
+<if test="LASTLOGINSTART1 != null and LASTLOGINSTART1 != ''">
+ <if test="LASTLOGINSTART2 != null and LASTLOGINSTART2 != ''">
+ 	AND(sa.`RZ_DATE`  &gt;=#{LASTLOGINSTART1} AND sa.`RZ_DATE` &lt;=  DATE_ADD(#{LASTLOGINSTART2}, INTERVAL 1 DAY)  )
+ </if>
+</if>
+ORDER BY CREATE_DATE DESC
+</select>
+
+
+
+
+  
+     <!-- 发票管理主页查询 -->
+  <select id="listPageInvoice" resultType="pd" parameterType="page"  useCache="false">
+SELECT *
+FROM(
+SELECT t.`IS_CHECK`,t.`IS_IDENTIFY`,t.`INVOICE_CODE`,t.`INVOICE_NO`,t.`TAX_DATE`,
+CONCAT(t.`INVOICE_CODE`, t.`INVOICE_NO`)AS CODE_NO, 
+t.`NAME`,t.`INVOICE_MONEY`,t.`TAX_MONEY`,t.`CREATE_DATE`,(SELECT NAME FROM `sys_user` u 
+WHERE u.USER_ID=t.`CREATE_BY`)AS CREATE_NAME,CREATE_BY,TAX_RATE,
+IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)AS STATE,
+(SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=
+(SELECT ITEM_ID FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID`))AS ITEM_NAME ,
+CASE
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=0
+THEN '未比对'
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=1
+THEN '比对成功'
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=2
+THEN '已勾选未确认'
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=3
+THEN '已勾选已确认'
+END AS STATE_NAME,
+(SELECT tii.RZ_DATE FROM tt_in_invoice tii WHERE tii.IS_DEL=0 AND tii.INVOICE_CODE = t.INVOICE_CODE AND tii.INVOICE_NO = t.INVOICE_NO AND tii.TAX_DATE =t.TAX_DATE) RZ_DATE
+FROM `tt_invoice` t WHERE 1=1
+<if test="pd.LEVEL== 'ITEM' "><!-- 项目 -->
+  and	((SELECT ITEM_ID FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID`) LIKE #{pd.ZD_ID})
+</if>
+<if test="pd.LEVEL=='STRUCT'"><!-- 组织 -->
+  and ((SELECT STRUCT_ID FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID`) LIKE #{pd.ZD_ID})
+</if>
+<if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+and	(INVOICE_CODE LIKE #{pd.NAME2}
+ or INVOICE_NO LIKE #{pd.NAME2})
+</if>
+<if test="pd.ITEMCOLLECTTYPE!=null and pd.ITEMCOLLECTTYPE != ''   and pd.ITEMCOLLECTTYPE !=4">
+ 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)= #{pd.ITEMCOLLECTTYPE})
+</if>
+		
+ORDER BY  CREATE_DATE DESC
+) sa
+where 1=1 
+<if test="pd.LASTLOGINSTART1 != null and pd.LASTLOGINSTART1 != ''">
+<if test="pd.LASTLOGINSTART2 != null and pd.LASTLOGINSTART2 != ''">
+ AND(sa.`RZ_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`RZ_DATE` &lt;=#{pd.LASTLOGINSTART2})
+</if>
+</if>
+  </select>
+  
+  
+   <!-- 发票管理主页查询 （导出）-->
+  <select id="listInvoice" parameterType="pd" resultType="pd">
+SELECT t.`IS_CHECK`,t.`IS_IDENTIFY`,t.`INVOICE_CODE`,t.`INVOICE_NO`,t.`TAX_DATE`,
+CONCAT(t.`INVOICE_CODE`, t.`INVOICE_NO`)AS CODE_NO, 
+t.`NAME`,t.`INVOICE_MONEY`,t.`TAX_MONEY`,t.`CREATE_DATE`,(SELECT NAME FROM `sys_user` u 
+WHERE u.USER_ID=t.`CREATE_BY`)AS CREATE_NAME,CREATE_BY,TAX_RATE,
+IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)AS STATE,
+(SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=
+(SELECT ITEM_ID FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID`))AS ITEM_NAME ,
+CASE
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=0
+THEN '未比对'
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=1
+THEN '比对成功'
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=2
+THEN '已勾选未确认'
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=3
+THEN '已勾选已确认'
+END AS STATE_NAME
+FROM `tt_invoice` t WHERE 1=1
+ <if test="LEVEL== 'ITEM' "><!-- 项目 -->
+	 and		((SELECT ITEM_ID FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID`) LIKE #{ZD_ID})
+		</if>
+	 <if test="LEVEL=='STRUCT'"><!-- 组织 -->
+	 and		((SELECT STRUCT_ID FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID`) LIKE #{ZD_ID})
+		</if>
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>
+ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  
+     <!-- 发票管理主页查询 (集团)-->
+  <select id="listPageInvoiceALL" resultType="pd" parameterType="page"  useCache="false">
+SELECT t.`IS_CHECK`,t.`IS_IDENTIFY`,t.`INVOICE_CODE`,t.`INVOICE_NO`,t.`TAX_DATE`,
+CONCAT(t.`INVOICE_CODE`, t.`INVOICE_NO`)AS CODE_NO, 
+t.`NAME`,t.`INVOICE_MONEY`,t.`TAX_MONEY`,t.`CREATE_DATE`,(SELECT NAME FROM `sys_user` u 
+WHERE u.USER_ID=t.`CREATE_BY`)AS CREATE_NAME,CREATE_BY,TAX_RATE,
+IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)AS STATE,
+(SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=
+(SELECT ITEM_ID FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID`))AS ITEM_NAME,
+CASE
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=0
+THEN '未比对'
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=1
+THEN '比对成功'
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=2
+THEN '已勾选未确认'
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=3
+THEN '已勾选已确认'
+END AS STATE_NAME
+FROM `tt_invoice` t WHERE 1=1
+
+ <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{pd.NAME2}
+	 			or INVOICE_NO LIKE #{pd.NAME2})
+		</if>
+		<if test="pd.ITEMCOLLECTTYPE!=null and pd.ITEMCOLLECTTYPE != ''   and pd.ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)= #{pd.ITEMCOLLECTTYPE})
+		</if>
+ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  
+    <!-- 发票管理主页查询 (集团导出)-->
+  <select id="listInvoiceALL" parameterType="pd" resultType="pd">
+SELECT t.`IS_CHECK`,t.`IS_IDENTIFY`,t.`INVOICE_CODE`,t.`INVOICE_NO`,t.`TAX_DATE`,
+CONCAT(t.`INVOICE_CODE`, t.`INVOICE_NO`)AS CODE_NO, 
+t.`NAME`,t.`INVOICE_MONEY`,t.`TAX_MONEY`,t.`CREATE_DATE`,(SELECT NAME FROM `sys_user` u 
+WHERE u.USER_ID=t.`CREATE_BY`)AS CREATE_NAME,CREATE_BY,TAX_RATE,
+IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)AS STATE,
+(SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=
+(SELECT ITEM_ID FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID`))AS ITEM_NAME,
+CASE
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=0
+THEN '未比对'
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=1
+THEN '比对成功'
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=2
+THEN '已勾选未确认'
+WHEN IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)=3
+THEN '已勾选已确认'
+END AS STATE_NAME
+FROM `tt_invoice` t WHERE 1=1
+
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=t.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>
+ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  
+  <!-- 进项发票金额查询 -->
+   <select id="findMoneyStructVat" resultType="pd" parameterType="pd">
+   SELECT 
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS shoukuan 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE IS_DEL=0 
+  <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	  and		(INVOICE_CODE LIKE #{NAME2}
+	 			or FINANCE_NO LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2}
+	 			or (SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=tt.ITEM_ID) LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>
+ AND STRUCT_ID =#{ZD_ID})AS '总金额',
+   (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE IS_DEL=0 
+  <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	  and		(INVOICE_CODE LIKE #{NAME2}
+	 			or FINANCE_NO LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2}
+	 			or (SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=tt.ITEM_ID) LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>
+AND tt.STATE=0  AND STRUCT_ID = #{ZD_ID})AS '未比对',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE IS_DEL=0 
+  <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	  and		(INVOICE_CODE LIKE #{NAME2}
+	 			or FINANCE_NO LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2}
+	 			or (SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=tt.ITEM_ID) LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>
+ AND tt.STATE=1  AND STRUCT_ID =#{ZD_ID})AS '比对成功',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE IS_DEL=0 
+  <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	  and		(INVOICE_CODE LIKE #{NAME2}
+	 			or FINANCE_NO LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2}
+	 			or (SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=tt.ITEM_ID) LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>
+AND tt.STATE=2  AND STRUCT_ID =#{ZD_ID})AS '已勾选未确认',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE IS_DEL=0 
+  <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	  and		(INVOICE_CODE LIKE #{NAME2}
+	 			or FINANCE_NO LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2}
+	 			or (SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=tt.ITEM_ID) LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>
+AND tt.STATE=3  AND STRUCT_ID =#{ZD_ID})AS '已勾选已确认',
+(SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE IS_DEL=0 
+  <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	  and		(INVOICE_CODE LIKE #{NAME2}
+	 			or FINANCE_NO LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2}
+	 			or (SELECT ITEM_NAME FROM `tt_iteminfo` j WHERE j.ITEM_ID=tt.ITEM_ID) LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>
+AND tt.IS_ESTATE=1 AND STRUCT_ID =#{ZD_ID})AS '不动产'
+FROM DUAL
+  </select>
+  
+    <select id="findMoneyStruct" resultType="pd" parameterType="pd">
+   SELECT 
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS shoukuan 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE 1=1 
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>  AND STRUCT_ID =#{ZD_ID})AS '总金额',
+   (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE 1=1 
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>and tt.STATE=0  AND STRUCT_ID = #{ZD_ID})AS '未比对',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE 1=1 
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>and tt.STATE=1  AND STRUCT_ID =#{ZD_ID})AS '比对成功',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE 1=1 
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>and tt.STATE=2  AND STRUCT_ID = #{ZD_ID})AS '已勾选未确认',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE 1=1 
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>and tt.STATE=3  AND STRUCT_ID = #{ZD_ID})AS '已勾选已确认'
+FROM DUAL
+    </select>
+  
+  <select id="findMoneyItem" resultType="pd" parameterType="pd">
+SELECT 
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS shoukuan 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE 1=1 
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>and ITEM_ID  =#{ZD_ID})AS '总金额',
+   (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE 1=1 
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>and tt.STATE=0  AND ITEM_ID =#{ZD_ID})AS '未比对',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE 1=1 
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>and tt.STATE=1  AND ITEM_ID =#{ZD_ID})AS '比对成功',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE 1=1 
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>and tt.STATE=2  AND ITEM_ID =#{ZD_ID})AS '已勾选未确认',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS jinge 
+  FROM
+    `tt_in_invoice` tt 
+  WHERE 1=1 
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>and tt.STATE=3  AND ITEM_ID =#{ZD_ID})AS '已勾选已确认'
+FROM DUAL
+  </select>
+
+
+
+  
+  <!-- 集团金额查询 -->
+  <select id="findMoneyP" resultType="pd" parameterType="pd">
+  SELECT 
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS shoukuan 
+  FROM
+    `tt_invoice` tt 
+  WHERE 1=1 
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if>) AS '总金额',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS shoukuan 
+  FROM
+    `tt_invoice` tt 
+  WHERE 1=1
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if> and IFNULL(
+      (SELECT 
+        STATE 
+      FROM
+        `tt_in_invoice` i 
+      WHERE i.IN_INVOICE_ID = tt.`IN_INVOICE_ID`),
+      0
+    ) = 0) AS '未比对',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS shoukuan 
+  FROM
+    `tt_invoice` tt 
+  WHERE 1=1
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if> and IFNULL(
+      (SELECT 
+        STATE 
+      FROM
+        `tt_in_invoice` i 
+      WHERE i.IN_INVOICE_ID = tt.`IN_INVOICE_ID`),
+      0
+    ) = 1) AS '比对成功',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS shoukuan 
+  FROM
+    `tt_invoice` tt 
+  WHERE 1=1
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if> and IFNULL(
+      (SELECT 
+        STATE 
+      FROM
+        `tt_in_invoice` i 
+      WHERE i.IN_INVOICE_ID = tt.`IN_INVOICE_ID`),
+      0
+    ) = 2) AS '已勾选未确认',
+  (SELECT 
+    IFNULL(SUM(tt.`INVOICE_MONEY`), 0) AS shoukuan 
+  FROM
+    `tt_invoice` tt 
+  WHERE 1=1
+ <if test="NAME != null and NAME != ''"><!-- 关键词检索 -->
+	 and		(INVOICE_CODE LIKE #{NAME2}
+	 			or INVOICE_NO LIKE #{NAME2})
+		</if>
+		<if test="ITEMCOLLECTTYPE!=null and ITEMCOLLECTTYPE != ''   and ITEMCOLLECTTYPE !=4">
+		 	and (IFNULL((SELECT STATE FROM `tt_in_invoice` i WHERE i.IN_INVOICE_ID=tt.`IN_INVOICE_ID` ),0)= #{ITEMCOLLECTTYPE})
+		</if> and IFNULL(
+      (SELECT 
+        STATE 
+      FROM
+        `tt_in_invoice` i 
+      WHERE i.IN_INVOICE_ID = tt.`IN_INVOICE_ID`),
+      0
+    ) = 3) AS '已勾选已确认' 
+FROM
+ DUAL;
+  
+ 	</select>
+  <select id="yanzheng" resultType="pd" parameterType="page"  useCache="false">
+  	SELECT 
+  * 
+FROM
+  tt_invoice ti 
+WHERE CONCAT(
+    ti.`INVOICE_CODE`,
+    ti.`INVOICE_NO`
+  ) = #{invoiceCodeYZ}
+  </select>
+  
+  
+  <!-- 验证简易征收 -->
+   <select id="selectJYZS" resultType="pd" parameterType="page"  useCache="false">
+      SELECT * FROM `tt_iteminfo` WHERE TAXATION_TYPE=1 AND ITEM_ID=#{itemId,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <!-- 验证简易征收导入用 -->
+   <select id="selectJYZSinvoice" resultType="pd" parameterType="page"  useCache="false">
+        SELECT * FROM `tt_iteminfo` WHERE TAXATION_TYPE=1 AND ITEM_ID=(SELECT ITEM_ID FROM `tt_in_invoice` WHERE CONCAT(
+    INVOICE_CODE,INVOICE_NO ) =#{invoiceCodeYZ} AND IS_DEL = 0)
+  </select>
+  
+  <!-- 验证分包劳务 -->
+   <select id="selectFBLW" resultType="pd" parameterType="page"  useCache="false">
+       SELECT * FROM `tt_pactinfo` WHERE (PACT_TYPE=3005 OR PACT_TYPE=3002) AND PACT_ID=#{foreignKey,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 验证分包劳务导入用 -->
+   <select id="selectFBLWinvoice" resultType="pd" parameterType="page"  useCache="false">
+       SELECT * FROM `tt_pactinfo` WHERE (PACT_TYPE=3005 OR PACT_TYPE=3002) AND PACT_ID=(SELECT FOREIGN_KEY FROM `tt_in_invoice` WHERE CONCAT(
+    INVOICE_CODE,INVOICE_NO ) =#{invoiceCodeYZ} AND IS_DEL = 0 )
+  </select>
+  
+    <select id="yanzhengforIninvoice" resultType="pd" parameterType="page"  useCache="false">
+  SELECT 
+  * 
+FROM
+  `tt_in_invoice` ti 
+WHERE CONCAT(
+    ti.`INVOICE_CODE`,
+    ti.`INVOICE_NO`
+  ) =  #{invoiceCodeYZ}	
+  AND ti.IS_DEL = 0
+  </select>
+  
+  
+  
+   <select id="isRight" resultType="pd" parameterType="pd"  useCache="false">
+  	SELECT 
+  * 
+FROM
+  `tt_invoice` t 
+WHERE t.`TAX_DATE` = #{taxDate} 
+  AND t.`TAX_MONEY` = #{taxMoney} 
+  AND t.`INVOICE_MONEY` =#{taxNoIncluded}
+  AND t.`INVOICE_CODE` = #{invoiceCode} 
+  AND t.`INVOICE_NO` = #{invoiceNo} 
+  </select>
+  
+   <select id="isRightinvoice" resultType="pd" parameterType="pd"  useCache="false">
+  	SELECT 
+  * 
+FROM
+  `tt_in_invoice` t 
+WHERE t.`TAX_DATE` = #{taxDate} 
+  AND t.`TAX_MONEY` = #{taxMoney} 
+  AND t.`INVOICE_MONEY` =#{taxNoIncluded}
+  AND t.`INVOICE_CODE` = #{invoiceCode} 
+  AND t.`INVOICE_NO` = #{invoiceNo} 
+  </select>
+  
+   <!-- 删除 -->
+ <delete id="deleteById" parameterType="pd" >
+		 DELETE 
+		FROM
+		  `tt_invoice` 
+		WHERE 
+		    CONCAT(`INVOICE_CODE`, `INVOICE_NO`)
+		   = #{codeNo}
+ </delete>
+ 
+   <!-- 更改状态 -->
+ <update id="updateto" parameterType="pd" >
+		  UPDATE `tt_invoice` SET IS_IDENTIFY=1 WHERE  CONCAT(
+    INVOICE_CODE,INVOICE_NO ) =#{invoiceCodeYZ}
+ </update>
+ 
+ <!-- 更改状态（日期时间） -->
+ <update id="updateforIninvoice" parameterType="pd" >
+		    UPDATE `tt_in_invoice` SET STATE=#{state}, RZ_DATE=#{rzDate},
+		    TAX_DATE=#{taxDate},TAX_NO_INCLUDED=#{invoiceMoney},INVOICE_MONEY =( #{invoiceMoney} + #{taxMoney}),TAX_MONEY=#{taxMoney},IS_RIGHT=1 WHERE  CONCAT(
+    INVOICE_CODE,INVOICE_NO ) =#{invoiceCodeYZ}  AND STATE=0
+ </update>
+ 
+  <!-- 写入Id -->
+ <update id="saveId" parameterType="pd" >
+		  UPDATE `tt_invoice` SET IN_INVOICE_ID=#{inInvoiceId} WHERE  CONCAT(
+    INVOICE_CODE,INVOICE_NO ) =#{invoiceCodeYZ}
+ </update>
+ 
+ <!-- 写入Id导入表 -->
+ <update id="updateId1" parameterType="pd" >
+		    UPDATE `tt_invoice` SET IS_IDENTIFY=1 ,IN_INVOICE_ID=(SELECT IN_INVOICE_ID FROM `tt_in_invoice` WHERE CONCAT(
+    INVOICE_CODE,INVOICE_NO ) =#{invoiceCodeYZ}) WHERE  CONCAT(
+    INVOICE_CODE,INVOICE_NO ) =#{invoiceCodeYZ}
+ </update>
+ 
+  <update id="updateId0" parameterType="pd" >
+		    UPDATE `tt_invoice` SET IS_IDENTIFY=0 ,IN_INVOICE_ID=(SELECT IN_INVOICE_ID FROM `tt_in_invoice` WHERE CONCAT(
+    INVOICE_CODE,INVOICE_NO ) =#{invoiceCodeYZ}) WHERE  CONCAT(
+    INVOICE_CODE,INVOICE_NO ) =#{invoiceCodeYZ}
+ </update>
+ 
+   <!-- 批量删除 -->
+<delete id="deleteAll" parameterType="String" flushCache="false">
+	  DELETE 
+		FROM
+		  `tt_invoice` 
+		WHERE 
+		    CONCAT(`INVOICE_CODE`, `INVOICE_NO`) in 
+ 			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+            </foreach>
+</delete>
+
+ <select id="findstructId" resultType="java.lang.String" >
+  
+ SELECT STRUCT_ID FROM `sys_structinfo` WHERE STRUCTST_AGE=0 and IS_DEL =0
+  
+  </select>
+  
+   <select id="findstructIdByItemId" resultType="java.lang.String" >
+  
+SELECT STRUCT_ID FROM  `tt_iteminfo` t WHERE  t.`ITEM_ID`=#{itemId}
+  
+  </select>
+</mapper>

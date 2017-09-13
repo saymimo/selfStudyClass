@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="InvoicePlanMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.InvoicePlan" >
+    <id column="INVOICE_PLAN_ID" property="invoicePlanId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="IN_INVOICE_ID" property="inInvoiceId" jdbcType="VARCHAR" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    INVOICE_PLAN_ID, ITEM_ID, IN_INVOICE_ID, CREATE_BY, CREATE_DATE
+  </sql>
+
+<select id="listPageForInvoicePlan" parameterType="page" resultType="pd">
+SELECT 
+	sa.*, 
+	(IFNULL(ADD_MONEY_ALL,0) - IFNULL(OVERALL_BORROW_ALL,0)) ACTUAL_REPORT,
+	(IFNULL(BILL_MONEY,0) - IFNULL(OVERALL_BORROW,0)) DECLARATION_MONEY
+from (
+SELECT 
+  t.`ITEM_NAME`,
+  t.`ITEM_ID`,
+  (
+   SELECT SUM(ttl.MONEY) FROM tt_taxation_list ttl WHERE ttl.IS_DEL=0 AND ttl.STATE=0 AND ttl.TYPE=8 AND ttl.BILL_APPLY_ID IN (
+	SELECT tba.BILL_APPLY_ID FROM tt_bill_apply tba WHERE tba.ITEM_ID =t.`ITEM_ID` AND tba.IS_DEL=0
+<if test="pd.seachDate ==null or pd.seachDate == '' ">
+    AND tba.CREATE_DATE >=DATE_FORMAT(NOW(), '%Y-%m-01') AND LAST_DAY(NOW())>=tba.CREATE_DATE 
+</if>
+<if test="pd.seachDate !=null and pd.seachDate != '' ">
+	AND tba.CREATE_DATE >=DATE_FORMAT(#{pd.seachDate}, '%Y-%m-01') AND LAST_DAY(#{pd.seachDate})>=tba.CREATE_DATE 
+</if>
+   )
+  ) BILL_MONEY,
+  (
+   SELECT SUM(tii.TAX_MONEY) FROM tt_in_invoice tii WHERE tii.IS_ESTATE =0 AND tii.IN_INVOICE_ID IN (
+     SELECT tip.IN_INVOICE_ID FROM tt_invoice_plan tip WHERE tip.ITEM_ID=t.`ITEM_ID` 
+<if test="pd.seachDate ==null or pd.seachDate == '' ">     
+    AND tip.CREATE_DATE>=DATE_FORMAT(NOW(), '%Y-%m-01') AND LAST_DAY(NOW())>=tip.CREATE_DATE 
+</if>
+<if test="pd.seachDate !=null and pd.seachDate != '' ">
+	AND tip.CREATE_DATE>=DATE_FORMAT(#{pd.seachDate}, '%Y-%m-01') AND LAST_DAY(#{pd.seachDate})>=tip.CREATE_DATE 
+</if>
+    )
+   ) OVERALL_BORROW,
+  (
+    SELECT SUM(ttl.MONEY) FROM tt_taxation_list ttl WHERE ttl.IS_DEL=0 AND ttl.STATE=0 AND ttl.TYPE=8 AND ttl.BILL_APPLY_ID IN (
+	SELECT tba.BILL_APPLY_ID FROM tt_bill_apply tba WHERE tba.ITEM_ID =t.`ITEM_ID` AND tba.IS_DEL=0
+    ) 
+  ) ADD_MONEY_ALL,
+  (
+   SELECT SUM(tii.TAX_MONEY) FROM tt_in_invoice tii WHERE tii.IS_ESTATE =0 AND  tii.IN_INVOICE_ID IN (
+     SELECT tip.IN_INVOICE_ID FROM tt_invoice_plan tip WHERE tip.ITEM_ID=t.`ITEM_ID` 
+    )
+   ) OVERALL_BORROW_ALL,
+  (
+   SELECT SUM(tii.TAX_MONEY) FROM tt_in_invoice tii WHERE tii.ITEM_ID = t.`ITEM_ID` AND tii.IS_DEL=0 AND tii.IN_INVOICE_ID IN (
+    SELECT tip.IN_INVOICE_ID FROM tt_invoice_plan tip WHERE 1=1
+<if test="pd.seachDate ==null or pd.seachDate == '' ">     
+    AND tip.CREATE_DATE>=DATE_FORMAT(NOW(), '%Y-%m-01') AND LAST_DAY(NOW())>=tip.CREATE_DATE 
+</if>
+<if test="pd.seachDate !=null and pd.seachDate != '' ">
+	AND tip.CREATE_DATE>=DATE_FORMAT(#{pd.seachDate}, '%Y-%m-01') AND LAST_DAY(#{pd.seachDate})>=tip.CREATE_DATE 
+</if> 
+    ) 
+  )OVERALL_LEND
+FROM
+  tt_iteminfo t 
+WHERE t.`TAXATION_TYPE` = 0 
+  AND t.`APPROVAL_STATUS` = 1 
+  AND t.`IS_DEL`=0
+  ) sa 
+ where 1=1
+</select>
+
+<select id="listPageFordeclareInvoiceOne" parameterType="page" resultType="pd">
+SELECT sa.*
+FROM (
+SELECT 
+  tii.`IN_INVOICE_ID`,
+  tii.`INVOICE_MONEY`,
+  tii.INVOICE_CODE,
+  tii.INVOICE_NO,
+  tii.`TAX_DATE`,
+  tii.`TAX_RATE`,
+  t.`D_MONEY`,
+  t.`D_DATE`,
+  (SELECT ti.ITEM_NAME FROM tt_iteminfo ti WHERE ti.ITEM_ID = tii.`ITEM_ID`) ITEM_NAME,
+  (SELECT s.STRUCT_NAME FROM sys_structinfo s WHERE s.STRUCT_ID = tii.`STRUCT_ID`) STRUCT_NAME
+FROM
+  tt_invoice_type t 
+  LEFT JOIN tt_in_invoice tii 
+    ON t.`IN_INVOICE_ID` = tii.`IN_INVOICE_ID` 
+WHERE t.`IS_SUBPACKAGE` IN (0, 1) 
+<if test="pd.seachDate ==null or pd.seachDate == '' ">     
+    AND t.D_DATE>=DATE_FORMAT(NOW(), '%Y-%m-01') AND LAST_DAY(NOW())>=t.D_DATE 
+</if>
+<if test="pd.seachDate !=null and pd.seachDate != '' ">
+	AND t.D_DATE>=DATE_FORMAT(#{pd.seachDate}, '%Y-%m-01') AND LAST_DAY(#{pd.seachDate})>=t.D_DATE 
+</if> 
+
+UNION ALL
+SELECT 
+  tii.`IN_INVOICE_ID`,
+  tii.`INVOICE_MONEY`,
+  tii.INVOICE_CODE,
+  tii.INVOICE_NO,
+  tii.`TAX_DATE`,
+  tii.`TAX_RATE`,
+  tii.`TAX_MONEY`,
+  tii.`TAX_DATE`,
+  (SELECT ti.ITEM_NAME FROM tt_iteminfo ti WHERE ti.ITEM_ID = tip.`ITEM_ID`) ITEM_NAME,
+  (SELECT s.STRUCT_NAME FROM sys_structinfo s WHERE s.STRUCT_ID = tii.`STRUCT_ID`) STRUCT_NAME
+FROM
+  tt_invoice_plan tip
+  LEFT JOIN  tt_in_invoice tii 
+     ON tip.IN_INVOICE_ID = tii.IN_INVOICE_ID
+WHERE tii.`STATE` = 1  
+	AND tii.`IN_INVOICE_ID` NOT IN (SELECT tit.`IN_INVOICE_ID` FROM tt_invoice_type tit )
+<if test="pd.seachDate ==null or pd.seachDate == '' ">     
+    AND tip.CREATE_DATE>=DATE_FORMAT(NOW(), '%Y-%m-01') AND LAST_DAY(NOW())>=tip.CREATE_DATE 
+</if>
+<if test="pd.seachDate !=null and pd.seachDate != '' ">
+	AND tip.CREATE_DATE>=DATE_FORMAT(#{pd.seachDate}, '%Y-%m-01') AND LAST_DAY(#{pd.seachDate})>=tip.CREATE_DATE 
+</if> 
+  ORDER BY D_DATE DESC
+ ) sa
+ where 1=1
+<if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME !=''">
+ and (
+ 	sa.INVOICE_CODE like #{pd.ITEMCOLLECTNAME2}
+ 	or sa.ITEM_NAME like #{pd.ITEMCOLLECTNAME2}
+ 	or sa.INVOICE_NO like #{pd.ITEMCOLLECTNAME2}
+ )
+</if>
+</select>
+
+
+
+
+<select id="listForDeclareInvoiceExcelOne" parameterType="pd" resultType="pd">
+SELECT sa.*
+FROM (
+SELECT 
+  tii.`IN_INVOICE_ID`,
+  tii.`INVOICE_MONEY`,
+  tii.INVOICE_CODE,
+  tii.INVOICE_NO,
+  tii.`TAX_DATE`,
+  tii.`TAX_RATE`,
+  t.`D_MONEY`,
+  t.`D_DATE`,
+  (SELECT ti.ITEM_NAME FROM tt_iteminfo ti WHERE ti.ITEM_ID = tii.`ITEM_ID`) ITEM_NAME,
+  (SELECT s.STRUCT_NAME FROM sys_structinfo s WHERE s.STRUCT_ID = tii.`STRUCT_ID`) STRUCT_NAME
+FROM
+  tt_invoice_type t 
+  LEFT JOIN tt_in_invoice tii 
+    ON t.`IN_INVOICE_ID` = tii.`IN_INVOICE_ID` 
+WHERE t.`IS_SUBPACKAGE` IN (0, 1) 
+<if test="seachDate ==null or seachDate == '' ">     
+    AND t.D_DATE>=DATE_FORMAT(NOW(), '%Y-%m-01') AND LAST_DAY(NOW())>=t.D_DATE 
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND t.D_DATE>=DATE_FORMAT(#{seachDate}, '%Y-%m-01') AND LAST_DAY(#{seachDate})>=t.D_DATE 
+</if> 
+
+UNION ALL
+SELECT 
+  tii.`IN_INVOICE_ID`,
+  tii.`INVOICE_MONEY`,
+  tii.INVOICE_CODE,
+  tii.INVOICE_NO,
+  tii.`TAX_DATE`,
+  tii.`TAX_RATE`,
+  tii.`TAX_MONEY`,
+  tii.`TAX_DATE`,
+  (SELECT ti.ITEM_NAME FROM tt_iteminfo ti WHERE ti.ITEM_ID = tip.`ITEM_ID`) ITEM_NAME,
+  (SELECT s.STRUCT_NAME FROM sys_structinfo s WHERE s.STRUCT_ID = tii.`STRUCT_ID`) STRUCT_NAME
+FROM
+  tt_invoice_plan tip
+  LEFT JOIN  tt_in_invoice tii 
+     ON tip.IN_INVOICE_ID = tii.IN_INVOICE_ID
+WHERE tii.`STATE` = 1  
+	AND tii.`IN_INVOICE_ID` NOT IN (SELECT tit.`IN_INVOICE_ID` FROM tt_invoice_type tit )
+<if test="seachDate ==null or seachDate == '' ">     
+    AND tip.CREATE_DATE>=DATE_FORMAT(NOW(), '%Y-%m-01') AND LAST_DAY(NOW())>=tip.CREATE_DATE 
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tip.CREATE_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY(#{seachDate})>=tip.CREATE_DATE 
+</if> 
+  ORDER BY D_DATE DESC
+ ) sa
+ where 1=1
+<if test="ITEMCOLLECTNAME2 != null and ITEMCOLLECTNAME2 !=''">
+ and (
+ 	sa.INVOICE_CODE like #{ITEMCOLLECTNAME2}
+ 	or sa.ITEM_NAME like #{ITEMCOLLECTNAME2}
+ 	or sa.INVOICE_NO like #{pITEMCOLLECTNAME2}
+ )
+</if>
+</select>
+
+<select id="listPageFordeclareInvoiceTwo" parameterType="page" resultType="pd">
+SELECT 
+  t.IN_INVOICE_ID,
+  ti.`ITEM_NAME`,
+  s.`STRUCT_NAME`,
+  t.`INVOICE_CODE`,
+  t.`INVOICE_NO`,
+  t.`TAX_DATE` D_DATE,
+  t.`TAX_MONEY` D_MONEY,
+  t.`INVOICE_MONEY`,
+  t.`TAX_RATE`
+FROM
+  tt_in_invoice t 
+  LEFT JOIN tt_iteminfo ti 
+    ON t.`ITEM_ID` = ti.`ITEM_ID` 
+  LEFT JOIN sys_structinfo s 
+    ON t.`STRUCT_ID` = s.`STRUCT_ID` 
+WHERE t.STATE = 1 
+  AND t.IS_DEL = 0 
+  AND t.IN_INVOICE_ID NOT IN 
+  (SELECT tip.IN_INVOICE_ID FROM tt_invoice_plan tip) 
+<if test="pd.seachDate ==null or pd.seachDate == '' "> 
+  AND LAST_DAY(NOW()) >= t.RZ_DATE 
+</if>
+<if test="pd.seachDate !=null and pd.seachDate != '' ">
+  AND LAST_DAY( #{pd.seachDate} ) >= t.RZ_DATE 
+</if>
+<if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME !=''">
+ and (
+ 	t.INVOICE_CODE like #{pd.ITEMCOLLECTNAME2}
+ 	or ti.ITEM_NAME like #{pd.ITEMCOLLECTNAME2}
+ 	or t.INVOICE_NO like #{pd.ITEMCOLLECTNAME2}
+ 	or s.STRUCT_NAME like #{pd.ITEMCOLLECTNAME2}
+ )
+</if>
+</select>
+
+<select id="listForDeclareInvoiceExcelTwo" parameterType="pd" resultType="pd">
+SELECT 
+  t.IN_INVOICE_ID,
+  ti.`ITEM_NAME`,
+  s.`STRUCT_NAME`,
+  t.`INVOICE_CODE`,
+  t.`INVOICE_NO`,
+  t.`TAX_DATE` D_DATE,
+  t.`TAX_MONEY` D_MONEY,
+  t.`INVOICE_MONEY`,
+  t.`TAX_RATE`
+FROM
+  tt_in_invoice t 
+  LEFT JOIN tt_iteminfo ti 
+    ON t.`ITEM_ID` = ti.`ITEM_ID` 
+  LEFT JOIN sys_structinfo s 
+    ON t.`STRUCT_ID` = s.`STRUCT_ID` 
+WHERE t.STATE = 1 
+  AND t.IS_DEL = 0 
+  AND t.IN_INVOICE_ID NOT IN 
+  (SELECT tip.IN_INVOICE_ID FROM tt_invoice_plan tip) 
+<if test="seachDate ==null or seachDate == '' ">  
+  AND LAST_DAY(NOW()) >= t.RZ_DATE 
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+  AND LAST_DAY( #{seachDate} ) >= t.RZ_DATE
+</if>
+<if test="ITEMCOLLECTNAME2 != null and ITEMCOLLECTNAME2 !=''">
+ and (
+ 	t.INVOICE_CODE like #{ITEMCOLLECTNAME2}
+ 	or ti.ITEM_NAME like #{ITEMCOLLECTNAME2}
+ 	or t.INVOICE_NO like #{ITEMCOLLECTNAME2}
+ 	or s.STRUCT_NAME like #{ITEMCOLLECTNAME2}
+ )
+</if>
+</select>
+
+<select id="listPageFordeclareInvoiceThree" parameterType="page" resultType="pd">
+SELECT 
+  t.IN_INVOICE_ID,
+  ti.`ITEM_NAME`,
+  s.`STRUCT_NAME`,
+  t.`INVOICE_CODE`,
+  t.`INVOICE_NO`,
+  t.`RZ_DATE` D_DATE,
+  t.`TAX_MONEY` D_MONEY,
+  t.`INVOICE_MONEY`,
+  t.`TAX_RATE` 
+FROM
+  tt_in_invoice t 
+  LEFT JOIN sys_structinfo s 
+    ON t.`STRUCT_ID` = s.`STRUCT_ID`,
+  tt_iteminfo ti 
+WHERE ti.`ITEM_ID` = t.`ITEM_ID` 
+  AND t.IS_DEL = 0 
+  AND t.`STATE` = 3 
+  AND ti.`TAXATION_TYPE` = 1 
+<if test="pd.seachDate ==null or pd.seachDate == '' "> 
+ AND t.RZ_DATE>=DATE_FORMAT(NOW(), '%Y-%m-01') AND LAST_DAY(NOW())>=t.RZ_DATE 
+</if>
+<if test="pd.seachDate !=null and pd.seachDate != '' ">
+ AND t.RZ_DATE>=DATE_FORMAT( #{pd.seachDate} , '%Y-%m-01') AND LAST_DAY( #{pd.seachDate} )>=t.RZ_DATE 
+</if>
+<if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME !=''">
+ and (
+ 	t.INVOICE_CODE like #{pd.ITEMCOLLECTNAME2}
+ 	or ti.ITEM_NAME like #{pd.ITEMCOLLECTNAME2}
+ 	or t.INVOICE_NO like #{pd.ITEMCOLLECTNAME2}
+ 	or s.STRUCT_NAME like #{pd.ITEMCOLLECTNAME2}
+ )
+</if>
+</select>
+
+
+<select id="listForDeclareInvoiceExcelThree" parameterType="pd" resultType="pd">
+SELECT 
+  t.IN_INVOICE_ID,
+  ti.`ITEM_NAME`,
+  s.`STRUCT_NAME`,
+  t.`INVOICE_CODE`,
+  t.`INVOICE_NO`,
+  t.`RZ_DATE` D_DATE,
+  t.`TAX_MONEY` D_MONEY,
+  t.`INVOICE_MONEY`,
+  t.`TAX_RATE` 
+FROM
+  tt_in_invoice t 
+  LEFT JOIN sys_structinfo s 
+    ON t.`STRUCT_ID` = s.`STRUCT_ID`,
+  tt_iteminfo ti 
+WHERE ti.`ITEM_ID` = t.`ITEM_ID` 
+  AND t.IS_DEL = 0 
+  AND t.`STATE` = 3 
+  AND ti.`TAXATION_TYPE` = 1 
+<if test="seachDate ==null or seachDate == '' "> 
+ AND t.RZ_DATE>=DATE_FORMAT(NOW(), '%Y-%m-01') AND LAST_DAY(NOW())>=t.RZ_DATE 
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+ AND t.RZ_DATE>=DATE_FORMAT( #{seachDate} , '%Y-%m-01') AND LAST_DAY( #{seachDate} )>=t.RZ_DATE 
+</if>
+<if test="ITEMCOLLECTNAME != null and ITEMCOLLECTNAME !=''">
+ and (
+ 	t.INVOICE_CODE like #{ITEMCOLLECTNAME2}
+ 	or ti.ITEM_NAME like #{ITEMCOLLECTNAME2}
+ 	or t.INVOICE_NO like #{ITEMCOLLECTNAME2}
+ 	or s.STRUCT_NAME like #{ITEMCOLLECTNAME2}
+ )
+</if>
+</select>
+
+<select id="aObjForDeclare" parameterType="pd" resultType="pd">
+SELECT *,IFNULL(OVERALL_BORROW,0) + IFNULL(BRANCH_DECLARE,0) BLOC_DECLARE
+FROM (
+SELECT 
+  (SELECT SUM(tit.D_MONEY) FROM tt_invoice_type tit WHERE 1=1 
+<if test="seachDate ==null or seachDate == '' ">     
+    AND tit.D_DATE>=DATE_FORMAT(NOW(), '%Y-%m-01') AND LAST_DAY(NOW())>=tit.D_DATE 
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tit.D_DATE>=DATE_FORMAT(#{seachDate}, '%Y-%m-01') AND LAST_DAY(#{seachDate})>=tit.D_DATE 
+</if>
+  ) BRANCH_DECLARE,
+  (
+   SELECT SUM(tii.TAX_MONEY) FROM tt_invoice_plan tip LEFT JOIN tt_in_invoice tii ON tip.IN_INVOICE_ID = tii.IN_INVOICE_ID WHERE 1=1 
+<if test="seachDate ==null or seachDate == '' ">     
+    AND tip.CREATE_DATE>=DATE_FORMAT(NOW(), '%Y-%m-01') AND LAST_DAY(NOW())>=tip.CREATE_DATE 
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND tip.CREATE_DATE>=DATE_FORMAT(#{seachDate}, '%Y-%m-01') AND LAST_DAY(#{seachDate})>=tip.CREATE_DATE 
+</if>
+  )OVERALL_BORROW,
+  (
+   SELECT SUM(tii.TAX_MONEY) FROM tt_invoice_plan tip LEFT JOIN tt_in_invoice tii ON tip.IN_INVOICE_ID = tii.IN_INVOICE_ID WHERE tii.STATE=1 
+<if test="seachDate ==null or seachDate == '' ">     
+   AND LAST_DAY(NOW())>=tip.CREATE_DATE 
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+   AND LAST_DAY(#{seachDate})>=tip.CREATE_DATE 
+</if>
+  )CAPITAL_POOL,
+  (
+   SELECT SUM(tii.TAX_MONEY) FROM tt_in_invoice tii WHERE tii.STATE=1 AND tii.IS_DEL=0 
+       AND tii.IN_INVOICE_ID NOT IN (SELECT tip.IN_INVOICE_ID FROM tt_invoice_plan tip ) 
+  <if test="seachDate ==null or seachDate == '' "> 
+       AND LAST_DAY(NOW())>=tii.RZ_DATE 
+  </if>
+  <if test="seachDate !=null and seachDate != '' ">
+ 	   AND LAST_DAY(#{seachDate})>=tii.RZ_DATE 
+  </if>
+  )IN_ALLOWANCES,
+  (
+  SELECT SUM(t.`TAX_MONEY`) FROM tt_in_invoice t,tt_iteminfo ti WHERE t.`ITEM_ID` = ti.`ITEM_ID` AND ti.`TAXATION_TYPE` = 1 
+  AND t.`STATE` = 3 AND t.`IS_ESTATE` = 0 AND t.`IN_STATE` = 0
+<if test="seachDate ==null or seachDate == '' ">     
+    AND t.RZ_DATE>=DATE_FORMAT(NOW(), '%Y-%m-01') AND LAST_DAY(NOW())>=t.RZ_DATE 
+</if>
+<if test="seachDate !=null and seachDate != '' ">
+	AND t.RZ_DATE>=DATE_FORMAT(#{seachDate}, '%Y-%m-01') AND LAST_DAY(#{seachDate})>=t.RZ_DATE 
+</if>
+  )INPUT_OUT
+FROM DUAL
+)sa
+
+</select>
+
+<select id="listForAddPlan" parameterType="pd" resultType="pd">
+SELECT 
+  t.*,
+  CASE
+   WHEN t.IN_INVOICE_ID IN (
+	SELECT ttip.`IN_INVOICE_ID` FROM tt_invoice_plan ttip WHERE ttip.`ITEM_ID`= #{itemId,jdbcType=VARCHAR} 
+	AND ( ttip.CREATE_DATE >= DATE_FORMAT(NOW(), '%Y-%m-01')  AND LAST_DAY(NOW())>=ttip.CREATE_DATE )
+	)
+   THEN 'yes'
+   ELSE 'no'
+  END isChecked,
+  (SELECT ti.ITEM_NAME FROM tt_iteminfo ti WHERE ti.ITEM_ID = t.ITEM_ID) ITEM_NAME,
+  (SELECT STRUCT_NAME FROM sys_structinfo s WHERE t.STRUCT_ID = s.STRUCT_ID)STRUCT_NAME
+FROM
+  tt_in_invoice t 
+WHERE t.`IS_DEL` = 0 
+  AND t.`STATE` = 1 
+  AND t.IS_ESTATE = 0
+  AND t.`ITEM_ID` IN (SELECT ti.`ITEM_ID` FROM tt_iteminfo ti WHERE ti.`IS_DEL`=0 AND ti.`APPROVAL_STATUS`=1 AND ti.`TAXATION_TYPE`=0)
+  AND t.`IN_INVOICE_ID` NOT IN ( SELECT tip.`IN_INVOICE_ID` FROM tt_invoice_plan tip WHERE tip.ITEM_ID != #{itemId,jdbcType=VARCHAR} )
+  AND t.`IN_INVOICE_ID` NOT IN ( SELECT tip.`IN_INVOICE_ID` FROM tt_invoice_plan tip WHERE tip.ITEM_ID = #{itemId,jdbcType=VARCHAR}  AND DATE_FORMAT(NOW(), '%Y-%m-01') > tip.CREATE_DATE )
+ 
+</select>
+
+<update id="dlForinvoicePlan" parameterType="pd" >
+DELETE FROM tt_invoice_plan 
+WHERE ITEM_ID =  #{itemId,jdbcType=VARCHAR}  
+AND ( CREATE_DATE >= DATE_FORMAT(NOW(), '%Y-%m-01')  AND LAST_DAY(NOW())>=CREATE_DATE ) 
+</update>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_invoice_plan
+    where INVOICE_PLAN_ID = #{invoicePlanId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_invoice_plan
+    where INVOICE_PLAN_ID = #{invoicePlanId,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.InvoicePlan" >
+    insert into tt_invoice_plan
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="invoicePlanId != null" >
+        INVOICE_PLAN_ID,
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="inInvoiceId != null" >
+        IN_INVOICE_ID,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="invoicePlanId != null" >
+        #{invoicePlanId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="inInvoiceId != null" >
+        #{inInvoiceId,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.InvoicePlan" >
+    update tt_invoice_plan
+    <set >
+      <if test="itemId != null" >
+        ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="inInvoiceId != null" >
+        IN_INVOICE_ID = #{inInvoiceId,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where INVOICE_PLAN_ID = #{invoicePlanId,jdbcType=VARCHAR}
+  </update>
+</mapper>

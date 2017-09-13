@@ -125,4 +125,22 @@ public class ArticleController
 	reqJson.put("updateTime", date);
      return reqJson;
   }
+  /**
+   * 查找文章
+   * 2017-9-12 zxk_senNy
+   * @return
+   */
+  @RequestMapping(value="/find",method=RequestMethod.GET)
+  public Object find(){
+	  PageData pd = new PageData();
+	  pd = this.getPageData();
+	  JSONObject respJson = new JSONObject();
+	  try {
+		articleService.findArticle(pd);
+	} catch (Exception e) {
+		logger.error(e.toString(), e);
+	}
+	  
+	  return respJson;
+  }
 }

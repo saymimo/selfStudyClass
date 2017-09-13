@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtPurchaseMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtPurchase" >
+    <id column="PURCHASE_ID" property="purchaseId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="SPECIFICATION" property="specification" jdbcType="VARCHAR" />
+    <result column="UNIT" property="unit" jdbcType="VARCHAR" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+    <result column="BUY_NUM" property="buyNum" jdbcType="DECIMAL" />
+    <result column="DEMAND_NUM" property="demandNum" jdbcType="DECIMAL" />
+    <result column="INSTRUCTIONS_NUM" property="instructionsNum" jdbcType="DECIMAL" />
+    <result column="NUM" property="num" jdbcType="DECIMAL" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    PURCHASE_ID, STRUCT_ID, NAME, SPECIFICATION, UNIT, TYPE, BUY_NUM, DEMAND_NUM, INSTRUCTIONS_NUM, 
+    NUM, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY
+  </sql>
+  <select id="findPurchaseByName" resultType="pd" parameterType="pd" >
+    select 
+   	NAME
+    from tt_purchase
+    where STRUCT_ID = #{STRUCT_ID} 
+     GROUP BY NAME
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_purchase
+    where PURCHASE_ID = #{purchaseId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtPurchase" >
+    insert into tt_purchase (PURCHASE_ID, STRUCT_ID, NAME, 
+      SPECIFICATION, UNIT, TYPE, 
+      BUY_NUM, DEMAND_NUM, INSTRUCTIONS_NUM, 
+      NUM, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY)
+    values (#{purchaseId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{specification,jdbcType=VARCHAR}, #{unit,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, 
+      #{buyNum,jdbcType=DECIMAL}, #{demandNum,jdbcType=DECIMAL}, #{instructionsNum,jdbcType=DECIMAL}, 
+      #{num,jdbcType=DECIMAL}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_purchase
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="purchaseId != null" >
+        PURCHASE_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="name != null" >
+        NAME,
+      </if>
+      <if test="specification != null" >
+        SPECIFICATION,
+      </if>
+      <if test="unit != null" >
+        UNIT,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+      <if test="buyNum != null" >
+        BUY_NUM,
+      </if>
+      <if test="demandNum != null" >
+        DEMAND_NUM,
+      </if>
+      <if test="instructionsNum != null" >
+        INSTRUCTIONS_NUM,
+      </if>
+      <if test="num != null" >
+        NUM,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="purchaseId != null" >
+        #{purchaseId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="specification != null" >
+        #{specification,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="buyNum != null" >
+        #{buyNum,jdbcType=DECIMAL},
+      </if>
+      <if test="demandNum != null" >
+        #{demandNum,jdbcType=DECIMAL},
+      </if>
+      <if test="instructionsNum != null" >
+        #{instructionsNum,jdbcType=DECIMAL},
+      </if>
+      <if test="num != null" >
+        #{num,jdbcType=DECIMAL},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtPurchase" >
+    update tt_purchase
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        NAME = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="specification != null" >
+        SPECIFICATION = #{specification,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        UNIT = #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        TYPE = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="buyNum != null" >
+        BUY_NUM = #{buyNum,jdbcType=DECIMAL},
+      </if>
+      <if test="demandNum != null" >
+        DEMAND_NUM = #{demandNum,jdbcType=DECIMAL},
+      </if>
+      <if test="instructionsNum != null" >
+        INSTRUCTIONS_NUM = #{instructionsNum,jdbcType=DECIMAL},
+      </if>
+      <if test="num != null" >
+        NUM = #{num,jdbcType=DECIMAL},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where PURCHASE_ID = #{purchaseId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtPurchase" >
+    update tt_purchase
+    set STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      NAME = #{name,jdbcType=VARCHAR},
+      SPECIFICATION = #{specification,jdbcType=VARCHAR},
+      UNIT = #{unit,jdbcType=VARCHAR},
+      TYPE = #{type,jdbcType=INTEGER},
+      BUY_NUM = #{buyNum,jdbcType=DECIMAL},
+      DEMAND_NUM = #{demandNum,jdbcType=DECIMAL},
+      INSTRUCTIONS_NUM = #{instructionsNum,jdbcType=DECIMAL},
+      NUM = #{num,jdbcType=DECIMAL},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where PURCHASE_ID = #{purchaseId,jdbcType=VARCHAR}
+  </update>
+<select id="listPagePurchaseByStructId" resultType="pd" parameterType="page">
+SELECT 
+  PURCHASE_ID AS purchaseId,
+  STRUCT_ID AS structId,
+  NAME ,
+  SPECIFICATION AS specification,
+  UNIT AS unit,
+  TYPE ,
+  BUY_NUM AS buyNum,
+  DEMAND_NUM AS demandNum, 
+  INSTRUCTIONS_NUM AS instructionsNum,
+  NUM AS num,
+  CREATE_DATE AS createDate,
+  CREATE_BY AS createBy,
+  UPDATE_DATE AS updateDate,
+  UPDATE_BY AS updateBy,
+  IFNULL((SELECT SUM(t.`DECLARE_NUM`) FROM tt_purchase_declare   t WHERE t.`PURCHASE_ID`=p.`PURCHASE_ID`),0) AS declare_num,
+  IFNULL((SELECT SUM(t.`INSTRUCTIONS_NUM`) FROM tt_purchase_declare   t WHERE t.`PURCHASE_ID`=p.`PURCHASE_ID`),0) AS instructions_num,  
+  ( SELECT COUNT(1) FROM `tt_purchase_declare` t WHERE t.`DECLARE_STATE`=0 AND t.`PURCHASE_ID`=p.`PURCHASE_ID`) AS daipidan
+FROM tt_purchase p
+  where p.STRUCT_ID = #{pd.STRUCT_ID}  AND p.`TYPE`=1
+<if test="pd.NAME!=null and pd.NAME!=''">   
+ AND (
+  SELECT COUNT(1) FROM 
+  (
+ SELECT tt.`QUOTA_NAME`,tt.`QUOTA_SPECIFICATION`,tt.`QUOTA_UNIT`  
+  FROM tt_task_quota_detail tt
+WHERE tt.`IS_DEL`=0 AND tt.`IS_DECLARE`=1
+AND tt.`GROUP_ID` IN 
+(
+SELECT 
+  tqd.`GROUP_ID`
+  FROM tt_task_quota_detail tqd 
+WHERE tqd.`IS_DEL`=0 AND tqd.`IS_DECLARE`=1  
+     AND (
+     (SELECT COUNT(1) FROM tt_task_cost_quota tcq WHERE tcq.`IS_DEL`=0 AND tcq.`TASK_COST_QUOTA_ID` = tqd.`TASK_COST_QUOTA_ID` AND 
+        (SELECT COUNT(1) FROM tt_taskinfo ta WHERE ta.`UID` = tcq.`TASK_ID` AND 
+            (SELECT COUNT(1) FROM tt_iteminfo ti WHERE ti.`ITEM_ID` = ta.`PROJECTUID`AND ti.`STRUCT_ID`=#{pd.STRUCT_ID})>0
+         )>0
+      )>0
+      OR(SELECT COUNT(1) FROM tt_material_group tmg WHERE tmg.`IS_DEL`=0 AND tmg.`TASK_QUOTA_DETAIL_ID` = tqd.`TASK_QUOTA_DETAIL_ID` AND tmg.`STRUCT_ID`=#{pd.STRUCT_ID})>0
+     )
+   
+    AND (
+       tqd.`QUOTA_NAME` LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+       OR tqd.`QUOTA_UNIT` LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+       OR tqd.`QUOTA_SPECIFICATION` LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+    )
+   
+GROUP BY tqd.`GROUP_ID`
+) GROUP BY tt.`QUOTA_NAME`,tt.`QUOTA_SPECIFICATION`,tt.`QUOTA_UNIT`
+
+  )aa WHERE aa.QUOTA_NAME =p.`NAME` AND aa.QUOTA_SPECIFICATION = p.`SPECIFICATION` AND aa.QUOTA_UNIT = p.`UNIT`
+  )>0  
+ </if>  
+
+<if test="pd.ITEM_ID!=null and pd.ITEM_ID!=''"><!-- 关键字查询 -->
+   AND p.`PURCHASE_ID` IN  (SELECT ttd.`PURCHASE_ID` FROM tt_task_declare  ttd  WHERE   ttd.`ITEM_ID`=#{pd.ITEM_ID})
+</if>
+
+    
+</select>
+  
+  <!-- 切换  显示 采购管理列表 -->
+  <select id="PurchaseByStructIdListTab" resultType="pd" parameterType="page">
+ SELECT 
+   PURCHASE_ID AS purchaseId,
+  STRUCT_ID AS structId,
+  NAME AS name,
+  SPECIFICATION AS specification,
+  UNIT AS unit,
+  TYPE AS type,
+  BUY_NUM AS buyNum,
+  DEMAND_NUM AS demandNum, 
+  INSTRUCTIONS_NUM AS instructionsNum,
+  NUM AS num,
+  CREATE_DATE AS createDate,
+  CREATE_BY AS createBy,
+  UPDATE_DATE AS updateDate,
+  UPDATE_BY AS updateBy
+    ,
+     IFNULL((SELECT SUM(t.`DECLARE_NUM`) FROM tt_purchase_declare   t WHERE t.`PURCHASE_ID`=p.`PURCHASE_ID`),0) AS declare_num,
+      IFNULL((SELECT SUM(t.`INSTRUCTIONS_NUM`) FROM tt_purchase_declare   t WHERE t.`PURCHASE_ID`=p.`PURCHASE_ID`),0) AS instructions_num
+      ,( SELECT COUNT(1) FROM `tt_purchase_declare` t WHERE t.`DECLARE_STATE`=0 AND t.`PURCHASE_ID`=p.`PURCHASE_ID`) AS daipidan
+    FROM tt_purchase p
+    where p.STRUCT_ID = #{pd.STRUCT_ID} 
+    <if test="pd.NAME!=null and pd.NAME!=''"><!-- 关键字查询 -->
+    	 and (
+					 SPECIFICATION LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 or 
+					 UNIT LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+					  or 
+					 NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+				)
+    </if>
+  
+    
+  </select>
+  
+  <!-- 通过主键id查询信息 -->
+  <select id="findPurchaseByPurchaseId" resultMap="BaseResultMap" parameterType="pd">
+	  select 
+    <include refid="Base_Column_List" />
+    from tt_purchase
+    where PURCHASE_ID = #{purchaseId} 
+  </select>
+  <update id="updateByPruhase">
+  update tt_purchase t set t.demand_num=t.demand_num+#{demandNum}  where 
+   t.`STRUCT_ID`=#{structId} and  t.`NAME`=#{name}  AND t.`SPECIFICATION`=#{specification}  AND t.`UNIT`=  #{unit} 
+  
+  </update>
+  
+  <select id="findPurchaseAndStructId" resultType="pd" parameterType="pd">
+	
+	select 
+	   PURCHASE_ID, STRUCT_ID, NAME, SPECIFICATION, UNIT, TYPE, BUY_NUM, DEMAND_NUM, INSTRUCTIONS_NUM, 
+	    NUM, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY
+    from tt_purchase t
+    where  t.`STRUCT_ID`=#{structId} and  t.`NAME`=#{name}  AND t.`SPECIFICATION`=#{specification}  AND t.`UNIT`=  #{unit} 
+	
+	</select>
+	
+	
+	
+</mapper>

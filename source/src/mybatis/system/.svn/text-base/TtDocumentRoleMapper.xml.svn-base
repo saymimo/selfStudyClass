@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtDocumentRoleMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtDocumentRole" >
+    <id column="DOCUMENT_ROLE_ID" property="documentRoleId" jdbcType="VARCHAR" />
+    <result column="DOCUMENT_MANAGE_ID" property="documentManageId" jdbcType="VARCHAR" />
+    <result column="ROLE_TYPE" property="roleType" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    DOCUMENT_ROLE_ID, DOCUMENT_MANAGE_ID, ROLE_TYPE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_document_role
+    where DOCUMENT_ROLE_ID = #{documentRoleId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_document_role
+    where DOCUMENT_ROLE_ID = #{documentRoleId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtDocumentRole" >
+    insert into tt_document_role (DOCUMENT_ROLE_ID, DOCUMENT_MANAGE_ID, 
+      ROLE_TYPE)
+    values (#{documentRoleId,jdbcType=VARCHAR}, #{documentManageId,jdbcType=VARCHAR}, 
+      #{roleType,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_document_role
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="documentRoleId != null" >
+        DOCUMENT_ROLE_ID,
+      </if>
+      <if test="documentManageId != null" >
+        DOCUMENT_MANAGE_ID,
+      </if>
+      <if test="roleType != null" >
+        ROLE_TYPE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="documentRoleId != null" >
+        #{documentRoleId,jdbcType=VARCHAR},
+      </if>
+      <if test="documentManageId != null" >
+        #{documentManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="roleType != null" >
+        #{roleType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtDocumentRole" >
+    update tt_document_role
+    <set >
+      <if test="documentManageId != null" >
+        DOCUMENT_MANAGE_ID = #{documentManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="roleType != null" >
+        ROLE_TYPE = #{roleType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where DOCUMENT_ROLE_ID = #{documentRoleId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtDocumentRole" >
+    update tt_document_role
+    set DOCUMENT_MANAGE_ID = #{documentManageId,jdbcType=VARCHAR},
+      ROLE_TYPE = #{roleType,jdbcType=VARCHAR}
+    where DOCUMENT_ROLE_ID = #{documentRoleId,jdbcType=VARCHAR}
+  </update>
+</mapper>

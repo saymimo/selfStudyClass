@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="SafetyCriterionMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.SafetyCriterion" >
+    <id column="SAFETY_CRITERION_ID" property="safetyCriterionId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="SAFETY_TITLE" property="safetyTitle" jdbcType="VARCHAR" />
+    <result column="SAFETY_CONTEN" property="safetyConten" jdbcType="VARCHAR" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+    <result column="SAFETY_TYPE" property="safetyType" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    SAFETY_CRITERION_ID, STRUCT_ID, SAFETY_TITLE, SAFETY_CONTEN, TYPE, SAFETY_TYPE, IS_DEL, 
+    CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE
+  </sql>
+  <select id="selectByPrimaryKey" resultType="pd" parameterType="java.lang.String" >
+SELECT 
+  c.*,
+  (SELECT 
+    s.STRUCTST_AGE 
+  FROM
+    sys_structinfo s 
+  WHERE s.STRUCT_ID = c.`STRUCT_ID`) AGE 
+FROM
+  tt_safaty_criterion c 
+    where SAFETY_CRITERION_ID = #{safetyCriterionId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_safaty_criterion
+    where SAFETY_CRITERION_ID = #{safetyCriterionId,jdbcType=VARCHAR}
+  </delete>
+
+  
+ 
+  
+  <!--主页面显示 -->
+  <select id="listPageAll" parameterType="page" resultType="pd">
+  SELECT 
+  c.*,
+  (SELECT 
+    NAME 
+  FROM
+    sys_user u 
+  WHERE u.USER_ID = c.`CREATE_BY`) AS CREATE_NAME,
+  (SELECT 
+    NAME 
+  FROM
+    sys_dictionaries d 
+  WHERE d.P_BM = c.`SAFETY_TYPE`) AS SAFETY_TYPE_NAME 
+FROM
+  tt_safaty_criterion c 
+  WHERE 1 = 1
+  <if test="pd.age !=0">
+ AND  c.`STRUCT_ID` IN 
+  (SELECT 
+    s.STRUCT_ID 
+  FROM
+    sys_structinfo s 
+  WHERE s.`STRUCTST_AGE` = 0 
+    OR s.`STRUCT_ID` = #{pd.structId,jdbcType=VARCHAR})
+    </if>
+     <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  c.`SAFETY_TITLE` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR c.`SAFETY_CONTEN` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+    <if test="pd.ITEMCOLLECTTYPE!=null and pd.ITEMCOLLECTTYPE != ''  ">
+		 	and ((SELECT   P_BM FROM    sys_dictionaries d  WHERE d.P_BM = c.`SAFETY_TYPE`)= #{pd.ITEMCOLLECTTYPE})
+		</if>
+		<if test="pd.ITEMCOLLECTTYPE2!=null and pd.ITEMCOLLECTTYPE2 != ''   and pd.ITEMCOLLECTTYPE2 !=4">
+		 	and (TYPE= #{pd.ITEMCOLLECTTYPE2})
+		</if>
+    ORDER BY c.`CREATE_DATE` DESC 
+  </select>
+  
+  <select id="listTab" parameterType="pd" resultType="pd">
+   SELECT 
+  c.*,
+  (SELECT 
+    NAME 
+  FROM
+    sys_user u 
+  WHERE u.USER_ID = c.`CREATE_BY`) AS CREATE_NAME,
+  (SELECT 
+    NAME 
+  FROM
+    sys_dictionaries d 
+  WHERE d.P_BM = c.`SAFETY_TYPE`) AS SAFETY_TYPE_NAME 
+FROM
+  tt_safaty_criterion c 
+WHERE 1=1
+  <if test="age !=0">
+c.`STRUCT_ID` IN 
+  (SELECT 
+    s.STRUCT_ID 
+  FROM
+    sys_structinfo s 
+  WHERE s.`STRUCTST_AGE` = 0 
+    OR s.`STRUCT_ID` = #{structId,jdbcType=VARCHAR})
+    </if>
+    ORDER BY c.`CREATE_DATE` DESC 
+  </select>
+  
+  
+  
+  <select id="structAge" parameterType="java.lang.String" resultType="java.lang.Integer">
+  SELECT 
+  s.`STRUCTST_AGE` 
+FROM
+  sys_structinfo s 
+WHERE s.`STRUCT_ID` = #{structId,jdbcType=VARCHAR} 
+  </select>
+  <select id="dictions" parameterType="pd" resultType="pd">
+  SELECT 
+  * 
+FROM
+  sys_dictionaries d 
+WHERE d.`PARENT_ID` = 
+  (SELECT 
+    sd.ZD_ID 
+  FROM
+    sys_dictionaries sd 
+  WHERE sd.P_BM = #{P_BM,jdbcType=VARCHAR})
+  </select>
+  <insert id="insert" parameterType="com.ssc.entity.system.SafetyCriterion" >
+    insert into tt_safaty_criterion (SAFETY_CRITERION_ID, STRUCT_ID, SAFETY_TITLE, 
+      SAFETY_CONTEN, TYPE, SAFETY_TYPE, 
+      IS_DEL, CREATE_BY, CREATE_DATE, 
+      UPDATE_BY, UPDATE_DATE)
+    values (#{safetyCriterionId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{safetyTitle,jdbcType=VARCHAR}, 
+      #{safetyConten,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{safetyType,jdbcType=VARCHAR}, 
+      #{isDel,jdbcType=INTEGER}, #{createBy,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{updateBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_safaty_criterion
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="safetyCriterionId != null" >
+        SAFETY_CRITERION_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="safetyTitle != null" >
+        SAFETY_TITLE,
+      </if>
+      <if test="safetyConten != null" >
+        SAFETY_CONTEN,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+      <if test="safetyType != null" >
+        SAFETY_TYPE,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="safetyCriterionId != null" >
+        #{safetyCriterionId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="safetyTitle != null" >
+        #{safetyTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="safetyConten != null" >
+        #{safetyConten,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="safetyType != null" >
+        #{safetyType,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_safaty_criterion
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="safetyTitle != null" >
+        SAFETY_TITLE = #{safetyTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="safetyConten != null" >
+        SAFETY_CONTEN = #{safetyConten,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        TYPE = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="safetyType != null" >
+        SAFETY_TYPE = #{safetyType,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where SAFETY_CRITERION_ID = #{safetyCriterionId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.SafetyCriterion" >
+    update tt_safaty_criterion
+    set STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      SAFETY_TITLE = #{safetyTitle,jdbcType=VARCHAR},
+      SAFETY_CONTEN = #{safetyConten,jdbcType=VARCHAR},
+      TYPE = #{type,jdbcType=INTEGER},
+      SAFETY_TYPE = #{safetyType,jdbcType=VARCHAR},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP}
+    where SAFETY_CRITERION_ID = #{safetyCriterionId,jdbcType=VARCHAR}
+  </update>
+</mapper>

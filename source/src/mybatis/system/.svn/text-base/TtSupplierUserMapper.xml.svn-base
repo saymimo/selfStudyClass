@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtSupplierUserMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtSupplierUser" >
+    <id column="SUPPLIER_USER_ID" property="supplierUserId" jdbcType="VARCHAR" />
+    <result column="SUPPLIER_ID" property="supplierId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+    <result column="USER_PHONE" property="userPhone" jdbcType="VARCHAR" />
+    <result column="USER_EMAIL" property="userEmail" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    SUPPLIER_USER_ID, SUPPLIER_ID, STRUCT_ID, USER_NAME, USER_PHONE, USER_EMAIL
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_supplier_user
+    where SUPPLIER_USER_ID = #{supplierUserId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_supplier_user
+    where SUPPLIER_USER_ID = #{supplierUserId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByFK" parameterType="java.lang.String" >
+    delete from tt_supplier_user
+    where SUPPLIER_ID = #{SUPPLIER_ID,jdbcType=VARCHAR}
+  </delete>
+  
+  <insert id="insert" parameterType="com.ssc.entity.system.TtSupplierUser" >
+    insert into tt_supplier_user (SUPPLIER_USER_ID, SUPPLIER_ID, STRUCT_ID, 
+      USER_NAME, USER_PHONE, USER_EMAIL
+      )
+    values (#{supplierUserId,jdbcType=VARCHAR}, #{supplierId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, 
+      #{userName,jdbcType=VARCHAR}, #{userPhone,jdbcType=VARCHAR}, #{userEmail,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.TtSupplierUser" >
+    insert into tt_supplier_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="supplierUserId != null" >
+        SUPPLIER_USER_ID,
+      </if>
+      <if test="supplierId != null" >
+        SUPPLIER_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="userName != null" >
+        USER_NAME,
+      </if>
+      <if test="userPhone != null" >
+        USER_PHONE,
+      </if>
+      <if test="userEmail != null" >
+        USER_EMAIL,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="supplierUserId != null" >
+        #{supplierUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="supplierId != null" >
+        #{supplierId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userPhone != null" >
+        #{userPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="userEmail != null" >
+        #{userEmail,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_supplier_user
+    <set >
+      <if test="supplierId != null" >
+        SUPPLIER_ID = #{supplierId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null" >
+        USER_NAME = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userPhone != null" >
+        USER_PHONE = #{userPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="userEmail != null" >
+        USER_EMAIL = #{userEmail,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where SUPPLIER_USER_ID = #{SUPPLIER_USER_ID,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtSupplierUser" >
+    update tt_supplier_user
+    set SUPPLIER_ID = #{supplierId,jdbcType=VARCHAR},
+      STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      USER_NAME = #{userName,jdbcType=VARCHAR},
+      USER_PHONE = #{userPhone,jdbcType=VARCHAR},
+      USER_EMAIL = #{userEmail,jdbcType=VARCHAR}
+    where SUPPLIER_USER_ID = #{supplierUserId,jdbcType=VARCHAR}
+  </update>
+</mapper>

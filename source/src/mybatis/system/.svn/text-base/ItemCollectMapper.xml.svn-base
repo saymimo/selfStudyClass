@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="ItemCollectMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.ItemCollect" >
+    <id column="ITEM_COLLECT_ID" property="itemCollectId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="COLLECT_NO" property="collectNo" jdbcType="VARCHAR" />
+    <result column="COLLECT_DATE" property="collectDate" jdbcType="DATE" />
+    <result column="COLLECT_CONTENT" property="collectContent" jdbcType="VARCHAR" />
+    <result column="COLLECT_MONEY" property="collectMoney" jdbcType="DECIMAL" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+        
+    <result column="INPUT_TAX" property="inputTax" jdbcType="DECIMAL" />
+    <result column="PREPAI_TAX" property="prepaiTax" jdbcType="DECIMAL" />
+    <result column="DEDUCTIO_TAX" property="deductioTax" jdbcType="DECIMAL" />
+    <result column="PAYABLE_TAX" property="payableTax" jdbcType="DECIMAL" />
+    <result column="IS_CONFIRM" property="isConfirm" jdbcType="INTEGER" />
+    
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ITEM_COLLECT_ID, ITEM_ID, COLLECT_NO, COLLECT_DATE, COLLECT_CONTENT, COLLECT_MONEY, 
+    IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,INPUT_TAX,PREPAI_TAX,DEDUCTIO_TAX,PAYABLE_TAX,IS_CONFIRM
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_item_collect
+    where ITEM_COLLECT_ID = #{ITEMCOLLECTID,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="listPageByItemid" resultType="pd" parameterType="page" >
+    select 
+     DATE_FORMAT(CREATE_DATE, '%Y-%m-%d') AS dateFormat ,
+     ITEM_COLLECT_ID, ITEM_ID, COLLECT_NO, COLLECT_DATE, COLLECT_CONTENT, COLLECT_MONEY, 
+    IS_DEL, CREATE_DATE, UPDATE_DATE, UPDATE_BY,(SELECT NAME FROM `sys_user` WHERE sys_user.`USER_ID`= tt_item_collect.CREATE_BY) AS CREATE_NAME, CREATE_BY
+    ,INPUT_TAX,PREPAI_TAX,DEDUCTIO_TAX,PAYABLE_TAX,(SELECT s.`STRUCT_ID` FROM `sys_user`  s WHERE s.`USER_ID`=tt_item_collect.CREATE_BY)  AS STRUCT_ID,IS_CONFIRM
+    from tt_item_collect
+    where item_id = #{pd.ITEM_ID,jdbcType=VARCHAR} and IS_DEL=0
+    
+   		 <if test="pd.ITEMCOLLECTNAME!=null and pd.ITEMCOLLECTNAME != '' ">
+		 	and (COLLECT_CONTENT LIKE #{pd.ITEMCOLLECTNAME2} or COLLECT_NO LIKE #{pd.ITEMCOLLECTNAME2}) 
+		</if>
+		
+       <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 		AND COLLECT_DATE  &gt;=#{pd.LASTLOGINSTART1} AND COLLECT_DATE &lt;=#{pd.LASTLOGINSTART2} 
+		 		</if>
+		</if>
+		
+	 ORDER BY COLLECT_DATE DESC
+    
+  </select>
+  <!-- 不分页，微信项目收款2016/06/03 shenwei -->
+  <select id="findByItemid" resultType="pd" parameterType="pd" >
+    select 
+     DATE_FORMAT(CREATE_DATE, '%Y-%m-%d') AS dateFormat ,
+     ITEM_COLLECT_ID, ITEM_ID, COLLECT_NO, COLLECT_DATE, COLLECT_CONTENT, COLLECT_MONEY, 
+    IS_DEL, CREATE_DATE, UPDATE_DATE, UPDATE_BY,(SELECT NAME FROM `sys_user` WHERE sys_user.`USER_ID`= tt_item_collect.CREATE_BY) AS CREATE_NAME, CREATE_BY
+    ,INPUT_TAX,PREPAI_TAX,DEDUCTIO_TAX,PAYABLE_TAX,(SELECT s.`STRUCT_ID` FROM `sys_user`  s WHERE s.`USER_ID`=tt_item_collect.CREATE_BY)  AS STRUCT_ID,IS_CONFIRM
+    from tt_item_collect
+    where item_id = #{ITEM_ID,jdbcType=VARCHAR} and IS_DEL=0
+	 ORDER BY COLLECT_DATE DESC
+    
+  </select>
+  
+  <select id="listByItemid" resultType="pd" parameterType="page" >
+    select 
+     ITEM_COLLECT_ID, ITEM_ID, COLLECT_NO, COLLECT_DATE, COLLECT_CONTENT, COLLECT_MONEY, 
+    IS_DEL, CREATE_DATE,UPDATE_DATE, UPDATE_BY,(SELECT NAME FROM `sys_user` WHERE sys_user.`USER_ID`= tt_item_collect.CREATE_BY) AS CREATE_NAME, CREATE_BY 
+    ,INPUT_TAX,PREPAI_TAX,DEDUCTIO_TAX,PAYABLE_TAX,IS_CONFIRM
+    from tt_item_collect
+    where item_id = #{pd.ITEM_ID,jdbcType=VARCHAR} and IS_DEL=0
+    
+   		 <if test="pd.ITEMCOLLECTNAME!=null and pd.ITEMCOLLECTNAME != '' ">
+		 	and (COLLECT_CONTENT LIKE #{pd.ITEMCOLLECTNAME2} or COLLECT_NO LIKE #{pd.ITEMCOLLECTNAME2}) 
+		</if>
+		
+       <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 		AND COLLECT_DATE  &gt;=#{pd.LASTLOGINSTART1} AND COLLECT_DATE &lt;=#{pd.LASTLOGINSTART2} 
+		 		</if>
+		</if>
+		
+	 ORDER BY COLLECT_DATE DESC
+    
+  </select>
+  
+  <!--  当前登录人   是否是本项目的财会员 -->
+  <select id="finditemPersonList" parameterType="pd" resultType="pd">
+  SELECT 
+i.`STRUCT_ID`,
+  i.`USER_ID` AS id,
+  u.`NAME` AS NAME 
+FROM
+  `tt_item_person` i 
+  LEFT JOIN `sys_role` r 
+    ON r.role_id = i.`ROLE_ID` 
+  LEFT JOIN `sys_user` u 
+    ON u.`USER_ID` = i.`USER_ID` 
+WHERE i.`ITEM_ID` = #{ITEM_ID} AND r.`ROLE_CODE` =#{ROLE_CODE}
+    AND i.`USER_ID` = #{USER_ID}  and i.STRUCT_ID=#{STRUCT_ID}
+
+  
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_item_collect
+    where ITEM_COLLECT_ID = #{itemCollectId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.ItemCollect" >
+    insert into tt_item_collect (ITEM_COLLECT_ID, ITEM_ID, COLLECT_NO, 
+      COLLECT_DATE, COLLECT_CONTENT, COLLECT_MONEY, 
+      IS_DEL, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY)
+    values (#{ITEMCOLLECTID,jdbcType=VARCHAR}, #{ITEM_ID,jdbcType=VARCHAR}, #{COLLECTNO,jdbcType=VARCHAR}, 
+      #{COLLECTDATE,jdbcType=DATE}, #{COLLECTCONTENT,jdbcType=VARCHAR}, #{COLLECTMONEY,jdbcType=DECIMAL}, 
+      #{ISDEL,jdbcType=INTEGER}, #{CREATEDATE,jdbcType=TIMESTAMP}, #{CREATEBY,jdbcType=VARCHAR}, 
+      #{UPDATEDATE,jdbcType=TIMESTAMP}, #{UPDATEBY,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_item_collect
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="itemCollectId != null" >
+        ITEM_COLLECT_ID,
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="collectNo != null" >
+        COLLECT_NO,
+      </if>
+      <if test="collectDate != null" >
+        COLLECT_DATE,
+      </if>
+      <if test="collectContent != null" >
+        COLLECT_CONTENT,
+      </if>
+      <if test="collectMoney != null" >
+        COLLECT_MONEY,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      
+      <if test="inputTax != null and inputTax!=''" >
+        INPUT_TAX,
+      </if>
+       <if test="prepaiTax != null and prepaiTax!=''" >
+        PREPAI_TAX,
+      </if>
+       <if test="deductioTax != null and deductioTax!=''" >
+        DEDUCTIO_TAX,
+      </if>
+       <if test="payableTax != null and payableTax!=''" >
+        PAYABLE_TAX,
+      </if>
+      
+      
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="itemCollectId != null" >
+        #{itemCollectId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="collectNo != null" >
+        #{collectNo,jdbcType=VARCHAR},
+      </if>
+      <if test="collectDate != null" >
+        #{collectDate,jdbcType=DATE},
+      </if>
+      <if test="collectContent != null" >
+        #{collectContent,jdbcType=VARCHAR},
+      </if>
+      <if test="collectMoney != null" >
+        #{collectMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+       <if test="inputTax != null and inputTax!=''" >
+        #{inputTax,jdbcType=DECIMAL},
+      </if>
+       <if test="prepaiTax != null and prepaiTax!=''" >
+        #{prepaiTax,jdbcType=DECIMAL},
+      </if>
+       <if test="deductioTax != null and deductioTax!=''" >
+         #{deductioTax,jdbcType=DECIMAL},
+      </if>
+       <if test="payableTax != null and payableTax!=''" >
+         #{payableTax,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_item_collect
+    <set >
+      <if test="ITEMID != null" >
+        ITEM_ID = #{ITEMID,jdbcType=VARCHAR},
+      </if>
+      <if test="COLLECTNO != null" >
+        COLLECT_NO = #{COLLECTNO,jdbcType=VARCHAR},
+      </if>
+      <if test="COLLECTDATE != null" >
+        COLLECT_DATE = #{COLLECTDATE,jdbcType=DATE},
+      </if>
+      <if test="COLLECTCONTENT != null" >
+        COLLECT_CONTENT = #{COLLECTCONTENT,jdbcType=VARCHAR},
+      </if>
+      <if test="COLLECTMONEY != null" >
+        COLLECT_MONEY = #{COLLECTMONEY,jdbcType=DECIMAL},
+      </if>
+      <if test="ISDEL != null" >
+        IS_DEL = #{ISDEL,jdbcType=INTEGER},
+      </if>
+      <if test="CREATEDATE != null" >
+        CREATE_DATE = #{CREATEDATE,jdbcType=TIMESTAMP},
+      </if>
+      <if test="CREATEBY != null" >
+        CREATE_BY = #{CREATEBY,jdbcType=VARCHAR},
+      </if>
+      <if test="UPDATEDATE != null" >
+        UPDATE_DATE = #{UPDATEDATE,jdbcType=TIMESTAMP},
+      </if>
+      <if test="UPDATEBY != null" >
+        UPDATE_BY = #{UPDATEBY,jdbcType=VARCHAR},
+      </if>
+      
+      <if test="inputTax != null and  inputTax!=''" >
+      INPUT_TAX=  #{inputTax,jdbcType=DECIMAL},
+      </if>
+       <if test="prepaiTax != null and  prepaiTax!=''" >
+       PREPAI_TAX= #{prepaiTax,jdbcType=DECIMAL},
+      </if>
+       <if test="deductioTax != null and  deductioTax!=''" >
+      DEDUCTIO_TAX=   #{deductioTax,jdbcType=DECIMAL},
+      </if>
+       <if test="payableTax != null and  payableTax!=''" >
+        PAYABLE_TAX= #{payableTax,jdbcType=DECIMAL},
+      </if>
+        <if test="isConfirm != null" >
+        IS_CONFIRM= #{isConfirm,jdbcType=DECIMAL},
+      </if>
+      
+       
+    </set>
+    where ITEM_COLLECT_ID = #{ITEMCOLLECTID,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.ItemCollect" >
+    update tt_item_collect
+    set ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      COLLECT_NO = #{collectNo,jdbcType=VARCHAR},
+      COLLECT_DATE = #{collectDate,jdbcType=DATE},
+      COLLECT_CONTENT = #{collectContent,jdbcType=VARCHAR},
+      COLLECT_MONEY = #{collectMoney,jdbcType=DECIMAL},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where ITEM_COLLECT_ID = #{itemCollectId,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="deleteItemCollectByid" parameterType="pd" >
+    update tt_item_collect
+    set 
+      IS_DEL = 1
+    where ITEM_COLLECT_ID = #{ITEMCOLLECTID,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 批量删除用户 -->
+	<delete id="deleteAllM" parameterType="String" flushCache="false">
+	 update tt_item_collect set   IS_DEL = 1
+		where 
+			ITEM_COLLECT_ID in
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+	
+	 <select id="checkItemCollect" resultType="String" parameterType="pd" >
+    SELECT COUNT(*) FROM `tt_item_collect` WHERE item_id = #{ITEM_ID}
+     AND COLLECT_NO =  #{COLLECT_NO} and is_del=0
+  </select>
+  
+</mapper>

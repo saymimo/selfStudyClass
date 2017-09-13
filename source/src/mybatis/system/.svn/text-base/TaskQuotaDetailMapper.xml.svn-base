@@ -1,0 +1,644 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TaskQuotaDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TaskQuotaDetail" >
+    <id column="TASK_QUOTA_DETAIL_ID" property="taskQuotaDetailId" jdbcType="VARCHAR" />
+    <result column="TASK_COST_QUOTA_ID" property="taskCostQuotaId" jdbcType="VARCHAR" />
+    <result column="QUOTA_NAME" property="quotaName" jdbcType="VARCHAR" />
+    <result column="QUOTA_TYPE" property="quotaType" jdbcType="INTEGER" />
+    <result column="QUOTA_SPECIFICATION" property="quotaSpecification" jdbcType="VARCHAR" />
+    <result column="QUOTA_PRICE" property="quotaPrice" jdbcType="DECIMAL" />
+    <result column="QUOTA_UNIT" property="quotaUnit" jdbcType="VARCHAR" />
+    <result column="QUOTA_CONSUMPTION" property="quotaConsumption" jdbcType="DECIMAL" />
+    <result column="QUOTA_UNIT_CONSUMPTION" property="quotaUnitConsumption" jdbcType="DECIMAL" />
+    <result column="COEFFICIENT" property="coefficient" jdbcType="DECIMAL" />
+    <result column="QUOTA_CONTENT" property="quotaContent" jdbcType="DECIMAL" />
+    <result column="IS_DECLARE" property="isDeclare" jdbcType="INTEGER" />
+    <result column="IS_PURCHASE" property="isPurchase" jdbcType="INTEGER" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="APPLY_BY" property="applyBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    TASK_QUOTA_DETAIL_ID, TASK_COST_QUOTA_ID, QUOTA_NAME, QUOTA_TYPE, QUOTA_SPECIFICATION, 
+    QUOTA_PRICE, QUOTA_UNIT, QUOTA_CONSUMPTION, QUOTA_UNIT_CONSUMPTION, COEFFICIENT, 
+    QUOTA_CONTENT, IS_DECLARE, IS_PURCHASE, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY,APPLY_BY
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_task_quota_detail
+    where TASK_QUOTA_DETAIL_ID = #{taskQuotaDetailId,jdbcType=VARCHAR}
+  </select>
+  
+  <!-- 输入匹配名称        sf -->
+  <select id="findName" resultType="pd" parameterType="java.lang.String" >
+    SELECT d.`QUOTA_NAME` FROM tt_task_quota_detail d GROUP BY d.`QUOTA_NAME` 
+  </select>
+  <!-- 输入匹配名称        sf -->
+  
+  <select id="findTaskCostfixedDetailById" resultType="pd" parameterType="pd" >
+    select 
+   TASK_QUOTA_DETAIL_ID, TASK_COST_QUOTA_ID, QUOTA_NAME, QUOTA_TYPE, QUOTA_SPECIFICATION, 
+    QUOTA_PRICE, QUOTA_UNIT, QUOTA_CONSUMPTION, QUOTA_UNIT_CONSUMPTION, COEFFICIENT, 
+    QUOTA_CONTENT, IS_DECLARE, IS_PURCHASE, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY
+    from tt_task_quota_detail
+    where TASK_QUOTA_DETAIL_ID = #{TASK_QUOTA_DETAIL_ID,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="findTaskQuotaDetailByTaskCostQuotalId" resultType="pd" parameterType="pd" >
+    select 
+      TASK_QUOTA_DETAIL_ID, TASK_COST_QUOTA_ID, QUOTA_NAME, QUOTA_TYPE, QUOTA_SPECIFICATION, 
+    QUOTA_PRICE, QUOTA_UNIT, QUOTA_CONSUMPTION, QUOTA_UNIT_CONSUMPTION, COEFFICIENT, 
+    QUOTA_CONTENT, IS_DECLARE, IS_PURCHASE, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY,APPLY_BY
+    from tt_task_quota_detail
+    where TASK_COST_QUOTA_ID = #{TASK_COST_QUOTA_ID,jdbcType=VARCHAR} and is_del=0
+  </select>
+  
+  <!-- 通过任务id查询项目组织 -->
+  <select id="findTaskinfoAndIteminfoByItemStructId" resultType="String" parameterType="pd">
+
+	SELECT i.`STRUCT_ID` FROM `tt_iteminfo` i WHERE i.`ITEM_ID`=(SELECT t.`PROJECTUID` FROM `tt_taskinfo` t  WHERE t.`UID`=#{TASK_ID})
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_task_quota_detail
+    where TASK_QUOTA_DETAIL_ID = #{taskQuotaDetailId,jdbcType=VARCHAR}
+  </delete>
+ 
+  
+   <select id="listPageBytaskCostQuotaId" resultType="pd" parameterType="page" >
+    select 
+     TASK_QUOTA_DETAIL_ID, TASK_COST_QUOTA_ID, QUOTA_NAME, QUOTA_TYPE, QUOTA_SPECIFICATION, 
+    QUOTA_PRICE, QUOTA_UNIT, QUOTA_CONSUMPTION, QUOTA_UNIT_CONSUMPTION, COEFFICIENT, 
+    QUOTA_CONTENT, IS_DECLARE, IS_PURCHASE, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE,APPLY_BY, 
+    UPDATE_BY,ROUND((QUOTA_PRICE * QUOTA_CONSUMPTION ),2)AS SUM_MONEY
+    from tt_task_quota_detail
+    where TASK_COST_QUOTA_ID = #{pd.TASK_COST_QUOTA_ID,jdbcType=VARCHAR} and is_del=0
+    order by QUOTA_TYPE asc
+  </select>
+  
+    <insert id="insert" parameterType="pd" >
+    insert into tt_task_quota_detail (TASK_QUOTA_DETAIL_ID, TASK_COST_QUOTA_ID, 
+      QUOTA_NAME, QUOTA_TYPE, QUOTA_SPECIFICATION, 
+      QUOTA_PRICE, QUOTA_UNIT, QUOTA_CONSUMPTION, 
+      QUOTA_UNIT_CONSUMPTION, COEFFICIENT, QUOTA_CONTENT, 
+      IS_DECLARE, IS_PURCHASE, IS_DEL, 
+      CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+      UPDATE_BY,APPLY_BY)
+    values (#{TASK_QUOTA_DETAIL_ID,jdbcType=VARCHAR}, #{TASK_COST_QUOTA_ID,jdbcType=VARCHAR}, 
+      #{QUOTA_NAME,jdbcType=VARCHAR}, #{QUOTA_TYPE,jdbcType=INTEGER}, #{QUOTA_SPECIFICATION,jdbcType=VARCHAR}, 
+      #{QUOTA_PRICE,jdbcType=DECIMAL}, #{QUOTA_UNIT,jdbcType=VARCHAR}, #{QUOTA_CONSUMPTION,jdbcType=DECIMAL}, 
+      #{QUOTA_UNIT_CONSUMPTION,jdbcType=DECIMAL}, #{COEFFICIENT,jdbcType=DECIMAL}, #{QUOTA_CONTENT,jdbcType=DECIMAL}, 
+      #{IS_DECLARE,jdbcType=INTEGER}, #{IS_PURCHASE,jdbcType=INTEGER}, #{IS_DEL,jdbcType=INTEGER}, 
+      #{CREATE_DATE,jdbcType=TIMESTAMP}, #{CREATE_BY,jdbcType=VARCHAR}, #{UPDATE_DATE,jdbcType=TIMESTAMP}, 
+      #{UPDATE_BY,jdbcType=VARCHAR},#{APPLY_BY,jdbcType=VARCHAR})
+  </insert>
+  
+  
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.TaskQuotaDetail" >
+    insert into tt_task_quota_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="taskQuotaDetailId != null" >
+        TASK_QUOTA_DETAIL_ID,
+      </if>
+      <if test="taskCostQuotaId != null" >
+        TASK_COST_QUOTA_ID,
+      </if>
+      <if test="quotaName != null" >
+        QUOTA_NAME,
+      </if>
+      <if test="quotaType != null" >
+        QUOTA_TYPE,
+      </if>
+      <if test="quotaSpecification != null" >
+        QUOTA_SPECIFICATION,
+      </if>
+      <if test="quotaPrice != null" >
+        QUOTA_PRICE,
+      </if>
+      <if test="quotaUnit != null" >
+        QUOTA_UNIT,
+      </if>
+      <if test="quotaConsumption != null" >
+        QUOTA_CONSUMPTION,
+      </if>
+      <if test="quotaUnitConsumption != null" >
+        QUOTA_UNIT_CONSUMPTION,
+      </if>
+      <if test="coefficient != null" >
+        COEFFICIENT,
+      </if>
+      <if test="quotaContent != null" >
+        QUOTA_CONTENT,
+      </if>
+      <if test="isDeclare != null" >
+        IS_DECLARE,
+      </if>
+      <if test="isPurchase != null" >
+        IS_PURCHASE,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="applyBy != null" >
+        APPLY_BY,
+      </if>
+      <if test="groupId != null" >
+        GROUP_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="taskQuotaDetailId != null" >
+        #{taskQuotaDetailId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskCostQuotaId != null" >
+        #{taskCostQuotaId,jdbcType=VARCHAR},
+      </if>
+      <if test="quotaName != null" >
+        #{quotaName,jdbcType=VARCHAR},
+      </if>
+      <if test="quotaType != null" >
+        #{quotaType,jdbcType=INTEGER},
+      </if>
+      <if test="quotaSpecification != null" >
+        #{quotaSpecification,jdbcType=VARCHAR},
+      </if>
+      <if test="quotaPrice != null" >
+        #{quotaPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="quotaUnit != null" >
+        #{quotaUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="quotaConsumption != null" >
+        #{quotaConsumption,jdbcType=DECIMAL},
+      </if>
+      <if test="quotaUnitConsumption != null" >
+        #{quotaUnitConsumption,jdbcType=DECIMAL},
+      </if>
+      <if test="coefficient != null" >
+        #{coefficient,jdbcType=DECIMAL},
+      </if>
+      <if test="quotaContent != null" >
+        #{quotaContent,jdbcType=DECIMAL},
+      </if>
+      <if test="isDeclare != null" >
+        #{isDeclare,jdbcType=INTEGER},
+      </if>
+      <if test="isPurchase != null" >
+        #{isPurchase,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="applyBy != null" >
+        #{applyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="groupId != null" >
+        #{groupId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_task_quota_detail
+    <set >
+      <if test="TASK_COST_QUOTA_ID != null" >
+        TASK_COST_QUOTA_ID = #{TASK_COST_QUOTA_ID,jdbcType=VARCHAR},
+      </if>
+      <if test="QUOTA_NAME != null" >
+        QUOTA_NAME = #{QUOTA_NAME,jdbcType=VARCHAR},
+      </if>
+      <if test="QUOTA_TYPE != null" >
+        QUOTA_TYPE = #{QUOTA_TYPE,jdbcType=INTEGER},
+      </if>
+      <if test="QUOTA_SPECIFICATION != null" >
+        QUOTA_SPECIFICATION = #{QUOTA_SPECIFICATION,jdbcType=VARCHAR},
+      </if>
+      <if test="QUOTA_PRICE != null" >
+        QUOTA_PRICE = #{QUOTA_PRICE,jdbcType=DECIMAL},
+      </if>
+      <if test="QUOTA_UNIT != null" >
+        QUOTA_UNIT = #{QUOTA_UNIT,jdbcType=VARCHAR},
+      </if>
+      <if test="QUOTA_CONSUMPTION != null" >
+        QUOTA_CONSUMPTION = #{QUOTA_CONSUMPTION,jdbcType=DECIMAL},
+      </if>
+      <if test="QUOTA_UNIT_CONSUMPTION != null" >
+        QUOTA_UNIT_CONSUMPTION = #{QUOTA_UNIT_CONSUMPTION,jdbcType=DECIMAL},
+      </if>
+      <if test="COEFFICIENT != null" >
+        COEFFICIENT = #{COEFFICIENT,jdbcType=DECIMAL},
+      </if>
+      <if test="QUOTA_CONTENT != null" >
+        QUOTA_CONTENT = #{QUOTA_CONTENT,jdbcType=DECIMAL},
+      </if>
+      <if test="IS_DECLARE != null" >
+        IS_DECLARE = #{IS_DECLARE,jdbcType=INTEGER},
+      </if>
+      <if test="IS_PURCHASE != null" >
+        IS_PURCHASE = #{IS_PURCHASE,jdbcType=INTEGER},
+      </if>
+      <if test="IS_DEL != null" >
+        IS_DEL = #{IS_DEL,jdbcType=INTEGER},
+      </if>
+      <if test="CREATE_DATE != null" >
+        CREATE_DATE = #{CREATE_DATE,jdbcType=TIMESTAMP},
+      </if>
+      <if test="CREATE_BY != null" >
+        CREATE_BY = #{CREATE_BY,jdbcType=VARCHAR},
+      </if>
+      <if test="UPDATE_DATE != null" >
+        UPDATE_DATE = #{UPDATE_DATE,jdbcType=TIMESTAMP},
+      </if>
+      <if test="UPDATE_BY != null" >
+        UPDATE_BY = #{UPDATE_BY,jdbcType=VARCHAR},
+      </if>
+      <if test="APPLY_BY != null" >
+        APPLY_BY= #{APPLY_BY,jdbcType=VARCHAR},
+      </if>
+      <if test="groupId != null" >
+        GROUP_ID = #{groupId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where TASK_QUOTA_DETAIL_ID = #{TASK_QUOTA_DETAIL_ID,jdbcType=VARCHAR}
+  </update>
+<update id="updateByPrimary" parameterType="com.ssc.entity.system.TaskQuotaDetail" >
+    update tt_task_quota_detail
+    <set >
+      <if test="taskCostQuotaId != null" >
+        TASK_COST_QUOTA_ID = #{taskCostQuotaId,jdbcType=VARCHAR},
+      </if>
+      <if test="quotaName != null" >
+        QUOTA_NAME = #{quotaName,jdbcType=VARCHAR},
+      </if>
+      <if test="quotaType != null" >
+        QUOTA_TYPE = #{quotaType,jdbcType=INTEGER},
+      </if>
+      <if test="quotaSpecification != null" >
+        QUOTA_SPECIFICATION = #{quotaSpecification,jdbcType=VARCHAR},
+      </if>
+      <if test="quotaPrice != null" >
+        QUOTA_PRICE = #{quotaPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="quotaUnit != null" >
+        QUOTA_UNIT = #{quotaUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="quotaConsumption != null" >
+        QUOTA_CONSUMPTION = #{quotaConsumption,jdbcType=DECIMAL},
+      </if>
+      <if test="quotaUnitConsumption != null" >
+        QUOTA_UNIT_CONSUMPTION = #{quotaUnitConsumption,jdbcType=DECIMAL},
+      </if>
+      <if test="coefficient != null" >
+        COEFFICIENT = #{coefficient,jdbcType=DECIMAL},
+      </if>
+      <if test="quotaContent != null" >
+        QUOTA_CONTENT = #{quotaContent,jdbcType=DECIMAL},
+      </if>
+      <if test="isDeclare != null" >
+        IS_DECLARE = #{isDeclare,jdbcType=INTEGER},
+      </if>
+      <if test="isPurchase != null" >
+        IS_PURCHASE = #{isPurchase,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="applyBy != null" >
+        APPLY_BY = #{applyBy,jdbcType=VARCHAR},
+      </if>
+      <if test="groupId != null" >
+        GROUP_ID = #{groupId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where TASK_QUOTA_DETAIL_ID = #{taskQuotaDetailId,jdbcType=VARCHAR}
+  </update>  
+  
+  	  <update id="updateWorkNum" parameterType="pd" >
+      UPDATE `tt_task_quota_detail` a 
+      SET a.QUOTA_CONSUMPTION=a.COEFFICIENT*a.QUOTA_CONTENT* #{WORKNUM} ,a.UPDATE_DATE = #{UPDATE_DATE,jdbcType=TIMESTAMP},
+      a.UPDATE_BY = #{UPDATE_BY,jdbcType=VARCHAR}
+       WHERE a.task_cost_quota_id=#{TASK_COST_QUOTA_ID,jdbcType=VARCHAR} and is_del=0
+  </update>
+  
+  <!-- 通过名称  规格 单位 查询 -->
+  <select id="findTaskcostfixeddetailNameUnitSpe" parameterType="pd" resultType="pd">
+	  SELECT 
+	  t.`QUOTA_NAME`,
+	  t.`QUOTA_SPECIFICATION`,
+	  t.`QUOTA_UNIT` 
+	FROM
+	  `tt_task_quota_detail` t 
+	WHERE t.`QUOTA_NAME` = #{QUOTA_NAME}
+	  AND t.`QUOTA_SPECIFICATION` = #{QUOTA_SPECIFICATION}
+	  AND t.`QUOTA_UNIT` =#{QUOTA_UNIT}
+  </select>
+  
+  <!-- 计算价格    ====sf -->
+  <select id="findMoney" resultType="pd" parameterType="pd" >
+  SELECT 
+  SUM(a) AS MONEY,
+  CASE
+    WHEN QUOTA_TYPE = 0 
+    THEN '人工费' 
+    WHEN QUOTA_TYPE = 1 
+    THEN '材料费' 
+    WHEN QUOTA_TYPE = 2 
+    THEN '机械费' 
+  END AS MONEYTYPE
+FROM
+  (SELECT 
+    ROUND(QUOTA_CONSUMPTION * QUOTA_PRICE,2) AS a,
+    QUOTA_TYPE 
+  FROM
+    `tt_task_quota_detail` where TASK_COST_QUOTA_ID IN
+     ( SELECT t.`TASK_COST_QUOTA_ID` FROM tt_task_cost_quota t WHERE t.`TASK_ID`=#{pd.TASK_ID}  AND t.approval_state=1) and is_del=0
+     <if test="pd.NAME!=null and pd.NAME!=''">
+       and (
+		      QUOTA_NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+       )
+     </if>
+    	 <if test="pd.quotaType != null and pd.quotaType != '' and pd.quotaType!=4"><!-- 关键词检索 4表示   选择 为空-->
+			and			QUOTA_TYPE=	#{pd.quotaType}
+		</if>
+     )
+      a 
+GROUP BY QUOTA_TYPE
+  </select>
+  <!-- 计算价格    ====sf -->
+  
+  <!-- 计算价格  已申报   ====sf -->
+  <select id="findMoneyTwo" resultType="pd" parameterType="pd" >
+  SELECT 
+  SUM(a) AS MONEY,
+  CASE
+    WHEN QUOTA_TYPE = 0 
+    THEN '人工费' 
+    WHEN QUOTA_TYPE = 1 
+    THEN '材料费' 
+    WHEN QUOTA_TYPE = 2 
+    THEN '机械费' 
+  END AS MONEYTYPE
+FROM
+  (SELECT 
+    ROUND(QUOTA_CONSUMPTION * QUOTA_PRICE,2) AS a,
+    QUOTA_TYPE 
+  FROM
+    `tt_task_quota_detail` where TASK_COST_QUOTA_ID IN
+     ( SELECT t.`TASK_COST_QUOTA_ID` FROM tt_task_cost_quota t WHERE t.`TASK_ID`=#{TASK_ID}  AND t.approval_state=1) and is_del=0
+     AND IS_DECLARE=1 AND tt_task_quota_detail.`QUOTA_NAME`=#{QUOTA_NAME})
+      a 
+GROUP BY QUOTA_TYPE
+  </select>
+  <!-- 计算价格   已申报   ====sf -->
+  
+  <select id="findMoneyByTaskCostQuotaId" resultType="pd" parameterType="pd" >
+  SELECT 
+  SUM(a) AS MONEY,
+  CASE
+    WHEN QUOTA_TYPE = 0 
+    THEN '人工费' 
+    WHEN QUOTA_TYPE = 1 
+    THEN '材料费' 
+    WHEN QUOTA_TYPE = 2 
+    THEN '机械费' 
+  END AS MONEYTYPE
+FROM
+  (SELECT 
+    ROUND(QUOTA_CONSUMPTION * QUOTA_PRICE,2) AS a,
+    QUOTA_TYPE 
+  FROM
+    `tt_task_quota_detail` where TASK_COST_QUOTA_ID = #{TASK_COST_QUOTA_ID,jdbcType=VARCHAR} and is_del=0
+    
+    ) a 
+GROUP BY QUOTA_TYPE
+  </select>
+  
+  <select id="findTaskQuotaDetailByDetaileId" resultMap="BaseResultMap" parameterType="pd">
+    select 
+    <include refid="Base_Column_List" />
+    from tt_task_quota_detail
+    where TASK_QUOTA_DETAIL_ID = #{taskQuotaDetailId,jdbcType=VARCHAR}
+  
+  </select>
+  <select id="listPageTaskCostQuotaDeail" resultType="pd" parameterType="page" >
+    select 
+     TASK_QUOTA_DETAIL_ID, TASK_COST_QUOTA_ID, QUOTA_NAME,
+   	QUOTA_TYPE
+     
+      , QUOTA_SPECIFICATION, 
+    QUOTA_PRICE, QUOTA_UNIT, QUOTA_CONSUMPTION, QUOTA_UNIT_CONSUMPTION, COEFFICIENT, 
+    QUOTA_CONTENT,
+    IS_DECLARE
+     , 
+ 	IS_PURCHASE
+    , IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY   
+    ,FORMAT((QUOTA_PRICE *QUOTA_CONSUMPTION),2) AS money ,(SELECT tk.`NAME` FROM  `tt_taskinfo` tk  WHERE tk.`UID`=
+( SELECT task_id FROM tt_task_cost_quota WHERE tt_task_cost_quota.`TASK_COST_QUOTA_ID` = tt_task_quota_detail.TASK_COST_QUOTA_ID)
+    ) AS taskname
+    from tt_task_quota_detail
+    where TASK_COST_QUOTA_ID 
+    IN ( SELECT t.`TASK_COST_QUOTA_ID` FROM tt_task_cost_quota t WHERE  FIND_IN_SET (t.`TASK_ID`,(SELECT `findTaskListByPid`(#{pd.TASK_ID,jdbcType=VARCHAR}))) and t.approval_state=1)
+    
+     and is_del=0
+      <if test="pd.NAME!=null and pd.NAME!=''">
+       and (
+		      QUOTA_SPECIFICATION LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+		      or 
+		      QUOTA_NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+		      or 
+		      QUOTA_UNIT LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+       )
+     </if>
+    	 <if test="pd.quotaType != null and pd.quotaType != '' and pd.quotaType!=4"><!-- 关键词检索 4表示   选择 为空-->
+			and			QUOTA_TYPE=	#{pd.quotaType}
+		</if>
+		ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  <select id="findCostQuotaDetailInTask" resultType="pd" parameterType="pd" >
+    select 
+     TASK_QUOTA_DETAIL_ID, TASK_COST_QUOTA_ID, QUOTA_NAME,
+   	QUOTA_TYPE
+     
+      , QUOTA_SPECIFICATION, 
+    QUOTA_PRICE, QUOTA_UNIT, QUOTA_CONSUMPTION, QUOTA_UNIT_CONSUMPTION, COEFFICIENT, 
+    QUOTA_CONTENT,
+    IS_DECLARE
+     , 
+ 	IS_PURCHASE
+    , IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY   
+    ,FORMAT((QUOTA_PRICE *QUOTA_CONSUMPTION),2) AS money ,(SELECT tk.`NAME` FROM  `tt_taskinfo` tk  WHERE tk.`UID`=
+( SELECT task_id FROM tt_task_cost_quota WHERE tt_task_cost_quota.`TASK_COST_QUOTA_ID` = tt_task_quota_detail.TASK_COST_QUOTA_ID)
+    ) AS taskname
+    from tt_task_quota_detail
+    where TASK_COST_QUOTA_ID 
+    IN ( SELECT t.`TASK_COST_QUOTA_ID` FROM tt_task_cost_quota t WHERE  FIND_IN_SET (t.`TASK_ID`,(SELECT `findTaskListByPid`(#{TASK_ID,jdbcType=VARCHAR}))) and t.approval_state=1)
+    
+     and is_del=0
+     
+		ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  <select id="listTaskCostQuotaDeailTab" resultType="pd" parameterType="page" >
+   select 
+     TASK_QUOTA_DETAIL_ID, TASK_COST_QUOTA_ID, QUOTA_NAME,
+   	QUOTA_TYPE
+     
+      , QUOTA_SPECIFICATION, 
+    QUOTA_PRICE, QUOTA_UNIT, QUOTA_CONSUMPTION, QUOTA_UNIT_CONSUMPTION, COEFFICIENT, 
+    QUOTA_CONTENT,
+    IS_DECLARE
+     , 
+ 	IS_PURCHASE
+    , IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY   
+    ,FORMAT((QUOTA_PRICE *QUOTA_CONSUMPTION),2) AS money ,(SELECT tk.`NAME` FROM  `tt_taskinfo` tk  WHERE tk.`UID`=
+( SELECT task_id FROM tt_task_cost_quota WHERE tt_task_cost_quota.`TASK_COST_QUOTA_ID` = tt_task_quota_detail.TASK_COST_QUOTA_ID)
+    ) AS taskname
+    from tt_task_quota_detail
+    where TASK_COST_QUOTA_ID 
+    IN ( SELECT t.`TASK_COST_QUOTA_ID` FROM tt_task_cost_quota t WHERE  FIND_IN_SET (t.`TASK_ID`,(SELECT `findTaskListByPid`(#{pd.TASK_ID,jdbcType=VARCHAR}))) and t.approval_state=1)
+    
+     and is_del=0
+		ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  <update id="deleteById" parameterType="pd" >
+    update tt_task_quota_detail
+    set IS_DEL = 1
+    where TASK_QUOTA_DETAIL_ID = #{TASK_QUOTA_DETAIL_ID,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 批量删除用户 -->
+	<delete id="deleteAllM" parameterType="String" flushCache="false">
+	 update tt_task_quota_detail set   IS_DEL = 1
+		where 
+			TASK_QUOTA_DETAIL_ID in
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+	
+	<update id="deleteByTaskCostQuotaId" parameterType="pd" >
+    update tt_task_quota_detail
+    set IS_DEL = 1
+    where TASK_COST_QUOTA_ID = #{TASK_COST_QUOTA_ID,jdbcType=VARCHAR}
+  	</update>
+  	
+  	  <!-- 批量删除用户 -->
+	<delete id="deleteAllByTaskCostQuotaId" parameterType="String" flushCache="false">
+	 update tt_task_quota_detail set   IS_DEL = 1
+		where 
+			TASK_COST_QUOTA_ID in
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+	
+	<update id="updatePurchase" parameterType="pd" >
+	   update tt_task_quota_detail
+    set IS_DECLARE = 1,APPLY_BY=#{APPLY_BY,jdbcType=VARCHAR}
+    where TASK_QUOTA_DETAIL_ID = #{taskQuotaDetailId,jdbcType=VARCHAR}
+	
+	</update>
+	
+	
+	<update id="updateTaskQuotaDetailByIsPurchase" parameterType="pd">
+	 update tt_task_quota_detail
+    set IS_PURCHASE = #{IS_PURCHASE,jdbcType=INTEGER}
+    where TASK_QUOTA_DETAIL_ID = #{taskQuotaDetailId,jdbcType=VARCHAR}
+	
+	</update>
+	
+	 <!-- 任务taskwindow显示的计划成本 -->
+  <select id="findInTaskWindow" resultType="pd" parameterType="pd" >
+    select 
+     TASK_QUOTA_DETAIL_ID, TASK_COST_QUOTA_ID, QUOTA_NAME,
+   	QUOTA_TYPE
+     
+      , QUOTA_SPECIFICATION, 
+    QUOTA_PRICE, QUOTA_UNIT, QUOTA_CONSUMPTION, QUOTA_UNIT_CONSUMPTION, COEFFICIENT, 
+    QUOTA_CONTENT,
+    IS_DECLARE
+     , 
+ 	IS_PURCHASE
+    , IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY   
+    ,FORMAT((QUOTA_PRICE *QUOTA_CONSUMPTION),2) AS money ,(SELECT tk.`NAME` FROM  `tt_taskinfo` tk  WHERE tk.`UID`=
+( SELECT task_id FROM tt_task_cost_quota WHERE tt_task_cost_quota.`TASK_COST_QUOTA_ID` = tt_task_quota_detail.TASK_COST_QUOTA_ID)
+    ) AS taskname
+    from tt_task_quota_detail
+    where TASK_COST_QUOTA_ID 
+    IN ( SELECT t.`TASK_COST_QUOTA_ID` FROM tt_task_cost_quota t WHERE  FIND_IN_SET (t.`TASK_ID`,(SELECT `findTaskListByPid`(#{TASK_ID,jdbcType=VARCHAR}))) and t.approval_state=1)
+    
+     and is_del=0
+		ORDER BY  CREATE_DATE DESC
+  </select>
+   <!-- 任务taskwindow显示的实际成本 -->
+   <select id="findInTaskWindowTwo" resultType="pd" parameterType="page">
+		SELECT 
+			 o.AMOUNT AS TWOMONEY,
+		  	o.NUM as TWONUM,  
+			i.NAME as TWONAME,
+			i.SPECIFICATION as TWOSPECIFICATION,
+			i.UNIT as TWOUNIT
+		 FROM `tt_out_storage` o LEFT JOIN `tt_item_storage` i ON o.`ITEM_STORAGE_ID`=i.`ITEM_STORAGE_ID`
+		WHERE  FIND_IN_SET (o.OUT_STORAGE_OBJ,
+    (SELECT 
+      `findTaskListByPid` (#{TASK_ID,jdbcType=VARCHAR})))
+		AND o.`IS_DEL`=0
+		
+			UNION 
+	SELECT  PAYMENT_AMOUNT as TWOMONEY,
+			NULL AS TWONUM,
+			'其他' AS TWONAME,
+			NULL AS TWOSPECIFICATION,
+			NULL AS TWOUNIT FROM `tt_item_payment` WHERE payment_obj=#{TASK_ID,jdbcType=VARCHAR} AND is_del=0
+  </select>
+	
+  
+</mapper>

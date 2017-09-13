@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtItemReviewUserMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.ItemReviewUser" >
+    <id column="ITEM_REVIEW_USER_ID" property="itemReviewUserId" jdbcType="VARCHAR" />
+    <result column="ITEM_REVIEW_ID" property="itemReviewId" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="STATE" property="state" jdbcType="INTEGER" />
+    <result column="REVIEW_TYPE" property="reviewType" jdbcType="CHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ITEM_REVIEW_USER_ID, ITEM_REVIEW_ID, USER_ID, STATE,REVIEW_TYPE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_item_review_user
+    where ITEM_REVIEW_USER_ID = #{itemReviewUserId,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="userReviewList" parameterType="String" resultType="pd">
+ SELECT 
+  * 
+FROM
+  sys_user u 
+WHERE u.`USER_ID` IN 
+  <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+  </foreach>
+  </select>
+  <!-- 判断评审级别 -->
+  <select id="userReviewType" parameterType="String" resultType="String">
+  SELECT 
+  GROUP_CONCAT(ch.REVIEW_TYPE) AS REVIEW_TYPE 
+FROM
+  (SELECT 
+    u.REVIEW_TYPE 
+  FROM
+    sys_user u 
+  WHERE u.`USER_ID` IN 
+<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+  </foreach>
+  GROUP BY u.`REVIEW_TYPE` 
+  ORDER BY u.`REVIEW_TYPE`) AS ch 
+  </select>
+   <select id="findReviewUserByState" resultType="pd" parameterType="pd" >
+SELECT 
+  (SELECT 
+    IFNULL(SUM(1), 0) 
+  FROM
+    tt_tribune_user t 
+  WHERE s.TRIBUNE_ID = t.TRIBUNE_ID) AS zongshu,
+  (SELECT 
+    IFNULL(SUM(1), 0) 
+  FROM
+    tt_tribune_user t 
+  WHERE s.TRIBUNE_ID = t.TRIBUNE_ID 
+    AND t.STATE = 1) AS tongyishu,
+  (SELECT 
+    IFNULL(SUM(1), 0) 
+  FROM
+    tt_tribune_user t 
+  WHERE s.TRIBUNE_ID = t.TRIBUNE_ID 
+    AND t.STATE != 0) AS pingjiashu 
+FROM
+  tt_tribune_user s 
+WHERE s.TRIBUNE_ID = #{itemReviewId,jdbcType=VARCHAR}
+GROUP BY s.TRIBUNE_ID 
+  </select>
+  
+  <!-- 查询当前组别是否全部同意ABC  -->
+  <select id="findStateByABC" parameterType="pd" resultType="pd">
+SELECT 
+  (SELECT 
+    IFNULL(SUM(1), 0) 
+  FROM
+    tt_tribune_user t 
+  WHERE s.TRIBUNE_ID = t.TRIBUNE_ID 
+    AND t.USER_ID IN 
+    (SELECT 
+      USER_ID 
+    FROM
+      sys_user u 
+    WHERE u.REVIEW_TYPE = 
+      (SELECT 
+        su.REVIEW_TYPE 
+      FROM
+        sys_user su 
+      WHERE su.USER_ID = #{userId,jdbcType=VARCHAR}))) AS zongshu,
+  (SELECT 
+    IFNULL(SUM(1), 0) 
+  FROM
+    tt_tribune_user t 
+  WHERE s.TRIBUNE_ID = t.TRIBUNE_ID 
+    AND t.STATE = 1 
+    AND t.USER_ID IN 
+    (SELECT 
+      USER_ID 
+    FROM
+      sys_user u 
+    WHERE u.REVIEW_TYPE = 
+      (SELECT 
+        su.REVIEW_TYPE 
+      FROM
+        sys_user su 
+      WHERE su.USER_ID = #{userId,jdbcType=VARCHAR}))) AS tongyishu,
+  (SELECT 
+    u.`REVIEW_TYPE` 
+  FROM
+    sys_user u 
+  WHERE u.`USER_ID` = #{userId,jdbcType=VARCHAR}) AS REVIEW_TYPE 
+FROM
+  tt_tribune_user s,
+  sys_user uu 
+WHERE s.TRIBUNE_ID = #{itemReviewId,jdbcType=VARCHAR} 
+  AND s.`USER_ID` = uu.`USER_ID` 
+GROUP BY s.TRIBUNE_ID 
+  </select>
+  
+  
+  
+  <!--根据交流评审表主键查询参与该评审的人员       sf -->
+  <select id="findItemReviewUser" resultType="pd" parameterType="pd" >
+SELECT 
+  TRIBUNE_USER_ID,
+  TRIBUNE_ID,
+  USER_ID,
+  STATE,
+  (SELECT 
+    u.NAME 
+  FROM
+    sys_user u 
+  WHERE u.`USER_ID` = i.`USER_ID`) NAME,
+  (SELECT 
+    u.NAME 
+  FROM
+    sys_user u 
+  WHERE u.`USER_ID` = i.`USER_ID`) userName 
+FROM
+  `tt_tribune_user` i 
+WHERE TRIBUNE_ID = #{itemReviewId,jdbcType=VARCHAR}  
+  </select>
+  <!--根据交流评审表主键查询参与该评审的人员  -->  
+  
+  <!-- 删除人员 根据 交流评审表 tt_item_review 主键 -->
+   <delete id="deleteAllByid" parameterType="pd" >
+    delete from tt_tribune_user
+    where TRIBUNE_ID = #{itemReviewId,jdbcType=VARCHAR}
+  </delete>
+  <!-- 删除人员 根据 交流评审表 tt_item_review 主键 -->
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_item_review_user
+    where ITEM_REVIEW_USER_ID = #{itemReviewUserId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.ItemReviewUser" >
+    insert into tt_item_review_user (ITEM_REVIEW_USER_ID, ITEM_REVIEW_ID, USER_ID, 
+      STATE)
+    values (#{itemReviewUserId,jdbcType=VARCHAR}, #{itemReviewId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
+      #{state,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_item_review_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="itemReviewUserId != null" >
+        ITEM_REVIEW_USER_ID,
+      </if>
+      <if test="itemReviewId != null" >
+        ITEM_REVIEW_ID,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="state != null" >
+        STATE,
+      </if>
+      <if test="reviewType != null" >
+        REVIEW_TYPE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="itemReviewUserId != null" >
+        #{itemReviewUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemReviewId != null" >
+        #{itemReviewId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="reviewType != null" >
+        #{reviewType,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateReviewUser" parameterType="pd" >
+UPDATE 
+  tt_tribune_user 
+SET
+  STATE = #{state,jdbcType=INTEGER}
+WHERE TRIBUNE_ID = #{itemReviewId,jdbcType=VARCHAR} and USER_ID=#{userId,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="updateState" parameterType="pd">
+UPDATE 
+  tt_tribune_user u 
+SET
+  u.`STATE` = 0 
+WHERE u.`TRIBUNE_ID` = #{itemReviewId,jdbcType=VARCHAR}  
+  </update>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_item_review_user
+    <set >
+      <if test="itemReviewId != null" >
+        ITEM_REVIEW_ID = #{itemReviewId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        STATE = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="reviewType != null" >
+        REVIEW_TYPE = #{reviewType,jdbcType=CHAR},
+      </if>
+    </set>
+    where ITEM_REVIEW_USER_ID = #{itemReviewUserId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.ItemReviewUser" >
+    update tt_item_review_user
+    set ITEM_REVIEW_ID = #{itemReviewId,jdbcType=VARCHAR},
+      USER_ID = #{userId,jdbcType=VARCHAR},
+      STATE = #{state,jdbcType=INTEGER},
+      REVIEW_TYPE = #{reviewType,jdbcType=CHAR}
+    where ITEM_REVIEW_USER_ID = #{itemReviewUserId,jdbcType=VARCHAR}
+  </update>
+</mapper>

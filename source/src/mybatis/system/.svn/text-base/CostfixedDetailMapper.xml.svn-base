@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="CostfixedDetailMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.CostfixedDetail" >
+    <id column="COSTFIXED_DETAIL_ID" property="costfixedDetailId" jdbcType="VARCHAR" />
+    <result column="COSTFIXED_ID" property="costfixedId" jdbcType="VARCHAR" />
+    <result column="COSTFIXED_NO" property="costfixedNo" jdbcType="VARCHAR" />
+    <result column="COSTFIXED_NAME" property="costfixedName" jdbcType="VARCHAR" />
+    <result column="COSTFIXED_TYPE" property="costfixedType" jdbcType="INTEGER" />
+    <result column="SPECIFICATION" property="specification" jdbcType="VARCHAR" />
+    <result column="UNIT_PRICE" property="unitPrice" jdbcType="DECIMAL" />
+    <result column="UNIT" property="unit" jdbcType="VARCHAR" />
+    <result column="COST_CONSUMPTION" property="costConsumption" jdbcType="DECIMAL" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    COSTFIXED_DETAIL_ID, COSTFIXED_ID, COSTFIXED_NO, COSTFIXED_NAME, COSTFIXED_TYPE, 
+    SPECIFICATION, UNIT_PRICE, UNIT, COST_CONSUMPTION, IS_DEL, CREATE_DATE, CREATE_BY, 
+    UPDATE_DATE, UPDATE_BY
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_costfixed_detail
+    where COSTFIXED_DETAIL_ID = #{costfixedDetailId,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="findCostfixedDetailById" resultType="pd" parameterType="pd" >
+    select 
+   COSTFIXED_DETAIL_ID, COSTFIXED_ID, COSTFIXED_NO, COSTFIXED_NAME, COSTFIXED_TYPE, 
+    SPECIFICATION, UNIT_PRICE, UNIT, COST_CONSUMPTION 
+    from tt_costfixed_detail
+    where COSTFIXED_DETAIL_ID = #{COSTFIXED_DETAIL_ID,jdbcType=VARCHAR} and is_del=0
+  </select>
+  
+ <select id="listPageBycostfixedId" resultType="pd" parameterType="page" >
+    select 
+      COSTFIXED_DETAIL_ID, COSTFIXED_ID, COSTFIXED_NO, COSTFIXED_NAME, COSTFIXED_TYPE, 
+    SPECIFICATION, UNIT_PRICE, UNIT, COST_CONSUMPTION,ROUND((UNIT_PRICE* COST_CONSUMPTION ),2)AS SUM_MONEY
+    from tt_costfixed_detail
+    where COSTFIXED_ID = #{pd.COSTFIXED_ID,jdbcType=VARCHAR} and is_del=0
+	ORDER BY CREATE_DATE desc
+    
+  </select>
+  
+  <select id="findCostfixedDetailBycostfixedId" resultType="pd" parameterType="pd" >
+    select 
+      COSTFIXED_DETAIL_ID, COSTFIXED_ID, COSTFIXED_NO, COSTFIXED_NAME, COSTFIXED_TYPE, 
+    SPECIFICATION, UNIT_PRICE, UNIT, COST_CONSUMPTION,ROUND((UNIT_PRICE* COST_CONSUMPTION ),2)AS SUM_MONEY
+    from tt_costfixed_detail
+    where COSTFIXED_ID = #{COSTFIXED_ID,jdbcType=VARCHAR} and is_del=0
+  </select>
+  
+  <select id="findMoney" resultType="pd" parameterType="pd" >
+    SELECT 
+  SUM(a) AS MONEY,
+  CASE
+    WHEN COSTFIXED_TYPE = 0 
+    THEN '人工费' 
+    WHEN COSTFIXED_TYPE = 1 
+    THEN '材料费' 
+    WHEN COSTFIXED_TYPE = 2 
+    THEN '机械费' 
+  END AS MONEYTYPE
+FROM
+  (SELECT 
+    ROUND(COST_CONSUMPTION * UNIT_PRICE,2) AS a,
+    COSTFIXED_TYPE 
+  FROM
+    `tt_costfixed_detail` WHERE COSTFIXED_ID= #{COSTFIXED_ID,jdbcType=VARCHAR} and is_del=0) a 
+GROUP BY COSTFIXED_TYPE 
+  </select>
+  
+  <!-- 收款 -->
+  <select id="findMoneys" resultType="pd" parameterType="pd" >
+     SELECT SUM(t.`COLLECT_MONEY`) AS 'MONEY' FROM tt_item_collect t WHERE t.`ITEM_ID`= #{ITEM_ID,jdbcType=VARCHAR} AND IS_DEL=0
+  </select>
+  
+  <!-- 结算 -->
+  <select id="findMoneyB" resultType="pd" parameterType="pd" >
+      SELECT SUM(t.`BILLING_MONEY`) AS 'Money' FROM tt_item_billing t WHERE t.`ITEM_ID`= #{ITEM_ID,jdbcType=VARCHAR}  AND IS_DEL=0
+  </select>
+  
+  <!-- 发票 -->
+  <select id="findMoneyI" resultType="pd" parameterType="pd" >
+      SELECT SUM(t.`INVOICE_MONEY`) AS 'Money' FROM tt_item_invoice t WHERE t.`ITEM_ID`= #{ITEM_ID,jdbcType=VARCHAR}  AND IS_DEL=0
+  </select>
+  
+  <!-- 产值 -->
+  <select id="findMoneyO" resultType="pd" parameterType="pd">
+  		SELECT SUM(t.`OUTVALUE_MONEY`) AS 'Money' FROM tt_item_outvalue t WHERE t.`ITEM_ID`= #{ITEM_ID,jdbcType=VARCHAR}  AND IS_DEL=0
+  </select>
+  
+  <!-- 收支 -->
+  <select id="findMoneyP" resultType="pd" parameterType="pd">
+  			SELECT 
+  (SELECT 
+    IFNULL(SUM(tt.`PAYMENT_AMOUNT`), 0) AS shoukuan 
+  FROM
+    `tt_item_payment` tt 
+  WHERE tt.item_id = t.item_id 
+    AND tt.`PAYMENT_SECONDARY` = 2) AS '总收入',
+  (SELECT 
+    IFNULL(SUM(tt.`PAYMENT_AMOUNT`), 0) AS shoukuan 
+  FROM
+    `tt_item_payment` tt 
+  WHERE tt.item_id = t.item_id 
+    AND tt.`PAYMENT_SECONDARY` != 2) AS '总支出' , 
+  ((SELECT 
+    IFNULL(SUM(tt.`PAYMENT_AMOUNT`), 0) 
+  FROM
+    `tt_item_payment` tt 
+  WHERE tt.item_id = t.item_id 
+    AND tt.`PAYMENT_SECONDARY` = 2) - 
+  (SELECT 
+    IFNULL(SUM(tt.`PAYMENT_AMOUNT`), 0)  
+  FROM
+    `tt_item_payment` tt 
+  WHERE tt.item_id = t.item_id 
+    AND tt.`PAYMENT_SECONDARY` != 2)) AS '余额' 
+FROM
+  tt_item_payment t 
+WHERE t.`ITEM_ID` = #{ITEM_ID,jdbcType=VARCHAR}  AND IS_DEL=0
+GROUP BY t.`ITEM_ID`  ;
+  </select>
+  
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_costfixed_detail
+    where COSTFIXED_DETAIL_ID = #{costfixedDetailId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="pd" >
+    insert into tt_costfixed_detail (COSTFIXED_DETAIL_ID, COSTFIXED_ID, COSTFIXED_NO, 
+      COSTFIXED_NAME, COSTFIXED_TYPE, SPECIFICATION, 
+      UNIT_PRICE, UNIT, COST_CONSUMPTION, 
+      IS_DEL, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY)
+    values (#{COSTFIXED_DETAIL_ID,jdbcType=VARCHAR}, #{COSTFIXED_ID,jdbcType=VARCHAR}, #{COSTFIXED_NO,jdbcType=VARCHAR}, 
+      #{COSTFIXED_NAME,jdbcType=VARCHAR}, #{COSTFIXED_TYPE,jdbcType=INTEGER}, #{SPECIFICATION,jdbcType=VARCHAR}, 
+      #{UNIT_PRICE,jdbcType=DECIMAL}, #{UNIT,jdbcType=VARCHAR}, #{COST_CONSUMPTION,jdbcType=DECIMAL}, 
+      #{IS_DEL,jdbcType=INTEGER}, #{CREATE_DATE,jdbcType=TIMESTAMP}, #{CREATE_BY,jdbcType=VARCHAR}, 
+      #{UPDATE_DATE,jdbcType=TIMESTAMP}, #{UPDATE_BY,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.CostfixedDetail" >
+    insert into tt_costfixed_detail
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="costfixedDetailId != null" >
+        COSTFIXED_DETAIL_ID,
+      </if>
+      <if test="costfixedId != null" >
+        COSTFIXED_ID,
+      </if>
+      <if test="costfixedNo != null" >
+        COSTFIXED_NO,
+      </if>
+      <if test="costfixedName != null" >
+        COSTFIXED_NAME,
+      </if>
+      <if test="costfixedType != null" >
+        COSTFIXED_TYPE,
+      </if>
+      <if test="specification != null" >
+        SPECIFICATION,
+      </if>
+      <if test="unitPrice != null" >
+        UNIT_PRICE,
+      </if>
+      <if test="unit != null" >
+        UNIT,
+      </if>
+      <if test="costConsumption != null" >
+        COST_CONSUMPTION,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="costfixedDetailId != null" >
+        #{costfixedDetailId,jdbcType=VARCHAR},
+      </if>
+      <if test="costfixedId != null" >
+        #{costfixedId,jdbcType=VARCHAR},
+      </if>
+      <if test="costfixedNo != null" >
+        #{costfixedNo,jdbcType=VARCHAR},
+      </if>
+      <if test="costfixedName != null" >
+        #{costfixedName,jdbcType=VARCHAR},
+      </if>
+      <if test="costfixedType != null" >
+        #{costfixedType,jdbcType=INTEGER},
+      </if>
+      <if test="specification != null" >
+        #{specification,jdbcType=VARCHAR},
+      </if>
+      <if test="unitPrice != null" >
+        #{unitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="unit != null" >
+        #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="costConsumption != null" >
+        #{costConsumption,jdbcType=DECIMAL},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_costfixed_detail
+    <set >
+      <if test="COSTFIXED_ID != null" >
+        COSTFIXED_ID = #{COSTFIXED_ID,jdbcType=VARCHAR},
+      </if>
+      <if test="COSTFIXED_NO != null" >
+        COSTFIXED_NO = #{COSTFIXED_NO,jdbcType=VARCHAR},
+      </if>
+      <if test="COSTFIXED_NAME != null" >
+        COSTFIXED_NAME = #{COSTFIXED_NAME,jdbcType=VARCHAR},
+      </if>
+      <if test="COSTFIXED_TYPE != null" >
+        COSTFIXED_TYPE = #{COSTFIXED_TYPE,jdbcType=INTEGER},
+      </if>
+      <if test="SPECIFICATION != null" >
+        SPECIFICATION = #{SPECIFICATION,jdbcType=VARCHAR},
+      </if>
+      <if test="UNIT_PRICE != null" >
+        UNIT_PRICE = #{UNIT_PRICE,jdbcType=DECIMAL},
+      </if>
+      <if test="UNIT != null" >
+        UNIT = #{UNIT,jdbcType=VARCHAR},
+      </if>
+      <if test="COST_CONSUMPTION != null" >
+        COST_CONSUMPTION = #{COST_CONSUMPTION,jdbcType=DECIMAL},
+      </if>
+      <if test="IS_DEL != null" >
+        IS_DEL = #{IS_DEL,jdbcType=INTEGER},
+      </if>
+      <if test="CREATE_DATE != null" >
+        CREATE_DATE = #{CREATE_DATE,jdbcType=TIMESTAMP},
+      </if>
+      <if test="CREATE_BY != null" >
+        CREATE_BY = #{CREATE_BY,jdbcType=VARCHAR},
+      </if>
+      <if test="UPDATE_DATE != null" >
+        UPDATE_DATE = #{UPDATE_DATE,jdbcType=TIMESTAMP},
+      </if>
+      <if test="UPDATE_BY != null" >
+        UPDATE_BY = #{UPDATE_BY,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where COSTFIXED_DETAIL_ID = #{COSTFIXED_DETAIL_ID,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.CostfixedDetail" >
+    update tt_costfixed_detail
+    set COSTFIXED_ID = #{costfixedId,jdbcType=VARCHAR},
+      COSTFIXED_NO = #{costfixedNo,jdbcType=VARCHAR},
+      COSTFIXED_NAME = #{costfixedName,jdbcType=VARCHAR},
+      COSTFIXED_TYPE = #{costfixedType,jdbcType=INTEGER},
+      SPECIFICATION = #{specification,jdbcType=VARCHAR},
+      UNIT_PRICE = #{unitPrice,jdbcType=DECIMAL},
+      UNIT = #{unit,jdbcType=VARCHAR},
+      COST_CONSUMPTION = #{costConsumption,jdbcType=DECIMAL},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where COSTFIXED_DETAIL_ID = #{costfixedDetailId,jdbcType=VARCHAR}
+  </update>
+  
+   <update id="deleteCostfixedDetailByid" parameterType="pd" >
+    update tt_costfixed_detail
+    set 
+      IS_DEL = 1
+    where COSTFIXED_DETAIL_ID = #{COSTFIXED_DETAIL_ID,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 批量删除用户 -->
+	<delete id="deleteAllM" parameterType="String" flushCache="false">
+	 update tt_costfixed_detail set   IS_DEL = 1
+		where 
+			COSTFIXED_DETAIL_ID in
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+</mapper>

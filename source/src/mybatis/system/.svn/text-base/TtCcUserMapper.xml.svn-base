@@ -1,0 +1,697 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtCcUserMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtCcUser" >
+    <id column="CC_USER_ID" property="ccUserId" jdbcType="VARCHAR" />
+    <result column="TRIBUNE_ID" property="tribuneId" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="IS_REL" property="isRel" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    CC_USER_ID, TRIBUNE_ID, USER_ID
+  </sql>
+  <!-- 根据userid查询抄送列表 -->
+  <select id="findCcUserlistPage" resultType="pd" parameterType="page" >
+  
+  
+  
+  
+SELECT 
+  dispose,
+  CREATE_DATE,
+  TRIBUNE_ID,
+  tcuUserId,
+  tcuUserDate,
+  TRIBUNE_CONTENT,
+  CREATE_BY,
+  BMNAME,
+  STRUCT_NAME,
+  TRIBUNE_TITLE,
+  REVIEW_OBJ_ID,
+  filetype,
+  type 
+  
+FROM
+  (SELECT 
+    CASE
+      WHEN 
+      (SELECT 
+        cud.`DISPOSE_ID` 
+      FROM
+        `tt_cc_user_dispose` cud 
+      WHERE cud.`TRIBUNE_ID` = t.`TRIBUNE_ID` 
+        AND cud.`REVIEW_OBJ_ID` = t.`REVIEW_OBJ_ID`) IS NOT NULL 
+      THEN '1' 
+      ELSE '0' 
+    END AS dispose,
+    t.CREATE_DATE,
+    t.`TRIBUNE_ID`,
+    (SELECT s.`NAME` FROM `sys_user` s WHERE s.`USER_ID`=(SELECT 
+      tcud.`CREATE_BY` 
+    FROM
+      `tt_cc_user_dispose` tcud 
+    WHERE tcud.`TRIBUNE_ID` = t.`TRIBUNE_ID` 
+      AND tcud.`REVIEW_OBJ_ID` = t.`REVIEW_OBJ_ID`)) AS tcuUserId,
+    (SELECT 
+      tcud.`CREATE_DATE` 
+    FROM
+      `tt_cc_user_dispose` tcud 
+    WHERE tcud.`TRIBUNE_ID` = t.`TRIBUNE_ID` 
+      AND tcud.`REVIEW_OBJ_ID` = t.`REVIEW_OBJ_ID`) AS tcuUserDate,
+    t.`TRIBUNE_CONTENT`,
+    (SELECT 
+      u.`NAME` 
+    FROM
+      `sys_user` u 
+    WHERE u.`USER_ID` = t.`CREATE_BY`) AS CREATE_BY,
+    (SELECT 
+      NAME 
+    FROM
+      `sys_dictionaries` d 
+    WHERE d.`ZD_ID` = 
+      (SELECT 
+        s.`BM` 
+      FROM
+        `sys_user` s 
+      WHERE s.`USER_ID` = t.`CREATE_BY`)) AS BMNAME,
+    (SELECT 
+      s.`STRUCT_NAME` 
+    FROM
+      `sys_structinfo` s 
+    WHERE s.`STRUCT_ID` = 
+      (SELECT 
+        u.`STRUCT_ID` 
+      FROM
+        `sys_user` u 
+      WHERE u.`USER_ID` = t.`CREATE_BY`)) AS STRUCT_NAME,
+    t.`TRIBUNE_TITLE`,
+    t.`REVIEW_OBJ_ID`,
+    CASE
+      WHEN 
+      (SELECT 
+        ten.`TENDERINFO_ID` 
+      FROM
+        `tt_tenderinfo` ten 
+      WHERE ten.`TENDERINFO_ID` = t.`REVIEW_OBJ_ID` 
+        AND ten.is_del = 0) IS NOT NULL 
+      THEN 'tenderinfo' 
+      WHEN 
+      (SELECT 
+        tpp.`PROJECT_PACT_ID` 
+      FROM
+        `tt_project_pact` tpp 
+      WHERE tpp.`PROJECT_PACT_ID` = t.`REVIEW_OBJ_ID` 
+        AND tpp.is_del = 0) IS NOT NULL 
+      THEN 'projectContract' 
+      WHEN 
+      (SELECT 
+        b.`BILL_APPLY_ID` 
+      FROM
+        `tt_bill_apply` b 
+      WHERE b.`BILL_APPLY_ID` = t.`REVIEW_OBJ_ID` 
+        AND b.`IS_DEL` = 0) IS NOT NULL 
+      THEN 'billApply' 
+      WHEN 
+      (SELECT 
+        tas.`APPLY_SAFE_ID` 
+      FROM
+        `tt_apply_safe` tas 
+      WHERE tas.`APPLY_SAFE_ID` = t.`REVIEW_OBJ_ID` 
+        AND tas.`IS_DEL` = 0) IS NOT NULL 
+      THEN 'applysafe' 
+      WHEN 
+      (SELECT 
+        en.`ENTRUST_ID` 
+      FROM
+        `tt_entrust` en 
+      WHERE en.`ENTRUST_ID` = t.`REVIEW_OBJ_ID`) IS NOT NULL 
+      THEN 'entrust' 
+      WHEN 
+      (SELECT 
+        tb.`BORROW_ID` 
+      FROM
+        `tt_borrow` tb 
+      WHERE tb.`BORROW_ID` = t.`REVIEW_OBJ_ID`) IS NOT NULL 
+      THEN 'borrow' 
+      ELSE 'tribune' 
+    END AS filetype,
+    t.type 
+    
+  FROM
+    `tt_tribune` t 
+  WHERE t.`TRIBUNE_ID` IN 
+    (SELECT 
+      cu.`TRIBUNE_ID` 
+    FROM
+      `tt_cc_user` cu 
+    WHERE cu.`USER_ID` = #{pd.USER_ID}) 
+     <if test="pd.STRUCT_ID != null and pd.STRUCT_ID != ''" >
+     AND  (SELECT 
+        u.`STRUCT_ID` 
+      FROM
+        `sys_user` u 
+      WHERE u.`USER_ID` = t.`CREATE_BY`)=#{pd.STRUCT_ID}
+      </if>
+        <if test="pd.NAME != null and pd.NAME != ''" >
+     AND      t.`TRIBUNE_TITLE`      LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+      </if>
+      
+    AND t.`STATE` = 2 
+    
+    
+     <if test="pd.STATE_TYPE != null and pd.STATE_TYPE != ''" >
+     	 <if test="pd.STATE_TYPE &lt;  200" >
+     	 AND t.`TYPE` = #{pd.STATE_TYPE}
+     
+     	</if>
+     	
+     	 <if test="pd.STATE_TYPE ==  999" >
+     	 	AND t.`TYPE` !=0
+     	 	AND t.`TYPE` !=1
+     	 	AND t.`TYPE` !=2
+     	 	AND t.`TYPE` !=3
+     	 	AND t.`TYPE` !=5
+     	 	AND t.`TYPE` !=6
+     	 	AND t.`TYPE` !=7
+     	 	AND t.`TYPE` !=8
+     	 	AND t.`TYPE` !=9
+     	 	AND t.`TYPE` !=10
+     	</if>
+     
+      </if>
+  UNION
+  SELECT 
+    CASE
+      WHEN 
+      (SELECT 
+        cud.`DISPOSE_ID` 
+      FROM
+        `tt_cc_user_dispose` cud 
+      WHERE cud.`TRIBUNE_ID` = t.`ITEM_REVIEW_ID` 
+        AND cud.`REVIEW_OBJ_ID` = t.`FOREIGN_KEY_ID`) IS NOT NULL 
+      THEN '1' 
+      ELSE '0' 
+    END AS dispose,
+    t.CREATE_DATE,
+    t.`ITEM_REVIEW_ID`,
+   (SELECT s.`NAME` FROM `sys_user` s WHERE s.`USER_ID`= (SELECT 
+      tcud.`CREATE_BY` 
+    FROM
+      `tt_cc_user_dispose` tcud 
+    WHERE tcud.`TRIBUNE_ID` = t.`ITEM_REVIEW_ID` 
+      AND tcud.`REVIEW_OBJ_ID` = t.`FOREIGN_KEY_ID`)) AS tcuUserId,
+    (SELECT 
+      tcud.`CREATE_DATE` 
+    FROM
+      `tt_cc_user_dispose` tcud 
+    WHERE tcud.`TRIBUNE_ID` = t.`ITEM_REVIEW_ID` 
+      AND tcud.`REVIEW_OBJ_ID` = t.`FOREIGN_KEY_ID`) AS tcuUserDate,
+    t.`CONTENT`,
+    (SELECT 
+      u.`NAME` 
+    FROM
+      `sys_user` u 
+    WHERE u.`USER_ID` = t.`CREATE_BY`) AS CREATE_BY,
+    (SELECT 
+      NAME 
+    FROM
+      `sys_dictionaries` d 
+    WHERE d.`ZD_ID` = 
+      (SELECT 
+        s.`BM` 
+      FROM
+        `sys_user` s 
+      WHERE s.`USER_ID` = t.`CREATE_BY`)) AS BMNAME,
+    (SELECT 
+      s.`STRUCT_NAME` 
+    FROM
+      `sys_structinfo` s 
+    WHERE s.`STRUCT_ID` = 
+      (SELECT 
+        u.`STRUCT_ID` 
+      FROM
+        `sys_user` u 
+      WHERE u.`USER_ID` = t.`CREATE_BY`)) AS STRUCT_NAME,
+    t.`TITLE`,
+    t.`FOREIGN_KEY_ID`,
+    CASE
+      WHEN 
+      (SELECT 
+        p.`PACT_ID` 
+      FROM
+        `tt_pactinfo` p 
+      WHERE p.`PACT_ID` = t.`FOREIGN_KEY_ID`) IS NOT NULL 
+      THEN 'pactinfoItem' 
+    END AS filetype,
+     t.type 
+  FROM
+    `tt_item_review` t 
+  WHERE t.`ITEM_REVIEW_ID` IN 
+    (SELECT 
+      cu.`TRIBUNE_ID` 
+    FROM
+      `tt_cc_user` cu 
+    WHERE cu.`USER_ID` = #{pd.USER_ID}) 
+     <if test="pd.STRUCT_ID != null and pd.STRUCT_ID != ''" >
+     AND  (SELECT 
+        u.`STRUCT_ID` 
+      FROM
+        `sys_user` u 
+      WHERE u.`USER_ID` = t.`CREATE_BY`)=#{pd.STRUCT_ID}
+       </if>
+        <if test="pd.NAME != null and pd.NAME != ''" >
+    	 AND     t.`TITLE`      LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+      </if>
+    AND t.`STATE` = 2
+    
+     <if test="pd.STATE_TYPE &lt;  200" >
+     	 AND t.`TYPE` = 200
+     	</if>
+     <if test="pd.itemReState != null" >
+     	 AND t.`TYPE` = #{pd.itemReState}
+      </if>
+      <if test="pd.STATE_TYPE ==  999" >
+     	 	AND t.`TYPE` !=0
+     	 	AND t.`TYPE` !=2
+     	 	AND t.`TYPE` !=3
+     	 	AND t.`TYPE` !=4
+     	</if>
+    
+    ) AS d 
+ORDER BY d.CREATE_DATE DESC 
+
+  
+  
+  
+  
+  </select>
+  
+  
+  
+   <select id="findCcUserListIsRel" resultType="pd" parameterType="page" >
+  
+  
+SELECT 
+CREATE_DATE,
+TRIBUNE_ID,
+TRIBUNE_CONTENT,
+CREATE_BY,
+BMNAME,
+STRUCT_NAME,
+TRIBUNE_TITLE,
+REVIEW_OBJ_ID,
+filetype
+ FROM 
+  (SELECT 
+   t.CREATE_DATE,
+    t.`TRIBUNE_ID`,
+    t.`TRIBUNE_CONTENT`,
+    (SELECT 
+      u.`NAME` 
+    FROM
+      `sys_user` u 
+    WHERE u.`USER_ID` = t.`CREATE_BY`) AS CREATE_BY,
+    (SELECT 
+      NAME 
+    FROM
+      `sys_dictionaries` d 
+    WHERE d.`ZD_ID` = 
+      (SELECT 
+        s.`BM` 
+      FROM
+        `sys_user` s 
+      WHERE s.`USER_ID` = t.`CREATE_BY`)) AS BMNAME,
+    (SELECT 
+      s.`STRUCT_NAME` 
+    FROM
+      `sys_structinfo` s 
+    WHERE s.`STRUCT_ID` = 
+      (SELECT 
+        u.`STRUCT_ID` 
+      FROM
+        `sys_user` u 
+      WHERE u.`USER_ID` = t.`CREATE_BY`)) AS STRUCT_NAME,
+    t.`TRIBUNE_TITLE`,
+    t.`REVIEW_OBJ_ID`,
+    CASE
+      WHEN 
+      (SELECT 
+        ten.`TENDERINFO_ID` 
+      FROM
+        `tt_tenderinfo` ten 
+      WHERE ten.`TENDERINFO_ID` = t.`REVIEW_OBJ_ID` 
+        AND ten.is_del = 0) IS NOT NULL 
+      THEN 'tenderinfo' 
+      WHEN 
+      (SELECT 
+        tpp.`PROJECT_PACT_ID` 
+      FROM
+        `tt_project_pact` tpp 
+      WHERE tpp.`PROJECT_PACT_ID` = t.`REVIEW_OBJ_ID` 
+        AND tpp.is_del = 0) IS NOT NULL 
+      THEN 'projectContract' 
+      WHEN 
+      (SELECT 
+        b.`BILL_APPLY_ID` 
+      FROM
+        `tt_bill_apply` b 
+      WHERE b.`BILL_APPLY_ID` = t.`REVIEW_OBJ_ID` 
+        AND b.`IS_DEL` = 0) IS NOT NULL 
+      THEN 'billApply' 
+      WHEN 
+      (SELECT 
+        tas.`APPLY_SAFE_ID` 
+      FROM
+        `tt_apply_safe` tas 
+      WHERE tas.`APPLY_SAFE_ID` = t.`REVIEW_OBJ_ID` 
+        AND tas.`IS_DEL` = 0) IS NOT NULL 
+      THEN 'applysafe' 
+      WHEN 
+      (SELECT 
+        en.`ENTRUST_ID` 
+      FROM
+        `tt_entrust` en 
+      WHERE en.`ENTRUST_ID` = t.`REVIEW_OBJ_ID`) IS NOT NULL 
+      THEN 'entrust' 
+      WHEN 
+      (SELECT 
+        tb.`BORROW_ID` 
+      FROM
+        `tt_borrow` tb 
+      WHERE tb.`BORROW_ID` = t.`REVIEW_OBJ_ID`) IS NOT NULL 
+      THEN 'borrow' 
+      ELSE 'tribune' 
+    END AS filetype 
+  FROM
+    `tt_tribune` t 
+  WHERE t.`TRIBUNE_ID` IN 
+    (SELECT 
+      cu.`TRIBUNE_ID` 
+    FROM
+      `tt_cc_user` cu 
+    WHERE cu.`USER_ID` = #{USER_ID}  AND cu.IS_REL=0) 
+    AND t.`STATE` = 2 
+  UNION
+  SELECT 
+   t.CREATE_DATE,
+    t.`ITEM_REVIEW_ID`,
+    t.`CONTENT`,
+    (SELECT 
+      u.`NAME` 
+    FROM
+      `sys_user` u 
+    WHERE u.`USER_ID` = t.`CREATE_BY`) AS CREATE_BY,
+    (SELECT 
+      NAME 
+    FROM
+      `sys_dictionaries` d 
+    WHERE d.`ZD_ID` = 
+      (SELECT 
+        s.`BM` 
+      FROM
+        `sys_user` s 
+      WHERE s.`USER_ID` = t.`CREATE_BY`)) AS BMNAME,
+    (SELECT 
+      s.`STRUCT_NAME` 
+    FROM
+      `sys_structinfo` s 
+    WHERE s.`STRUCT_ID` = 
+      (SELECT 
+        u.`STRUCT_ID` 
+      FROM
+        `sys_user` u 
+      WHERE u.`USER_ID` = t.`CREATE_BY`)) AS STRUCT_NAME,
+    t.`TITLE`,
+    t.`FOREIGN_KEY_ID`,
+    CASE
+      WHEN 
+      (SELECT 
+        p.`PACT_ID` 
+      FROM
+        `tt_pactinfo` p 
+      WHERE p.`PACT_ID` = t.`FOREIGN_KEY_ID`) IS NOT NULL 
+      THEN 'pactinfoItem' 
+    END AS filetype 
+  FROM
+    `tt_item_review` t 
+  WHERE t.`ITEM_REVIEW_ID` IN 
+    (SELECT 
+      cu.`TRIBUNE_ID` 
+    FROM
+      `tt_cc_user` cu 
+    WHERE cu.`USER_ID` = #{USER_ID}  AND cu.IS_REL=0) 
+    AND t.`STATE` = 2) AS d  ORDER  BY  d.CREATE_DATE DESC
+    
+    
+  
+  
+  
+  
+  
+  
+  </select>
+  
+  
+  
+  
+   <select id="findCcUserByTribuneReply" resultType="pd" parameterType="page" >
+  
+  
+SELECT 
+CREATE_DATE,
+TRIBUNE_ID,
+TRIBUNE_CONTENT,
+CREATE_BY,
+BMNAME,
+STRUCT_NAME,
+TRIBUNE_TITLE,
+REVIEW_OBJ_ID,
+filetype
+ FROM 
+  (SELECT 
+   t.CREATE_DATE,
+    t.`TRIBUNE_ID`,
+    t.`TRIBUNE_CONTENT`,
+    (SELECT 
+      u.`NAME` 
+    FROM
+      `sys_user` u 
+    WHERE u.`USER_ID` = t.`CREATE_BY`) AS CREATE_BY,
+    (SELECT 
+      NAME 
+    FROM
+      `sys_dictionaries` d 
+    WHERE d.`ZD_ID` = 
+      (SELECT 
+        s.`BM` 
+      FROM
+        `sys_user` s 
+      WHERE s.`USER_ID` = t.`CREATE_BY`)) AS BMNAME,
+    (SELECT 
+      s.`STRUCT_NAME` 
+    FROM
+      `sys_structinfo` s 
+    WHERE s.`STRUCT_ID` = 
+      (SELECT 
+        u.`STRUCT_ID` 
+      FROM
+        `sys_user` u 
+      WHERE u.`USER_ID` = t.`CREATE_BY`)) AS STRUCT_NAME,
+    t.`TRIBUNE_TITLE`,
+    t.`REVIEW_OBJ_ID`,
+    CASE
+      WHEN 
+      (SELECT 
+        ten.`TENDERINFO_ID` 
+      FROM
+        `tt_tenderinfo` ten 
+      WHERE ten.`TENDERINFO_ID` = t.`REVIEW_OBJ_ID` 
+        AND ten.is_del = 0) IS NOT NULL 
+      THEN 'tenderinfo' 
+      WHEN 
+      (SELECT 
+        tpp.`PROJECT_PACT_ID` 
+      FROM
+        `tt_project_pact` tpp 
+      WHERE tpp.`PROJECT_PACT_ID` = t.`REVIEW_OBJ_ID` 
+        AND tpp.is_del = 0) IS NOT NULL 
+      THEN 'projectContract' 
+      WHEN 
+      (SELECT 
+        b.`BILL_APPLY_ID` 
+      FROM
+        `tt_bill_apply` b 
+      WHERE b.`BILL_APPLY_ID` = t.`REVIEW_OBJ_ID` 
+        AND b.`IS_DEL` = 0) IS NOT NULL 
+      THEN 'billApply' 
+      WHEN 
+      (SELECT 
+        tas.`APPLY_SAFE_ID` 
+      FROM
+        `tt_apply_safe` tas 
+      WHERE tas.`APPLY_SAFE_ID` = t.`REVIEW_OBJ_ID` 
+        AND tas.`IS_DEL` = 0) IS NOT NULL 
+      THEN 'applysafe' 
+      WHEN 
+      (SELECT 
+        en.`ENTRUST_ID` 
+      FROM
+        `tt_entrust` en 
+      WHERE en.`ENTRUST_ID` = t.`REVIEW_OBJ_ID`) IS NOT NULL 
+      THEN 'entrust' 
+      WHEN 
+      (SELECT 
+        tb.`BORROW_ID` 
+      FROM
+        `tt_borrow` tb 
+      WHERE tb.`BORROW_ID` = t.`REVIEW_OBJ_ID`) IS NOT NULL 
+      THEN 'borrow' 
+      ELSE 'tribune' 
+    END AS filetype 
+  FROM
+    `tt_tribune` t 
+  WHERE t.`TRIBUNE_ID` =#{tribuneId}
+    
+    AND t.`STATE` = 2 
+  UNION
+  SELECT 
+   t.CREATE_DATE,
+    t.`ITEM_REVIEW_ID`,
+    t.`CONTENT`,
+    (SELECT 
+      u.`NAME` 
+    FROM
+      `sys_user` u 
+    WHERE u.`USER_ID` = t.`CREATE_BY`) AS CREATE_BY,
+    (SELECT 
+      NAME 
+    FROM
+      `sys_dictionaries` d 
+    WHERE d.`ZD_ID` = 
+      (SELECT 
+        s.`BM` 
+      FROM
+        `sys_user` s 
+      WHERE s.`USER_ID` = t.`CREATE_BY`)) AS BMNAME,
+    (SELECT 
+      s.`STRUCT_NAME` 
+    FROM
+      `sys_structinfo` s 
+    WHERE s.`STRUCT_ID` = 
+      (SELECT 
+        u.`STRUCT_ID` 
+      FROM
+        `sys_user` u 
+      WHERE u.`USER_ID` = t.`CREATE_BY`)) AS STRUCT_NAME,
+    t.`TITLE`,
+    t.`FOREIGN_KEY_ID`,
+    CASE
+      WHEN 
+      (SELECT 
+        p.`PACT_ID` 
+      FROM
+        `tt_pactinfo` p 
+      WHERE p.`PACT_ID` = t.`FOREIGN_KEY_ID`) IS NOT NULL 
+      THEN 'pactinfoItem' 
+    END AS filetype 
+  FROM
+    `tt_item_review` t 
+  WHERE t.`ITEM_REVIEW_ID`=#{tribuneId}
+    
+    AND t.`STATE` = 2) AS d  ORDER  BY  d.CREATE_DATE DESC
+    
+    
+  
+  
+  
+  
+  
+  
+  </select>
+  
+    <select id="selectByTribuneId" resultType="pd" parameterType="pd" >
+    select 
+    CC_USER_ID, TRIBUNE_ID, USER_ID
+    from tt_cc_user
+    where TRIBUNE_ID = #{tribuneId}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_cc_user
+    where CC_USER_ID = #{ccUserId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_cc_user
+    where CC_USER_ID = #{ccUserId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtCcUser" >
+    insert into tt_cc_user (CC_USER_ID, TRIBUNE_ID, USER_ID
+      )
+    values (#{ccUserId,jdbcType=VARCHAR}, #{tribuneId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.TtCcUser" >
+    insert into tt_cc_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="ccUserId != null" >
+        CC_USER_ID,
+      </if>
+      <if test="tribuneId != null" >
+        TRIBUNE_ID,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+       <if test="isRel != null" >
+        IS_REL,
+      </if>
+      
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="ccUserId != null" >
+        #{ccUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="tribuneId != null" >
+        #{tribuneId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+       <if test="isRel != null" >
+        #{isRel},
+      </if>
+    </trim>
+  </insert>
+  <delete id="deleteTribuneId" parameterType="pd">
+  delete from tt_cc_user where   TRIBUNE_ID=#{tribuneId}
+  </delete>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtCcUser" >
+    update tt_cc_user
+    <set >
+      <if test="tribuneId != null" >
+        TRIBUNE_ID = #{tribuneId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="isRel != null" >
+        IS_REL = #{isRel},
+      </if>
+    </set>
+    where CC_USER_ID = #{ccUserId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtCcUser" >
+    update tt_cc_user
+    set TRIBUNE_ID = #{tribuneId,jdbcType=VARCHAR},
+      USER_ID = #{userId,jdbcType=VARCHAR}
+    where CC_USER_ID = #{ccUserId,jdbcType=VARCHAR}
+  </update>
+  
+  
+    <update id="updateCcUserByTribuneIdAndUserId" parameterType="pd" >
+    update tt_cc_user
+    set IS_REL=1
+    where USER_ID = #{USER_ID} and  TRIBUNE_ID=#{TRIBUNE_ID}
+  </update>
+</mapper>

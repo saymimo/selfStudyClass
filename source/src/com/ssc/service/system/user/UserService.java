@@ -11,14 +11,14 @@ public class UserService{
   private DaoSupport dao;
   
   public PageData findByUPhone(PageData pd)throws Exception{
-    return (PageData)this.dao.findForObject("UserXMapper.findByUPhone", pd);
+    return (PageData)this.dao.findForObject("UserMapper.findByUPhone", pd);
   }
   
-  public void updateUser(PageData pd)throws Exception{
-    this.dao.findForObject("UserXMapper.updateUser", pd);
+  public void updateUserByUid(PageData pd)throws Exception{
+    this.dao.findForObject("UserMapper.updateUserByUid", pd);
   }
   
   public void saveU(PageData pd)throws Exception{
-    this.dao.save("UserXMapper.saveU", pd);
+    this.dao.save("UserMapper.saveU", pd);
   }
 }

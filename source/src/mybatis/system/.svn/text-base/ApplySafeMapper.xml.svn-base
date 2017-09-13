@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="ApplySafeMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.ApplySafe" >
+    <id column="APPLY_SAFE_ID" property="applySafeId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="APPLY_NO" property="applyNo" jdbcType="VARCHAR" />
+    <result column="SAFE_TYPE" property="safeType" jdbcType="VARCHAR" />
+    <result column="BASE" property="base" jdbcType="DECIMAL" />
+    <result column="ADD_MINUS_DATE" property="addMinusDate" jdbcType="INTEGER" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="EXECUTE_DATE" property="executeDate" jdbcType="TIMESTAMP" />
+    <result column="TITLE" property="title" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    APPLY_SAFE_ID, STRUCT_ID, APPLY_NO, SAFE_TYPE, BASE, ADD_MINUS_DATE, REMAK, 
+    IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,EXECUTE_DATE,TITLE
+  </sql>
+  <select id="sendState" parameterType="pd">
+  UPDATE 
+  `tt_tribune` ta 
+SET
+  ta.`STATE` = 1 
+WHERE ta.`TRIBUNE_ID` = #{applySafeId,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="structAge" parameterType="pd" resultType="Integer">
+  SELECT 
+  s.`STRUCTST_AGE` 
+FROM
+  sys_structinfo s 
+WHERE s.`STRUCT_ID` = #{structId,jdbcType=VARCHAR}
+  </select>
+
+  
+  <select id="leftUsers" parameterType="pd" resultType="pd">
+  SELECT 
+  u.* 
+  ,
+  CASE
+    WHEN u.USER_ID IN 
+    (SELECT 
+      USER_ID 
+    FROM
+      tt_apply_safe_user su 
+    WHERE su.APPLY_SAFE_ID = #{applySafeId,jdbcType=VARCHAR}) 
+    THEN 1 
+    ELSE 0 
+  END AS checked 
+FROM
+  sys_user u 
+WHERE 
+	1=1
+AND	u.`STRUCT_ID` = #{structId,jdbcType=VARCHAR} 
+AND u.IS_DEL=0
+ AND u.`USER_ID` NOT IN 
+ (SELECT 
+      USER_ID 
+    FROM
+      tt_apply_safe_user su 
+    WHERE su.APPLY_SAFE_ID = #{applySafeId,jdbcType=VARCHAR})
+ 
+  </select>
+ <select id="rightUsers" parameterType="pd" resultType="pd">
+SELECT 
+  u.* 
+FROM
+  tt_apply_safe_user su,
+  sys_user u 
+WHERE su.`USER_ID` = u.`USER_ID` 
+  AND su.`APPLY_SAFE_ID` =  #{applySafeId,jdbcType=VARCHAR}
+ </select> 
+ 
+ <select id="forReviewType" parameterType="pd" resultType="pd">
+SELECT 
+  tt.* 
+FROM
+  tt_tribune tt 
+WHERE tt.`REVIEW_OBJ_ID` =  #{applySafeId,jdbcType=VARCHAR}
+ </select>
+ 
+  <select id="selectByPrimaryKey" resultType="pd" parameterType="pd" >
+SELECT 
+  ta.*,
+  (SELECT 
+    GROUP_CONCAT(d.NAME) 
+  FROM
+    sys_dictionaries d 
+  WHERE FIND_IN_SET(d.P_BM, ta.SAFE_TYPE) 
+    AND d.PARENT_ID != '0') AS SAFE_TYPE_NAME,
+  (SELECT 
+    NAME 
+  FROM
+    sys_user 
+  WHERE USER_ID = ta.`CREATE_BY`) AS CREATE_NAME,
+  (SELECT 
+    STATE 
+  FROM
+    tt_tribune_user tu 
+  WHERE tu.TRIBUNE_ID = ta.APPLY_SAFE_ID 
+    AND tu.USER_ID = #{USER_ID,jdbcType=VARCHAR}) AS USER_STATE,
+     (SELECT TRIBUNE_ID FROM `tt_tribune` i WHERE i.REVIEW_OBJ_ID=ta.APPLY_SAFE_ID)AS TRIBUNE_ID,
+  CASE
+    WHEN RIGHT(REVIEW_TYPE, 1) = 
+    (SELECT 
+      REVIEW_TYPE 
+    FROM
+      sys_user su 
+    WHERE su.USER_ID = #{USER_ID,jdbcType=VARCHAR}) 
+    THEN 1 
+    ELSE 0 
+  END AS REVIEW_TYPE_STATE,
+  (SELECT 
+     i.STATE 
+      FROM
+        `tt_tribune` i 
+      WHERE i.REVIEW_OBJ_ID = ta.APPLY_SAFE_ID) STATE    
+FROM
+  tt_apply_safe ta 
+WHERE ta.`APPLY_SAFE_ID` = #{applySafeId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+UPDATE 
+  tt_apply_safe 
+SET
+  IS_DEL = 1 
+WHERE APPLY_SAFE_ID  = #{applySafeId,jdbcType=VARCHAR}
+  </delete>
+
+<delete id="dlByFk" parameterType="pd">
+DELETE 
+FROM
+  tt_apply_safe_user 
+WHERE APPLY_SAFE_ID = #{applySafeId,jdbcType=VARCHAR}
+</delete>
+
+<delete id="dlUserReply">
+DELETE 
+FROM
+  tt_tribune_user_reply 
+WHERE TRIBUNE_ID = 
+  (SELECT 
+    tt.`TRIBUNE_ID` 
+  FROM
+    tt_tribune tt 
+  WHERE tt.`REVIEW_OBJ_ID` = #{applySafeId,jdbcType=VARCHAR})
+</delete>
+
+<update id="upFlowState" parameterType="String">
+UPDATE 
+  tt_tribune tt 
+SET
+  tt.`STATE` = 1 
+WHERE tt.`REVIEW_OBJ_ID` IN 
+<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item,jdbcType=VARCHAR}
+             </foreach>
+</update>
+
+<delete id="dlReviewUser" parameterType="pd">
+DELETE 
+FROM
+  tt_tribune_user 
+WHERE TRIBUNE_ID = 
+  (SELECT 
+    tt.`TRIBUNE_ID` 
+  FROM
+    tt_tribune tt 
+  WHERE tt.`REVIEW_OBJ_ID` =  #{applySafeId,jdbcType=VARCHAR})
+</delete>
+
+<select id="toEditDiction" parameterType="pd" resultType="pd">
+SELECT 
+  sd.*,
+  CASE 
+    WHEN  FIND_IN_SET(sd.P_BM, #{SAFE_TYPE,jdbcType=VARCHAR}) 
+    THEN 1 
+    ELSE 0 
+  END AS rolecheck 
+FROM
+  sys_dictionaries sd 
+WHERE sd.`PARENT_ID` = 
+  (SELECT 
+    s.`ZD_ID` 
+  FROM
+    sys_dictionaries s 
+  WHERE s.`P_BM` = #{P_TYPE,jdbcType=VARCHAR})
+ORDER BY sd.NAME 
+</select>
+
+  <select id="listPageAll" parameterType="page" resultType="pd">
+SELECT 
+  * 
+FROM
+  (SELECT 
+  a.APPLY_SAFE_ID,a.STRUCT_ID,a.APPLY_NO,a.SAFE_TYPE,BASE,a.EXECUTE_DATE,a.ADD_MINUS_DATE,a.REMARK,a.CREATE_DATE,a.CREATE_BY,a.TITLE,
+  (SELECT 
+    u.NAME 
+  FROM
+    sys_user u 
+  WHERE u.USER_ID = a.`CREATE_BY`) AS CREATE_NAME,
+  (SELECT STATE FROM `tt_tribune` i WHERE i.REVIEW_OBJ_ID=a.APPLY_SAFE_ID)AS STATE,
+  (SELECT TRIBUNE_ID FROM `tt_tribune` i WHERE i.REVIEW_OBJ_ID=a.APPLY_SAFE_ID)AS TRIBUNE_ID,
+  (SELECT 
+    GROUP_CONCAT(d.NAME) 
+  FROM
+    sys_dictionaries d 
+  WHERE FIND_IN_SET(d.P_BM, a.SAFE_TYPE)
+    AND d.PARENT_ID != '0') AS SAFE_TYPE_NAME
+FROM
+  tt_apply_safe a 
+WHERE a.`CREATE_BY`= #{pd.USER_ID,jdbcType=VARCHAR}
+<if test="pd.AGE != 0">
+AND a.`STRUCT_ID` = #{pd.STRUCT_ID,jdbcType=VARCHAR} 
+</if>
+  AND a.`IS_DEL` = 0 
+OR( (SELECT TRIBUNE_ID FROM `tt_tribune` i WHERE i.REVIEW_OBJ_ID=a.APPLY_SAFE_ID) IN (SELECT i.`TRIBUNE_ID` FROM 
+`tt_tribune_user` i WHERE i.USER_ID=#{pd.USER_ID,jdbcType=VARCHAR} 
+AND i.`TRIBUNE_ID`=(SELECT TRIBUNE_ID FROM `tt_tribune` i WHERE i.REVIEW_OBJ_ID=a.APPLY_SAFE_ID)))
+ORDER BY a.`EXECUTE_DATE` DESC  ) sa 
+WHERE 1 = 1 
+  <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  AND (
+  sa.`CREATE_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR sa.`SAFE_TYPE_NAME` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.REMARK LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND( (sa.`EXECUTE_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`EXECUTE_DATE` &lt;=#{pd.LASTLOGINSTART2}) 
+  OR(sa.`CREATE_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`CREATE_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+</if>
+
+  </select>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.ApplySafe" >
+    insert into tt_apply_safe
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="applySafeId != null" >
+        APPLY_SAFE_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="applyNo != null" >
+        APPLY_NO,
+      </if>
+      <if test="safeType != null" >
+        SAFE_TYPE,
+      </if>
+      <if test="base != null" >
+        BASE,
+      </if>
+      <if test="addMinusDate != null" >
+        ADD_MINUS_DATE,
+      </if>
+      <if test="remark != null" >
+        REMARK,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="executeDate != null">
+      EXECUTE_DATE,
+      </if>
+      <if test="title != null" >
+        TITLE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="applySafeId != null" >
+        #{applySafeId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="applyNo != null" >
+        #{applyNo,jdbcType=VARCHAR},
+      </if>
+      <if test="safeType != null" >
+        #{safeType,jdbcType=VARCHAR},
+      </if>
+      <if test="base != null" >
+        #{base,jdbcType=DECIMAL},
+      </if>
+      <if test="addMinusDate != null" >
+        #{addMinusDate,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="executeDate != null">
+        #{executeDate,jdbcType=TIMESTAMP},
+      </if>
+       <if test="title != null" >
+        #{title,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.ApplySafe" >
+    update tt_apply_safe
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="applyNo != null" >
+        APPLY_NO = #{applyNo,jdbcType=VARCHAR},
+      </if>
+      <if test="safeType != null" >
+        SAFE_TYPE = #{safeType,jdbcType=VARCHAR},
+      </if>
+      <if test="base != null" >
+        BASE = #{base,jdbcType=DECIMAL},
+      </if>
+      <if test="addMinusDate != null" >
+        ADD_MINUS_DATE = #{addMinusDate,jdbcType=INTEGER},
+      </if>
+      <if test="remark != null" >
+        REMARK = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="executeDate != null">
+        EXECUTE_DATE = #{executeDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="title != null" >
+        TITLE = #{title,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where APPLY_SAFE_ID = #{applySafeId,jdbcType=VARCHAR}
+  </update>
+</mapper>

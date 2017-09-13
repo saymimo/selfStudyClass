@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="UserRoleMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.UserRole" >
+    <id column="USER_ROLE_ID" property="userRoleId" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="ROLE_ID" property="roleId" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    USER_ROLE_ID, USER_ID, ROLE_ID
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from sys_user_role
+    where USER_ROLE_ID = #{userRoleId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from sys_user_role
+    where USER_ROLE_ID = #{userRoleId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.UserRole" >
+    insert into sys_user_role (USER_ROLE_ID, USER_ID, ROLE_ID
+      )
+    values (#{userRoleId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{roleId,jdbcType=VARCHAR}
+      )
+  </insert>
+  <!-- 根据userid和角色查询 -->
+  <select id="findlistUserRole" parameterType="pd" resultType="pd">
+  select USER_ROLE_ID userRoleId, USER_ID userId, ROLE_ID roleId FROM sys_user_role where   USER_ID in (#{userid}) and ROLE_ID in 
+  (SELECT 
+    r.`ROLE_ID` 
+  FROM
+    `sys_role` r 
+  WHERE r.STRUCT_ID=#{STRUCT_ID} and  r.`ROLE_CODE` = #{rolecode} 
+
+)
+  
+  </select>
+  
+  
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.UserRole" >
+    insert into sys_user_role
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userRoleId != null" >
+        USER_ROLE_ID,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="roleId != null" >
+        ROLE_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userRoleId != null" >
+        #{userRoleId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="roleId != null" >
+        #{roleId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.UserRole" >
+    update sys_user_role
+    <set >
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="roleId != null" >
+        ROLE_ID = #{roleId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where USER_ROLE_ID = #{userRoleId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.UserRole" >
+    update sys_user_role
+    set USER_ID = #{userId,jdbcType=VARCHAR},
+      ROLE_ID = #{roleId,jdbcType=VARCHAR}
+    where USER_ROLE_ID = #{userRoleId,jdbcType=VARCHAR}
+  </update>
+</mapper>

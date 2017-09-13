@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtBondMapper" >
+  <resultMap id="BaseResultMap" type="pd" >
+    <id column="BOND_ID" property="bondId" jdbcType="VARCHAR" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="MONEY" property="money" jdbcType="DECIMAL" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="CONFIRM_USER" property="confirmUser" jdbcType="VARCHAR" />
+    <result column="CONFIRM_DATE" property="confirmDate" jdbcType="DATE" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CONFIRM_STATE" property="confirmState" jdbcType="INTEGER" />
+    
+    
+  </resultMap>
+  <sql id="Base_Column_List" >
+    BOND_ID, TYPE, STRUCT_ID, ITEM_ID, REMARK, MONEY, CREATE_BY, CREATE_DATE, UPDATE_BY, 
+    UPDATE_DATE, CONFIRM_USER, CONFIRM_DATE, IS_DEL,CONFIRM_STATE
+  </sql>
+  
+  	<!-- 删除 -->
+	  <update id="updateByIsDel" parameterType="pd">
+  		 update tt_bond   set   IS_DEL = 1 where BOND_ID=#{bondId}
+	  </update>
+   <select id="findBondInfo" resultType="pd" parameterType="pd" >
+SELECT 
+  BOND_ID,
+  TYPE,
+  STRUCT_ID,
+  ITEM_ID,
+  (SELECT t.`ITEM_NAME` FROM `tt_iteminfo` t WHERE t.`ITEM_ID`=tt_bond.ITEM_ID) AS ITEM_NAME,
+  REMARK,
+  MONEY,
+  CREATE_BY,
+  CREATE_DATE,
+  UPDATE_BY,
+  UPDATE_DATE,
+  CONFIRM_USER,
+  CONFIRM_DATE,
+  IS_DEL ,CONFIRM_STATE
+FROM
+  tt_bond 
+WHERE BOND_ID=#{bondId}
+
+    
+  </select>
+  
+  
+   <select id="findBondlistPage" resultMap="BaseResultMap" parameterType="page" >
+  SELECT 
+  BOND_ID as bondId,
+  TYPE as type,
+  (SELECT s.`STRUCT_NAME` FROM `sys_structinfo` s WHERE s.`STRUCT_ID`=tt_bond.STRUCT_ID) AS structId,
+   (SELECT t.`ITEM_NAME` FROM `tt_iteminfo` t WHERE t.`ITEM_ID`=tt_bond.ITEM_ID) AS itemId,
+  REMARK as remark,
+  MONEY as money,
+  (SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`=tt_bond.CREATE_BY) AS createBy,
+  CREATE_DATE as createDate,
+  UPDATE_BY as  updateBy ,
+  UPDATE_DATE as updateDate,
+  (SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`=tt_bond.CONFIRM_USER) AS confirmUser,
+  CONFIRM_DATE as confirmDate,
+  IS_DEL as isDel,CONFIRM_STATE as confirmState, CREATE_BY as User_id
+FROM
+  tt_bond 
+    where  1=1  
+    and IS_DEL=0
+      <if test="pd.isAge == 'no'" >
+   		  and STRUCT_ID = #{pd.STRUCT_ID}
+     </if>
+     <if test="pd.startDate !=null and pd.startDate!=''" >
+   		  and DATE_FORMAT(CREATE_DATE, '%Y-%m-%d') = #{pd.startDate}
+     </if>
+    
+  </select>
+  
+  
+  
+  <select id="findBondlistInfo" resultType="pd" parameterType="pd" >
+ SELECT
+ SUM(`MONEY`) as MONEY,
+ `TYPE`
+FROM
+  tt_bond 
+    where  1=1  
+    and IS_DEL=0
+      <if test="isAge == 'no'" >
+   		  and STRUCT_ID = #{STRUCT_ID}
+     </if>
+     <if test="startDate !=null and startDate!=''" >
+   		  and DATE_FORMAT(CREATE_DATE, '%Y-%m-%d') = #{startDate}
+     </if>
+     GROUP BY `TYPE`
+  </select>
+  
+  
+  
+  
+  
+<select id="listPageItem" resultType="pd" parameterType="page">
+select * from (SELECT 
+  t.`ITEM_NAME`,
+  t.`ITEM_NUMBER`,
+  t.`ITEM_MONEY`,
+  t.`ITEM_ID`,
+  t.`CREATE_DATE`,
+  su.`NAME` CREATE_NMAE,
+  t.END_DATE,
+  (SELECT 
+    sd.NAME 
+  FROM
+    sys_dictionaries sd 
+  WHERE sd.BIANMA = t.`ITEM_PROVINCE`) PROVINCE_NAME,
+  (SELECT 
+    sd.NAME 
+  FROM
+    sys_dictionaries sd 
+  WHERE sd.BIANMA = t.`ITEM_CITY`) CITY_NAME,
+  ss.`STRUCT_NAME`,
+  t.ENFORCESTATE,
+  case
+   when TAXATION_TYPE = 0
+   then '一般征收'
+   when TAXATION_TYPE = 1
+   then '简易征收'
+  end  TAXATION_TYPE_NAME
+FROM
+  tt_iteminfo t,
+  sys_user su,
+  sys_structinfo ss 
+WHERE 1=1
+<if test="pd.isManager == null or pd.isManager == ''">
+AND t.`STRUCT_ID` = #{pd.structId,jdbcType=VARCHAR}
+</if>
+  AND ss.`STRUCT_ID` = t.`STRUCT_ID` 
+  AND su.`USER_ID` = t.`CREATE_BY` 
+  AND t.`IS_DEL` = 0 
+  )sa
+  WHERE 1=1
+<if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME !=''">
+  AND (
+    sa.`ITEM_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+    OR CITY_NAME LIKE #{pd.ITEMCOLLECTNAME2} 
+    OR PROVINCE_NAME LIKE #{pd.ITEMCOLLECTNAME2}
+    OR ITEM_NUMBER  LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+</if>
+
+</select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_bond
+    where BOND_ID = #{bondId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_bond
+    where BOND_ID = #{bondId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtBond" >
+    insert into tt_bond (BOND_ID, TYPE, STRUCT_ID, 
+      ITEM_ID, REMARK, MONEY, 
+      CREATE_BY, CREATE_DATE, UPDATE_BY, 
+      UPDATE_DATE, CONFIRM_USER, CONFIRM_DATE, 
+      IS_DEL)
+    values (#{bondId,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{structId,jdbcType=VARCHAR}, 
+      #{itemId,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{money,jdbcType=DECIMAL}, 
+      #{createBy,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{confirmUser,jdbcType=VARCHAR}, #{confirmDate,jdbcType=DATE}, 
+      #{isDel,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_bond
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="bondId != null" >
+        BOND_ID,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="remark != null" >
+        REMARK,
+      </if>
+      <if test="money != null" >
+        MONEY,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="confirmUser != null" >
+        CONFIRM_USER,
+      </if>
+      <if test="confirmDate != null" >
+        CONFIRM_DATE,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+       <if test="confirmState != null" >
+        CONFIRM_STATE,
+      </if>
+      
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="bondId != null" >
+        #{bondId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        #{money,jdbcType=DECIMAL},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="confirmUser != null" >
+        #{confirmUser,jdbcType=VARCHAR},
+      </if>
+      <if test="confirmDate != null" >
+        #{confirmDate,jdbcType=DATE},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+       <if test="confirmState != null" >
+       #{confirmState},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_bond
+    <set >
+      <if test="type != null" >
+        TYPE = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        REMARK = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        MONEY = #{money,jdbcType=DECIMAL},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="confirmUser != null" >
+        CONFIRM_USER = #{confirmUser,jdbcType=VARCHAR},
+      </if>
+      <if test="confirmDate != null" >
+        CONFIRM_DATE = #{confirmDate,jdbcType=DATE},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+         <if test="confirmState != null" >
+        CONFIRM_STATE = #{confirmState},
+      </if>
+    </set>
+    where BOND_ID = #{bondId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtBond" >
+    update tt_bond
+    set TYPE = #{type,jdbcType=INTEGER},
+      STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      REMARK = #{remark,jdbcType=VARCHAR},
+      MONEY = #{money,jdbcType=DECIMAL},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      CONFIRM_USER = #{confirmUser,jdbcType=VARCHAR},
+      CONFIRM_DATE = #{confirmDate,jdbcType=DATE},
+      IS_DEL = #{isDel,jdbcType=INTEGER}
+    where BOND_ID = #{bondId,jdbcType=VARCHAR}
+  </update>
+</mapper>

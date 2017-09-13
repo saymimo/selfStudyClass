@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtFileManagementMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtFileManagement" >
+    <id column="FILE_MANAGEMENT_ID" property="fileManagementId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="FILE_TYPE" property="fileType" jdbcType="VARCHAR" />
+    <result column="PARENT_ID" property="parentId" jdbcType="VARCHAR" />
+    <result column="FILE_NAME" property="fileName" jdbcType="VARCHAR" />
+    <result column="FILE_PATH" property="filePath" jdbcType="VARCHAR" />
+    <result column="FILE_DOWNLOAD" property="fileDownload" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    FILE_MANAGEMENT_ID, STRUCT_ID, FILE_TYPE, PARENT_ID, FILE_NAME, FILE_PATH, FILE_DOWNLOAD, 
+    CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_file_management
+    where FILE_MANAGEMENT_ID = #{fileManagementId,jdbcType=VARCHAR}
+  </select>
+  
+   <select id="selectfileManageMentFileSuffix" resultType="pd"  parameterType="pd" >
+    select 
+     FILE_MANAGEMENT_ID, STRUCT_ID, FILE_TYPE, PARENT_ID, FILE_NAME, FILE_PATH, FILE_DOWNLOAD, 
+    CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,SUBSTRING_INDEX(FILE_NAME,'.',-1) as FILE_SUFFIX
+    from tt_file_management
+    where FILE_MANAGEMENT_ID = #{FILE_MANAGEMENT_ID,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_file_management
+    where FILE_MANAGEMENT_ID = #{fileManagementId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtFileManagement" >
+    insert into tt_file_management (FILE_MANAGEMENT_ID, STRUCT_ID, FILE_TYPE, 
+      PARENT_ID, FILE_NAME, FILE_PATH, 
+      FILE_DOWNLOAD, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY)
+    values (#{fileManagementId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{fileType,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR}, #{filePath,jdbcType=VARCHAR}, 
+      #{fileDownload,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_file_management
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="fileManagementId != null" >
+        FILE_MANAGEMENT_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="fileType != null" >
+        FILE_TYPE,
+      </if>
+      <if test="parentId != null" >
+        PARENT_ID,
+      </if>
+      <if test="fileName != null" >
+        FILE_NAME,
+      </if>
+      <if test="filePath != null" >
+        FILE_PATH,
+      </if>
+      <if test="fileDownload != null" >
+        FILE_DOWNLOAD,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="fileManagementId != null" >
+        #{fileManagementId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileType != null" >
+        #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null" >
+        #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="filePath != null" >
+        #{filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="fileDownload != null" >
+        #{fileDownload,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_file_management
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileType != null" >
+        FILE_TYPE = #{fileType,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null" >
+        PARENT_ID = #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null" >
+        FILE_NAME = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="filePath != null" >
+        FILE_PATH = #{filePath,jdbcType=VARCHAR},
+      </if>
+      <if test="fileDownload != null" >
+        FILE_DOWNLOAD = #{fileDownload,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where FILE_MANAGEMENT_ID = #{fileManagementId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtFileManagement" >
+    update tt_file_management
+    set STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      FILE_TYPE = #{fileType,jdbcType=VARCHAR},
+      PARENT_ID = #{parentId,jdbcType=VARCHAR},
+      FILE_NAME = #{fileName,jdbcType=VARCHAR},
+      FILE_PATH = #{filePath,jdbcType=VARCHAR},
+      FILE_DOWNLOAD = #{fileDownload,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where FILE_MANAGEMENT_ID = #{fileManagementId,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 显示全部 -->
+  <select id="listPageAllFileManageMentStructid" resultType="pd" parameterType="page" >
+    select 
+    FILE_MANAGEMENT_ID, STRUCT_ID, FILE_TYPE, PARENT_ID, FILE_NAME, FILE_PATH, FILE_DOWNLOAD, CREATE_BY,
+    CREATE_DATE, (SELECT s.`NAME` FROM `sys_user` s  WHERE s.`USER_ID`=t.CREATE_BY) as CREATE_NAME, UPDATE_DATE, UPDATE_BY,
+    IF(
+    SUBSTRING_INDEX(FILE_NAME, '.', - 1) = 'docx' 
+    OR SUBSTRING_INDEX(FILE_NAME, '.', - 1) = 'doc' 
+    OR SUBSTRING_INDEX(FILE_NAME, '.', - 1) = 'xlsx' 
+    OR SUBSTRING_INDEX(FILE_NAME, '.', - 1) = 'pdf' 
+    OR SUBSTRING_INDEX(FILE_NAME, '.', - 1) = 'xls',
+    'yes',
+    'no'
+  ) AS PREVIEW 
+    from tt_file_management t
+    where  STRUCT_ID = #{pd.structId,jdbcType=VARCHAR}  
+    
+    	<if test="pd.fileManagementId == null"><!-- 关键词检索 -->
+			and PARENT_ID=-1
+		</if>
+   	 	<if test="pd.fileManagementId != null and pd.fileManagementId != ''"><!-- 关键词检索 -->
+			and  PARENT_ID =#{pd.fileManagementId}
+		</if>
+		ORDER BY FILE_TYPE
+  </select>
+  
+  <!-- 只显示文件夹的列表 -->
+  <select id="updateFilelist" resultType="pd" parameterType="page" >
+    select 
+    FILE_MANAGEMENT_ID, STRUCT_ID, FILE_TYPE, PARENT_ID, FILE_NAME, FILE_PATH, FILE_DOWNLOAD, 
+    CREATE_DATE, (SELECT s.`NAME` FROM `sys_user` s  WHERE s.`USER_ID`=t.CREATE_BY) as CREATE_BY, UPDATE_DATE, UPDATE_BY
+    from tt_file_management t
+    where  STRUCT_ID = #{pd.structId,jdbcType=VARCHAR}   AND file_type=0
+    
+    	<if test="pd.fileManagementId == null"><!-- 关键词检索 -->
+			and PARENT_ID=-1
+		</if>
+   	 	<if test="pd.fileManagementId != null and pd.fileManagementId != ''"><!-- 关键词检索 -->
+			and  PARENT_ID =#{pd.fileManagementId}
+		</if>
+		ORDER BY FILE_TYPE
+  </select>
+  <!-- 下载次数加1 -->
+  <update id="updateFileManagementByFileDownload" parameterType="pd" >
+    update tt_file_management set   FILE_DOWNLOAD = FILE_DOWNLOAD+1
+    where FILE_MANAGEMENT_ID = #{fileManagementId,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 删除文件管理 -->
+   <delete id="updateByFileManagementId" parameterType="pd" >
+    delete from tt_file_management
+    where FILE_MANAGEMENT_ID = #{fileManagementId,jdbcType=VARCHAR}
+  </delete>
+</mapper>

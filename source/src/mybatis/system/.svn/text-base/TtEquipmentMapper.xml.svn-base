@@ -1,0 +1,742 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtEquipmentMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtEquipment" >
+    <id column="EQUIPMENT_ID" property="equipmentId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_NO" property="equipmentNo" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_TYPE" property="equipmentType" jdbcType="CHAR" />
+    <result column="EQUIPMENT_NAME" property="equipmentName" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_SPECIFICATIONS" property="equipmentSpecifications" jdbcType="VARCHAR" />
+    <result column="DUTY_USER" property="dutyUser" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_DESCRIBE" property="equipmentDescribe" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_UNIT" property="equipmentUnit" jdbcType="VARCHAR" />
+    
+  </resultMap>
+  <sql id="Base_Column_List" >
+    EQUIPMENT_ID, STRUCT_ID, EQUIPMENT_NO, EQUIPMENT_TYPE, EQUIPMENT_NAME, EQUIPMENT_SPECIFICATIONS, 
+    DUTY_USER, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,EQUIPMENT_DESCRIBE
+  </sql>
+  
+  
+  
+  
+  <select id="findExecl" resultType="pd" parameterType="pd" useCache="false">
+  
+  SELECT 
+  t.EQUIPMENT_ID,
+  t.STRUCT_ID,
+  t.EQUIPMENT_NO,
+  (SELECT 
+    NAME 
+  FROM
+    sys_dictionaries s 
+  WHERE s.BIANMA = EQUIPMENT_TYPE) AS EQUIPMENT_TYPE,
+  t.EQUIPMENT_NAME,
+  t.EQUIPMENT_SPECIFICATIONS,
+  t.DUTY_USER,
+  t.IS_DEL,
+  t.CREATE_DATE,
+  t.CREATE_BY,
+  t.UPDATE_DATE,
+  t.UPDATE_BY,
+  t.EQUIPMENT_DESCRIBE,
+  (SELECT 
+    IFNULL(SUM(b.BUY_NUMBER), 0) 
+  FROM
+    tt_equipment_buy b 
+  WHERE b.EQUIPMENT_ID = t.EQUIPMENT_ID 
+    AND b.IS_DEL = 0) AS number,
+  (SELECT 
+    IFNULL(SUM(i.NUMBER), 0) 
+  FROM
+    tt_item_equipment i 
+  WHERE i.EQUIPMENT_ID = t.EQUIPMENT_ID) AS transferNumber,
+  EQUIPMENT_UNIT,
+  eb.EQUIPMENT_BUY_ID,
+  eb.EQUIPMENT_ID,
+  eb.BUY_NUMBER,
+  eb.UNIT_PRICE,
+  eb.BUY_AMOUNT,
+  eb.BUY_DATE,
+  eb.BUY_UNIT,
+  eb.BUY_USER,
+  eb.IS_DEL,
+  eb.CREATE_DATE,
+  eb.CREATE_BY,
+  eb.UPDATE_DATE,
+  eb.UPDATE_BY,
+  eb.ADD_DATE,
+  eb.RECORD_NO,
+  eb.NO,
+  eb.MODEL,
+  eb.MANUFACTURER 
+FROM
+  tt_equipment t 
+  LEFT JOIN tt_equipment_buy eb 
+    ON t.`EQUIPMENT_ID` = eb.`EQUIPMENT_ID` 
+    
+    WHERE t.STRUCT_ID = #{STRUCT_ID,jdbcType=VARCHAR} and t.IS_DEL=0
+    
+     <if test="NAME != null and NAME != ''">
+			and
+				(
+					 t.EQUIPMENT_NAME LIKE CONCAT(CONCAT('%', #{NAME}),'%')
+					 or 
+					 t.EQUIPMENT_NO LIKE CONCAT(CONCAT('%', #{NAME}),'%') 
+					  or 
+					 t.EQUIPMENT_SPECIFICATIONS LIKE CONCAT(CONCAT('%', #{NAME}),'%')
+				)
+		</if><!-- 关键词检索 -->
+   
+    </select>
+  
+  <select id="findByEquimpentById" resultType="pd" parameterType="pd" useCache="false">
+    select 
+    EQUIPMENT_ID,
+     STRUCT_ID,
+      EQUIPMENT_NO, 
+      EQUIPMENT_TYPE,
+       EQUIPMENT_NAME,
+        EQUIPMENT_SPECIFICATIONS, 
+      DUTY_USER, IS_DEL, CREATE_DATE, 
+      CREATE_BY, UPDATE_DATE, UPDATE_BY,EQUIPMENT_DESCRIBE,EQUIPMENT_UNIT,
+      CODE,NUMBER,TOTAL,MANUFACTURER,PRODUCT_MODEL,PRODUCTION_DATE,PURCHASE_DATE,
+      TYPE,STATE,PLACE_STRUCT_ID,PLACE_STATE
+      
+    from tt_equipment
+    where EQUIPMENT_ID = #{EQUIPMENT_ID,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_equipment
+    where EQUIPMENT_ID = #{equipmentId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtEquipment" >
+    insert into tt_equipment (EQUIPMENT_ID, STRUCT_ID, EQUIPMENT_NO, 
+      EQUIPMENT_TYPE, EQUIPMENT_NAME, EQUIPMENT_SPECIFICATIONS, 
+      DUTY_USER, IS_DEL, CREATE_DATE, 
+      CREATE_BY, UPDATE_DATE, UPDATE_BY,EQUIPMENT_DESCRIBE,EQUIPMENT_UNIT
+      )
+    values (#{equipmentId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{equipmentNo,jdbcType=VARCHAR}, 
+      #{equipmentType,jdbcType=CHAR}, #{equipmentName,jdbcType=VARCHAR}, #{equipmentSpecifications,jdbcType=VARCHAR}, 
+      #{dutyUser,jdbcType=VARCHAR}, #{isDel,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR},#{equipmentDescribe,jdbcType=VARCHAR}
+      ,#{equipmentUnit,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_equipment
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="equipmentId != null" >
+        EQUIPMENT_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="equipmentNo != null" >
+        EQUIPMENT_NO,
+      </if>
+      <if test="equipmentType != null" >
+        EQUIPMENT_TYPE,
+      </if>
+      <if test="equipmentName != null" >
+        EQUIPMENT_NAME,
+      </if>
+      <if test="equipmentSpecifications != null" >
+        EQUIPMENT_SPECIFICATIONS,
+      </if>
+      <if test="dutyUser != null" >
+        DUTY_USER,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+        <if test="updateBy != null" >
+        EQUIPMENT_DESCRIBE,
+      </if>
+       <if test="equipmentUnit != null" >
+        EQUIPMENT_UNIT,
+      </if>
+      
+      
+      <if test="code != null" >
+        CODE,
+      </if>
+      <if test="number != null" >
+        NUMBER,
+      </if>
+      <if test="total != null and total !=''" >
+        TOTAL,
+      </if>
+      <if test="manufacturer != null" >
+        MANUFACTURER,
+      </if>
+      <if test="productModel != null" >
+        PRODUCT_MODEL,
+      </if>
+      <if test="productionDate != null and productionDate != ''" >
+        PRODUCTION_DATE,
+      </if>
+      <if test="purchaseDate != null and purchaseDate != ''" >
+        PURCHASE_DATE,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+       <if test="state != null" >
+        STATE,
+      </if>
+      
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="equipmentId != null" >
+        #{equipmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentNo != null" >
+        #{equipmentNo,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentType != null" >
+        #{equipmentType,jdbcType=CHAR},
+      </if>
+      <if test="equipmentName != null" >
+        #{equipmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentSpecifications != null" >
+        #{equipmentSpecifications,jdbcType=VARCHAR},
+      </if>
+      <if test="dutyUser != null" >
+        #{dutyUser,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+       <if test="updateBy != null" >
+        #{equipmentDescribe,jdbcType=VARCHAR},
+      </if>
+       <if test="equipmentUnit != null" >
+        #{equipmentUnit,jdbcType=VARCHAR},
+      </if>
+      
+      
+      
+      <if test="code != null" >
+        #{code},
+      </if>
+      <if test="number != null" >
+        #{number},
+      </if>
+      <if test="total != null  and total !=''" >
+        #{total},
+      </if>
+      <if test="manufacturer != null" >
+        #{manufacturer},
+      </if>
+      <if test="productModel != null" >
+        #{productModel},
+      </if>
+      <if test="productionDate != null  and productionDate != ''" >
+        #{productionDate},
+      </if>
+      <if test="purchaseDate != null and purchaseDate != ''" >
+        #{purchaseDate},
+      </if>
+      <if test="type != null" >
+        #{type},
+      </if>
+      
+      <if test="state != null" >
+        #{state},
+      </if>
+      
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_equipment
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentNo != null" >
+        EQUIPMENT_NO = #{equipmentNo,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentType != null" >
+        EQUIPMENT_TYPE = #{equipmentType,jdbcType=CHAR},
+      </if>
+      <if test="equipmentName != null" >
+        EQUIPMENT_NAME = #{equipmentName,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentSpecifications != null" >
+        EQUIPMENT_SPECIFICATIONS = #{equipmentSpecifications,jdbcType=VARCHAR},
+      </if>
+      <if test="dutyUser != null" >
+        DUTY_USER = #{dutyUser,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+        <if test="updateBy != null" >
+        EQUIPMENT_DESCRIBE =#{equipmentDescribe,jdbcType=VARCHAR},
+      </if>
+       <if test="equipmentUnit != null" >
+        EQUIPMENT_UNIT=#{equipmentUnit,jdbcType=VARCHAR},
+      </if>
+      
+      <if test="code != null" >
+        CODE=#{code},
+      </if>
+      <if test="number != null" >
+        NUMBER= #{number},
+      </if>
+      <if test="total != null  and total !=''" >
+        TOTAL=#{total},
+      </if>
+      <if test="manufacturer != null" >
+        MANUFACTURER=#{manufacturer},
+      </if>
+      <if test="productModel != null" >
+        PRODUCT_MODEL=#{productModel},
+      </if>
+      <if test="productionDate != null and productionDate != ''" >
+        PRODUCTION_DATE=#{productionDate},
+      </if>
+      <if test="purchaseDate != null and purchaseDate != ''" >
+        PURCHASE_DATE=#{purchaseDate},
+      </if>
+      <if test="type != null" >
+        TYPE=#{type},
+      </if>
+    </set>
+    where EQUIPMENT_ID = #{equipmentId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtEquipment" >
+    update tt_equipment
+    set STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      EQUIPMENT_NO = #{equipmentNo,jdbcType=VARCHAR},
+      EQUIPMENT_TYPE = #{equipmentType,jdbcType=CHAR},
+      EQUIPMENT_NAME = #{equipmentName,jdbcType=VARCHAR},
+      EQUIPMENT_SPECIFICATIONS = #{equipmentSpecifications,jdbcType=VARCHAR},
+      DUTY_USER = #{dutyUser,jdbcType=VARCHAR},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+       EQUIPMENT_DESCRIBE =#{equipmentDescribe,jdbcType=VARCHAR}
+    where EQUIPMENT_ID = #{equipmentId,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="listPageAllEquimpentStructid"  resultType="pd" parameterType="pd" >
+    select 
+     EQUIPMENT_ID, STRUCT_ID, EQUIPMENT_NO,  (SELECT NAME	FROM  sys_dictionaries s WHERE s.BIANMA=EQUIPMENT_TYPE) as EQUIPMENT_TYPE, EQUIPMENT_NAME, EQUIPMENT_SPECIFICATIONS, 
+    DUTY_USER, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,EQUIPMENT_DESCRIBE,(SELECT IFNULL(SUM(b.BUY_NUMBER),0) FROM tt_equipment_buy b WHERE b.EQUIPMENT_ID=t.EQUIPMENT_ID and b.IS_DEL=0) AS number,
+    (SELECT IFNULL(SUM(i.NUMBER),0) FROM tt_item_equipment i WHERE i.EQUIPMENT_ID=t.EQUIPMENT_ID) as transferNumber,EQUIPMENT_UNIT
+    from tt_equipment t
+    where STRUCT_ID = #{pd.STRUCT_ID,jdbcType=VARCHAR} and IS_DEL=0 and TYPE=1
+		
+		 <if test="pd.NAME != null and pd.NAME != ''">
+			and
+				(
+					 EQUIPMENT_NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 or 
+					 EQUIPMENT_NO LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+					  or 
+					 EQUIPMENT_SPECIFICATIONS LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+				)
+		</if><!-- 关键词检索 -->
+  </select>
+  
+  
+  <select id="listPageAllLargeEquipmentList"  resultType="pd" parameterType="pd" >
+  SELECT 
+ t.EQUIPMENT_ID,
+  (SELECT s.`STRUCT_NAME` FROM `sys_structinfo` s WHERE s.`STRUCT_ID`=t.STRUCT_ID) AS STRUCT_ID,
+  t.EQUIPMENT_NO,
+  (SELECT 
+    NAME 
+  FROM
+    sys_dictionaries s 
+  WHERE s.BIANMA = EQUIPMENT_TYPE) AS EQUIPMENT_TYPE,
+  t.EQUIPMENT_NAME,
+  t.EQUIPMENT_SPECIFICATIONS,
+  t.DUTY_USER,
+  t.IS_DEL,
+  t.CREATE_DATE,
+  t.CREATE_BY,
+  t.UPDATE_DATE,
+  t.UPDATE_BY,
+  t.EQUIPMENT_DESCRIBE,
+  (SELECT 
+    IFNULL(SUM(b.BUY_NUMBER), 0) 
+  FROM
+    tt_equipment_buy b 
+  WHERE b.EQUIPMENT_ID = t.EQUIPMENT_ID 
+    AND b.IS_DEL = 0) AS number,
+  (SELECT 
+    IFNULL(SUM(i.NUMBER), 0) 
+  FROM
+    tt_item_equipment i 
+  WHERE i.EQUIPMENT_ID = t.EQUIPMENT_ID) AS transferNumber,
+  t.EQUIPMENT_UNIT,
+  t.TYPE,
+  t.STATE,
+  t.CODE,
+  t.NUMBER AS largeNumber,
+  t.TOTAL,
+  t.MANUFACTURER,
+  t.PRODUCT_MODEL,
+  t.PRODUCTION_DATE,
+  t.PURCHASE_DATE,
+ (SELECT s.`STRUCT_NAME` FROM `sys_structinfo` s WHERE s.`STRUCT_ID`=t.PLACE_STRUCT_ID) AS PLACE_STRUCT_ID,
+
+ t.PLACE_STATE,t.LOAN_ADDRESS
+ 
+FROM
+  tt_equipment t 
+  
+WHERE 
+(t.PLACE_STRUCT_ID=#{pd.STRUCT_ID}
+OR t.`STRUCT_ID`=#{pd.STRUCT_ID})  AND t.`TYPE`=0  and t.IS_DEL=0
+		
+		 <if test="pd.NAME != null and pd.NAME != ''">
+			and
+				(
+					 t.EQUIPMENT_NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 or 
+					 t.EQUIPMENT_NO LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+					  or 
+					 t.EQUIPMENT_SPECIFICATIONS LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 
+					  or 
+					 t.CODE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					  or 
+					 t.NUMBER LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					  or 
+					 t.MANUFACTURER LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					  or 
+					 t.PRODUCT_MODEL LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 
+				)
+		</if><!-- 关键词检索 -->
+  </select>
+  
+  
+  
+  
+  
+  <select id="largeEquipmentListExcel"  resultType="pd" parameterType="pd" >
+  SELECT 
+ t.EQUIPMENT_ID,
+  (SELECT s.`STRUCT_NAME` FROM `sys_structinfo` s WHERE s.`STRUCT_ID`=t.STRUCT_ID) AS STRUCT_ID,
+  t.EQUIPMENT_NO,
+  (SELECT 
+    NAME 
+  FROM
+    sys_dictionaries s 
+  WHERE s.BIANMA = EQUIPMENT_TYPE) AS EQUIPMENT_TYPE,
+  t.EQUIPMENT_NAME,
+  t.EQUIPMENT_SPECIFICATIONS,
+  t.DUTY_USER,
+  t.IS_DEL,
+  t.CREATE_DATE,
+  t.CREATE_BY,
+  t.UPDATE_DATE,
+  t.UPDATE_BY,
+  t.EQUIPMENT_DESCRIBE,
+  (SELECT 
+    IFNULL(SUM(b.BUY_NUMBER), 0) 
+  FROM
+    tt_equipment_buy b 
+  WHERE b.EQUIPMENT_ID = t.EQUIPMENT_ID 
+    AND b.IS_DEL = 0) AS number,
+  (SELECT 
+    IFNULL(SUM(i.NUMBER), 0) 
+  FROM
+    tt_item_equipment i 
+  WHERE i.EQUIPMENT_ID = t.EQUIPMENT_ID) AS transferNumber,
+  t.EQUIPMENT_UNIT,
+  t.TYPE,
+  t.STATE,
+  t.CODE,
+  t.NUMBER AS largeNumber,
+  t.TOTAL,
+  t.MANUFACTURER,
+  t.PRODUCT_MODEL,
+  t.PRODUCTION_DATE,
+  t.PURCHASE_DATE,
+ (SELECT s.`STRUCT_NAME` FROM `sys_structinfo` s WHERE s.`STRUCT_ID`=t.PLACE_STRUCT_ID) AS PLACE_STRUCT_ID,
+
+ t.PLACE_STATE,t.LOAN_ADDRESS
+ 
+FROM
+  tt_equipment t 
+  
+WHERE 
+(t.PLACE_STRUCT_ID=#{STRUCT_ID}
+OR t.`STRUCT_ID`=#{STRUCT_ID})  AND t.`TYPE`=0  and t.IS_DEL=0
+		
+		 <if test="NAME != null and NAME != ''">
+			and
+				(
+					 t.EQUIPMENT_NAME LIKE CONCAT(CONCAT('%', #{NAME}),'%')
+					 or 
+					 t.EQUIPMENT_NO LIKE CONCAT(CONCAT('%', #{NAME}),'%') 
+					  or 
+					 t.EQUIPMENT_SPECIFICATIONS LIKE CONCAT(CONCAT('%', #{NAME}),'%')
+					 
+					  or 
+					 t.CODE LIKE CONCAT(CONCAT('%', #{NAME}),'%')
+					  or 
+					 t.NUMBER LIKE CONCAT(CONCAT('%', #{NAME}),'%')
+					  or 
+					 t.MANUFACTURER LIKE CONCAT(CONCAT('%', #{NAME}),'%')
+					  or 
+					 t.PRODUCT_MODEL LIKE CONCAT(CONCAT('%', #{NAME}),'%')
+					 
+				)
+		</if><!-- 关键词检索 -->
+  </select>
+  
+  
+  
+   <select id="itemEquipmentList"  resultType="pd" parameterType="pd" >
+  SELECT 
+  t.EQUIPMENT_ID,
+  (SELECT 
+    s.`STRUCT_NAME` 
+  FROM
+    `sys_structinfo` s 
+  WHERE s.`STRUCT_ID` = t.STRUCT_ID) AS STRUCT_ID,
+  t.EQUIPMENT_NO,
+  (SELECT 
+    NAME 
+  FROM
+    sys_dictionaries s 
+  WHERE s.BIANMA = EQUIPMENT_TYPE) AS EQUIPMENT_TYPE,
+  t.EQUIPMENT_NAME,
+  t.EQUIPMENT_SPECIFICATIONS,
+  t.DUTY_USER,
+  t.IS_DEL,
+  t.CREATE_DATE,
+  t.CREATE_BY,
+  t.UPDATE_DATE,
+  t.UPDATE_BY,
+  t.EQUIPMENT_DESCRIBE,
+  (SELECT 
+    IFNULL(SUM(b.BUY_NUMBER), 0) 
+  FROM
+    tt_equipment_buy b 
+  WHERE b.EQUIPMENT_ID = t.EQUIPMENT_ID 
+    AND b.IS_DEL = 0) AS number,
+  (SELECT 
+    IFNULL(SUM(i.NUMBER), 0) 
+  FROM
+    tt_item_equipment i 
+  WHERE i.EQUIPMENT_ID = t.EQUIPMENT_ID) AS transferNumber,
+  t.EQUIPMENT_UNIT,
+  t.TYPE,
+  t.STATE,
+  t.CODE,
+  t.NUMBER AS largeNumber,
+  t.TOTAL,
+  t.MANUFACTURER,
+  t.PRODUCT_MODEL,
+  t.PRODUCTION_DATE,
+  t.PURCHASE_DATE,
+  (SELECT 
+    s.`STRUCT_NAME` 
+  FROM
+    `sys_structinfo` s 
+  WHERE s.`STRUCT_ID` = t.PLACE_STRUCT_ID) AS PLACE_STRUCT_ID,
+  t.PLACE_STATE,
+  t.LOAN_ADDRESS 
+FROM
+  tt_equipment t 
+  LEFT JOIN 
+(SELECT 
+  * 
+FROM
+  (SELECT 
+    t.`EQUIPMENT_ID`,
+    t.`CREATE_DATE`,
+    t.`TRANSFER_IN_ITEM_ID` 
+  FROM
+    `tt_equipment_transfer` t 
+  ORDER BY t.`CREATE_DATE` DESC) biaoming 
+GROUP BY EQUIPMENT_ID 
+ORDER BY CREATE_DATE ) et ON et.EQUIPMENT_ID=t.`EQUIPMENT_ID`
+ 
+WHERE  t.`TYPE` = 0  AND et.TRANSFER_IN_ITEM_ID=#{pd.ITEM_ID}
+  
+  
+  
+  
+  
+  
+    AND t.`TYPE` = 0 
+		 <if test="pd.NAME != null and pd.NAME != ''">
+			and
+				(
+					 t.EQUIPMENT_NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 or 
+					 t.EQUIPMENT_NO LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+					  or 
+					 t.EQUIPMENT_SPECIFICATIONS LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					  or 
+					 t.CODE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					  or 
+					 t.NUMBER LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					  or 
+					 t.MANUFACTURER LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					  or 
+					 t.PRODUCT_MODEL LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 
+				)
+		</if><!-- 关键词检索 -->
+  </select>
+   <select id="listAllEquimpentStructidTab" resultType="pd" parameterType="pd" >
+    select 
+       EQUIPMENT_ID, STRUCT_ID, EQUIPMENT_NO,  (SELECT NAME	FROM  sys_dictionaries s WHERE s.BIANMA=EQUIPMENT_TYPE) as EQUIPMENT_TYPE, EQUIPMENT_NAME, EQUIPMENT_SPECIFICATIONS, 
+    DUTY_USER, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,EQUIPMENT_DESCRIBE,EQUIPMENT_UNIT
+    from tt_equipment
+    where STRUCT_ID = #{pd.STRUCT_ID,jdbcType=VARCHAR} and IS_DEL=0
+		
+		 <if test="pd.NAME != null and pd.NAME != ''">
+			and
+				(
+					 EQUIPMENT_NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 or 
+					 EQUIPMENT_NO LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+					  or 
+					 EQUIPMENT_SPECIFICATIONS LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+				)
+		</if><!-- 关键词检索 -->
+  </select>
+  
+  <!-- 项目设备查询 -->
+  <select id="listPageEquimpentStructid"  resultType="pd" parameterType="pd" >
+    SELECT 
+  EQUIPMENT_ID,
+  STRUCT_ID,
+  EQUIPMENT_NO,
+  (SELECT 
+    NAME 
+  FROM
+    sys_dictionaries s 
+  WHERE s.BIANMA = EQUIPMENT_TYPE) AS EQUIPMENT_TYPE,
+  EQUIPMENT_NAME,
+  EQUIPMENT_SPECIFICATIONS,
+  DUTY_USER,
+  IS_DEL,
+  CREATE_DATE,
+  CREATE_BY,
+  UPDATE_DATE,
+  UPDATE_BY,
+  EQUIPMENT_DESCRIBE,
+ 
+  (SELECT 
+    IFNULL(SUM(i.NUMBER), 0) 
+  FROM
+    tt_item_equipment i 
+  WHERE i.EQUIPMENT_ID = t.EQUIPMENT_ID) AS transferNumber,EQUIPMENT_UNIT 
+FROM
+  tt_equipment t 
+  
+  where t.`EQUIPMENT_ID` in ( SELECT et.`EQUIPMENT_ID` FROM `tt_equipment_transfer` et WHERE   et.`TRANSFER_IN_ITEM_ID`= #{pd.ITEM_ID,jdbcType=VARCHAR}  GROUP BY  et.TRANSFER_IN_ITEM_ID)
+		
+		 <if test="pd.NAME != null and pd.NAME != ''">
+			and  EQUIPMENT_NAME   LIKE #{pd.NAME2}
+		</if><!-- 关键词检索 -->
+  </select>
+  
+  
+  <!-- 通过编号获取数据 -->
+	<select id="hasEquipmentNumber" parameterType="pd" resultType="pd" useCache="false">
+		select 
+			 <include refid="Base_Column_List" />
+		from 
+			tt_equipment
+		where 
+			STRUCT_ID=#{STRUCT_ID} and 
+			EQUIPMENT_NO = #{equipmentNo} and IS_DEL=0
+		<if test="EQUIPMENT_ID != null and EQUIPMENT_ID != ''">
+			and EQUIPMENT_ID != #{EQUIPMENT_ID} 
+		</if>
+	</select>
+  
+  
+  	<!-- 删除 -->
+	  <update id="updateByIsDel" parameterType="pd">
+  		 update tt_equipment   set   IS_DEL = 1 where EQUIPMENT_ID=#{EQUIPMENT_ID}
+	  </update>
+	  
+	  <!-- 修改设备表的状态 -->
+	  <update id="updateEquipmentByState" parameterType="pd">
+  		 update tt_equipment   set   STATE = #{state}
+  		
+  		 <if test="placeStructId != null and placeStructId != ''">
+			 ,PLACE_STRUCT_ID=#{placeStructId}
+		</if>
+  		 ,PLACE_STATE=#{placeState}
+  		  <if test="loanAddress != null and loanAddress != ''">
+			 , LOAN_ADDRESS=#{loanAddress}
+		</if>
+  		
+  		  where EQUIPMENT_ID=#{equipmentId}
+	  </update>
+	  <!-- 批量删除 -->
+	<delete id="deleteAllEquipment" parameterType="String" flushCache="false">
+		update tt_equipment
+		 set
+			IS_DEL =1 where EQUIPMENT_ID in 
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+	
+  
+  
+</mapper>

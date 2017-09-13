@@ -53,14 +53,11 @@ public class UserController
     String message = "ok";
     String code = "200";
     String phone = uJson.getString("mobile");
-    pd.put("PHONE", phone);
-    try
-    {
-      userPd = this.userService.findByUPhone(pd);
-    }
-    catch (Exception e1)
-    {
-      this.logger.error(e1.toString(), e1);
+    pd.put("phone", phone);
+    try{
+      userPd = userService.findByUPhone(pd);
+    }catch (Exception e1){
+      logger.error(e1.toString(), e1);
       message = "userService.findByUPhone(pd) ERROR!";
       code = "500";
     }
@@ -77,35 +74,32 @@ public class UserController
     querys.put("RecNum", phone);
     querys.put("SignName", "自习课");
     querys.put("TemplateCode", "SMS_86745124");
-    try
-    {
+    try{
       HttpResponse response = HttpUtils.doGet(host, path, method, headers, querys);
       System.out.println(response.toString());
       
       System.out.println(EntityUtils.toString(response.getEntity()));
-    }
-    catch (Exception e)
-    {
-      this.logger.error(e.toString(), e);
+    }catch (Exception e){
+      logger.error(e.toString(), e);
       message = "ERROR:When Send Msg To User";
-      code = "400";
+      code = "500";
     }
     String user_id = get32UUID();
-    pd.put("PHONE", phone);
-    pd.put("VERIFICATION_CODE", verCode);
-    if ((userPd != null) && (userPd.size() > 0)){
+    pd.put("verification_code", verCode);
+    if ((userPd != null) && (userPd.size() > 0)){//如果用户已经存在，则更新其最新验证码
       try{
-        this.userService.updateUser(pd);
+    	 pd.put("user_id", userPd.getString("id"));
+    	 userService.updateUserByUid(pd);
       }catch (Exception e){
-        this.logger.error(e.toString(), e);
+        logger.error(e.toString(), e);
         message = "ERROR:When Update UserVerCode";
         code = "500";
       }
     }else{
-      pd.put("USER_ID", user_id);
-      pd.put("USERNAME", phone);
+      pd.put("user_id", user_id);
+      pd.put("verification_code", verCode);
       try{
-        this.userService.saveU(pd);
+        userService.saveU(pd);
       }catch (Exception e){
         this.logger.error(e.toString(), e);
         message = "ERROR:When Save User";
@@ -128,40 +122,38 @@ public class UserController
    */
   @RequestMapping(value="/login",method=RequestMethod.POST)
   @ResponseBody
-  public Object login()
-  {
+  public Object login(@RequestBody String req){
+	JSONObject data = new JSONObject();
+	JSONObject respJson = new JSONObject();
     PageData pd = new PageData();
-    PageData userPd = new PageData();
-    pd = getPageData();
+    pd = getPdFromJson(req);
     String message = "err";
+    Date date = new Date();
     String code = "200";
-    try
-    {
-      pd.put("PHONE", pd.getString("phone"));
-      userPd = this.userService.findByUPhone(pd);
-      if (userPd.getString("VERIFICATION_CODE").equals(pd.getString("verificationCode")))
-      {
+    
+    PageData userPd = new PageData();
+    try{
+      userPd = userService.findByUPhone(pd);
+      if (userPd.getString("verification_code").equals(pd.getString("verificationCode"))){//验证通过
         message = "ok";
-        if (userPd.getString("STATUS").equals("0"))
-        {
-          pd.put("state", "1");
-          pd.put("CREATE_DATE", new Date());
-          this.userService.updateUser(pd);
+        if (userPd.getString("state").equals("0")){//状态为未激活
+          pd.put("state", 1);
+          pd.put("join_time", date);
+          pd.put("user_id", userPd.getString("user_id"));
+          userService.updateUserByUid(pd);
         }
       }
-    }
-    catch (Exception e)
-    {
+      
+    }catch (Exception e){
       this.logger.error(e.toString(), e);
       message = "ERROR:When Check VERIFICATION_CODE";
       code = "500";
     }
-    JSONObject data = new JSONObject();
-    JSONObject jsonObject = new JSONObject();
-    jsonObject.put("code", code);
-    jsonObject.put("message", message);
-    jsonObject.put("data", data);
-    return jsonObject;
+    data = JSONObject.fromObject(userPd);
+    respJson.put("code", code);
+    respJson.put("message", message);
+    respJson.put("data", data);
+    return respJson;
   }
   /**
    * 更新用户
@@ -184,7 +176,7 @@ public class UserController
 	  pd.put("email", reqJson.getString("email"));
 	  pd.put("update_time", date);
 	  try {
-		userService.updateUser(pd);
+		userService.updateUserByUid(pd);
 	  } catch (Exception e) {
 		 logger.error(e.toString(), e);
 	     message = "ERROR:When updateUser";
@@ -192,7 +184,7 @@ public class UserController
 	  }
 	  pd.remove("user_id");pd.remove("update_time");
 	  pd.put("id", reqJson.getString("id"));
-	  pd.put("updateTime", date);
+	  pd.put("updateTime", date.getTime()/1000);
 	  respJson.put("code", code);
 	  respJson.put("message", message);
 	  respJson.put("data", JSONObject.fromObject(pd));

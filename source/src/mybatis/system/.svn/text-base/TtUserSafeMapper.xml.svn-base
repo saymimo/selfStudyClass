@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtUserSafeMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtUserSafe" >
+    <id column="USER_SAFE_ID" property="userSafeId" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="PENSION" property="pension" jdbcType="DECIMAL" />
+    <result column="MEDICAL" property="medical" jdbcType="DECIMAL" />
+    <result column="UNEMPLOYMENT" property="unemployment" jdbcType="DECIMAL" />
+    <result column="INJURY" property="injury" jdbcType="DECIMAL" />
+    <result column="BEAR" property="bear" jdbcType="DECIMAL" />
+    <result column="CAREER_PENSION" property="careerPension" jdbcType="DECIMAL" />
+    <result column="WAGES" property="wages" jdbcType="DECIMAL" />
+    <result column="ADDS" property="adds" jdbcType="DECIMAL" />
+    <result column="REDUCE" property="reduce" jdbcType="DECIMAL" />
+    <result column="EXECUTE_DATE" property="executeDate" jdbcType="DATE" />
+    <result column="REEMARK" property="reemark" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="CONFIRM" property="confirm" jdbcType="VARCHAR" />
+    <result column="USER_NO" property="userNo" jdbcType="VARCHAR" />
+    
+  </resultMap>
+  <sql id="Base_Column_List" >
+    USER_SAFE_ID, USER_ID, PENSION, MEDICAL, UNEMPLOYMENT, INJURY, BEAR, CAREER_PENSION, 
+    WAGES, ADDS, REDUCE, EXECUTE_DATE, REEMARK, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY, CONFIRM
+  </sql>
+  
+  
+  
+  
+  <select id="findUserinfoByUserSafeIden" resultType="pd" parameterType="pd" >
+    SELECT u.`USER_ID`,u.`IDENTITYCODE` FROM `sys_user` u WHERE u.`IDENTITYCODE`=#{IDENTITYCODE}
+  </select>
+  
+  <select id="findUserSafeInfolistPageAll" resultType="pd" parameterType="page" >
+   SELECT 
+  USER_SAFE_ID,
+  USER_ID,
+  
+(SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`=tt_user_safe.USER_ID) AS username,
+(SELECT u.`IDENTITYCODE` FROM `sys_user` u WHERE u.`USER_ID`=tt_user_safe.USER_ID) AS shenfenzheng,
+(SELECT u.`SEX` FROM `sys_user` u WHERE u.`USER_ID`=tt_user_safe.USER_ID) AS sex,
+(SELECT u.`PHONE` FROM `sys_user` u WHERE u.`USER_ID`=tt_user_safe.USER_ID) AS phone,
+  PENSION AS pension,
+  MEDICAL AS medical,
+  UNEMPLOYMENT AS unemployment,
+  INJURY AS injury,
+  BEAR AS bear,
+  CAREER_PENSION AS careerPension,
+  WAGES AS wages,
+  ADDS AS adds,
+  REDUCE AS reduce,
+  EXECUTE_DATE AS executeDate,
+  REEMARK AS reemark,
+  IS_DEL,
+  CREATE_DATE AS createDate,
+  CREATE_BY AS  createBy,
+  UPDATE_DATE,
+  UPDATE_BY,
+  CONFIRM AS confirm,
+  USER_NO   AS userNo
+FROM
+  tt_user_safe 
+WHERE IS_DEL = 0 
+<if test="pd.safeName != null and pd.safeName != ''"><!-- 关键词检索 -->
+			and
+				(
+					 USER_NO LIKE CONCAT(CONCAT('%', #{pd.safeName}),'%')
+					 or 
+					 CONFIRM LIKE CONCAT(CONCAT('%', #{pd.safeName}),'%') 
+					  or 
+					 tt_user_safe.`USER_ID` IN (SELECT u.`USER_ID` FROM `sys_user` u WHERE u.`IDENTITYCODE` LIKE CONCAT(CONCAT('%', #{pd.safeName}),'%'))
+  						or
+ 					 tt_user_safe.`USER_ID` IN (SELECT u.`USER_ID` FROM `sys_user` u WHERE u.`NAME` LIKE CONCAT(CONCAT('%', #{pd.safeName}),'%'))
+				)
+		</if>
+  </select>
+  
+  
+  <!--查询 员工交保数据-->
+  <select id="findUserSafeInfolistPageByUserid" resultType="pd" parameterType="page" >
+   SELECT 
+  USER_SAFE_ID,
+  USER_ID,
+  
+(SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`=tt_user_safe.USER_ID) AS username,
+(SELECT u.`IDENTITYCODE` FROM `sys_user` u WHERE u.`USER_ID`=tt_user_safe.USER_ID) AS shenfenzheng,
+(SELECT u.`SEX` FROM `sys_user` u WHERE u.`USER_ID`=tt_user_safe.USER_ID) AS sex,
+(SELECT u.`PHONE` FROM `sys_user` u WHERE u.`USER_ID`=tt_user_safe.USER_ID) AS phone,
+  PENSION AS pension,
+  MEDICAL AS medical,
+  UNEMPLOYMENT AS unemployment,
+  INJURY AS injury,
+  BEAR AS bear,
+  CAREER_PENSION AS careerPension,
+  WAGES AS wages,
+  ADDS AS adds,
+  REDUCE AS reduce,
+  EXECUTE_DATE AS executeDate,
+  REEMARK AS reemark,
+  IS_DEL,
+  CREATE_DATE AS createDate,
+  CREATE_BY AS  createBy,
+  UPDATE_DATE,
+  UPDATE_BY,
+  CONFIRM AS confirm,
+  USER_NO   AS userNo
+FROM
+  tt_user_safe 
+WHERE IS_DEL = 0  and tt_user_safe.USER_ID=#{pd.userId}
+<if test="pd.safeName != null and pd.safeName != ''"><!-- 关键词检索 -->
+			and
+				(
+					 USER_NO LIKE CONCAT(CONCAT('%', #{pd.safeName}),'%')
+					 or 
+					 CONFIRM LIKE CONCAT(CONCAT('%', #{pd.safeName}),'%') 
+					  or 
+					 tt_user_safe.`USER_ID` IN (SELECT u.`USER_ID` FROM `sys_user` u WHERE u.`IDENTITYCODE` LIKE CONCAT(CONCAT('%', #{pd.safeName}),'%'))
+  						or
+ 					 tt_user_safe.`USER_ID` IN (SELECT u.`USER_ID` FROM `sys_user` u WHERE u.`NAME` LIKE CONCAT(CONCAT('%', #{pd.safeName}),'%'))
+				)
+		</if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_user_safe
+    where USER_SAFE_ID = #{userSafeId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtUserSafe" >
+    insert into tt_user_safe (USER_SAFE_ID, USER_ID, PENSION, 
+      MEDICAL, UNEMPLOYMENT, INJURY, 
+      BEAR, CAREER_PENSION, WAGES, 
+      ADDS, REDUCE, EXECUTE_DATE, 
+      REEMARK, IS_DEL, CREATE_DATE, 
+      CREATE_BY, UPDATE_DATE, UPDATE_BY, 
+      CONFIRM)
+    values (#{userSafeId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{pension,jdbcType=DECIMAL}, 
+      #{medical,jdbcType=DECIMAL}, #{unemployment,jdbcType=DECIMAL}, #{injury,jdbcType=DECIMAL}, 
+      #{bear,jdbcType=DECIMAL}, #{careerPension,jdbcType=DECIMAL}, #{wages,jdbcType=DECIMAL}, 
+      #{adds,jdbcType=DECIMAL}, #{reduce,jdbcType=DECIMAL}, #{executeDate,jdbcType=DATE}, 
+      #{reemark,jdbcType=VARCHAR}, #{isDel,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
+      #{confirm,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_user_safe
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userSafeId != null" >
+        USER_SAFE_ID,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="pension != null" >
+        PENSION,
+      </if>
+      <if test="medical != null" >
+        MEDICAL,
+      </if>
+      <if test="unemployment != null" >
+        UNEMPLOYMENT,
+      </if>
+      <if test="injury != null" >
+        INJURY,
+      </if>
+      <if test="bear != null" >
+        BEAR,
+      </if>
+      <if test="careerPension != null" >
+        CAREER_PENSION,
+      </if>
+      <if test="wages != null" >
+        WAGES,
+      </if>
+      <if test="adds != null" >
+        ADDS,
+      </if>
+      <if test="reduce != null" >
+        REDUCE,
+      </if>
+      <if test="executeDate != null" >
+        EXECUTE_DATE,
+      </if>
+      <if test="reemark != null" >
+        REEMARK,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="confirm != null" >
+        CONFIRM,
+      </if>
+      <if test="userNo != null" >
+        USER_NO,
+      </if>
+      
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userSafeId != null" >
+        #{userSafeId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="pension != null" >
+        #{pension,jdbcType=DECIMAL},
+      </if>
+      <if test="medical != null" >
+        #{medical,jdbcType=DECIMAL},
+      </if>
+      <if test="unemployment != null" >
+        #{unemployment,jdbcType=DECIMAL},
+      </if>
+      <if test="injury != null" >
+        #{injury,jdbcType=DECIMAL},
+      </if>
+      <if test="bear != null" >
+        #{bear,jdbcType=DECIMAL},
+      </if>
+      <if test="careerPension != null" >
+        #{careerPension,jdbcType=DECIMAL},
+      </if>
+      <if test="wages != null" >
+        #{wages,jdbcType=DECIMAL},
+      </if>
+      <if test="adds != null" >
+        #{adds,jdbcType=DECIMAL},
+      </if>
+      <if test="reduce != null" >
+        #{reduce,jdbcType=DECIMAL},
+      </if>
+      <if test="executeDate != null" >
+        #{executeDate,jdbcType=DATE},
+      </if>
+      <if test="reemark != null" >
+        #{reemark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="confirm != null" >
+        #{confirm,jdbcType=VARCHAR},
+      </if>
+         <if test="userNo != null" >
+       #{userNo},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtUserSafe" >
+    update tt_user_safe
+    <set >
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="pension != null" >
+        PENSION = #{pension,jdbcType=DECIMAL},
+      </if>
+      <if test="medical != null" >
+        MEDICAL = #{medical,jdbcType=DECIMAL},
+      </if>
+      <if test="unemployment != null" >
+        UNEMPLOYMENT = #{unemployment,jdbcType=DECIMAL},
+      </if>
+      <if test="injury != null" >
+        INJURY = #{injury,jdbcType=DECIMAL},
+      </if>
+      <if test="bear != null" >
+        BEAR = #{bear,jdbcType=DECIMAL},
+      </if>
+      <if test="careerPension != null" >
+        CAREER_PENSION = #{careerPension,jdbcType=DECIMAL},
+      </if>
+      <if test="wages != null" >
+        WAGES = #{wages,jdbcType=DECIMAL},
+      </if>
+      <if test="adds != null" >
+        ADDS = #{adds,jdbcType=DECIMAL},
+      </if>
+      <if test="reduce != null" >
+        REDUCE = #{reduce,jdbcType=DECIMAL},
+      </if>
+      <if test="executeDate != null" >
+        EXECUTE_DATE = #{executeDate,jdbcType=DATE},
+      </if>
+      <if test="reemark != null" >
+        REEMARK = #{reemark,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="confirm != null" >
+        CONFIRM = #{confirm,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where USER_SAFE_ID = #{userSafeId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtUserSafe" >
+    update tt_user_safe
+    set USER_ID = #{userId,jdbcType=VARCHAR},
+      PENSION = #{pension,jdbcType=DECIMAL},
+      MEDICAL = #{medical,jdbcType=DECIMAL},
+      UNEMPLOYMENT = #{unemployment,jdbcType=DECIMAL},
+      INJURY = #{injury,jdbcType=DECIMAL},
+      BEAR = #{bear,jdbcType=DECIMAL},
+      CAREER_PENSION = #{careerPension,jdbcType=DECIMAL},
+      WAGES = #{wages,jdbcType=DECIMAL},
+      ADDS = #{adds,jdbcType=DECIMAL},
+      REDUCE = #{reduce,jdbcType=DECIMAL},
+      EXECUTE_DATE = #{executeDate,jdbcType=DATE},
+      REEMARK = #{reemark,jdbcType=VARCHAR},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      CONFIRM = #{confirm,jdbcType=VARCHAR}
+    where USER_SAFE_ID = #{userSafeId,jdbcType=VARCHAR}
+  </update>
+</mapper>

@@ -1,0 +1,736 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="TtPactinfoMapper">
+	
+	
+	<!-- 新增-->
+	<insert id="save" parameterType="pd">
+		insert into tt_pactinfo(
+			PACT_ID
+			,ITEM_ID
+			,PACT_NUMBER
+			,PACT_NAME
+			,PACT_TYPE
+			,OTHER_UNIT
+			,MARK_MONEY
+			,MAKE_DATE
+			,SWORK_DATE
+			,EWORK_DATE
+			,PACT_DATE
+			,PACT_MARK
+			,PACT_AMOUNT
+			,PACT_PRICE
+			,PACT_UNIT
+			,PACT_ADDRESS
+			,REMARK
+			,FILE_PATH
+			,FILE_NAME
+			,IS_DEL
+			,CREATE_DATE
+			,CREATE_BY
+			,UPDATE_DATE
+			,UPDATE_BY
+			,REVIEW_TYPE
+			,FLOW_STATE
+			,REVIEW_STATE
+			,IDENTIFY_NUMBER
+			,OTHER_ADDRESS
+			,OTHER_PHONE
+			,OTHER_NUMBER
+		) values (
+			 #{PACT_ID}
+			,#{ITEM_ID}
+			,#{PACT_NUMBER}
+			,#{PACT_NAME}
+			,#{PACT_TYPE}
+			,#{OTHER_UNIT}
+			,#{MARK_MONEY}
+			,#{MAKE_DATE}
+			,#{SWORK_DATE}
+			,#{EWORK_DATE}
+			,#{PACT_DATE}
+			,#{PACT_MARK}
+			,#{PACT_AMOUNT}
+			,#{PACT_PRICE}
+			,#{PACT_UNIT}
+			,#{PACT_ADDRESS}
+			,#{REMARK}
+			,#{FILE_PATH}
+			,#{FILE_NAME}
+			,#{IS_DEL}
+			,#{CREATE_DATE}
+			,#{CREATE_BY}
+			,#{UPDATE_DATE}
+			,#{UPDATE_BY}
+			,#{REVIEW_TYPE}
+			,#{FLOW_STATE}
+			,#{REVIEW_STATE}
+			,#{IDENTIFY_NUMBER}
+			,#{OTHER_ADDRESS}
+			,#{OTHER_PHONE}
+			,#{OTHER_NUMBER}
+		)
+	</insert>
+	
+	
+	<!-- 删除-->
+	<delete id="delete" parameterType="pd">
+		DELETE FROM tt_pactinfo
+		WHERE 
+			PACT_ID = #{PACT_ID}
+	</delete>
+	
+	
+	<!-- 修改 -->
+	<update id="edit" parameterType="pd">
+		update  tt_pactinfo
+			set 
+				
+				
+				PACT_NUMBER     =          #{PACT_NUMBER},
+				PACT_NAME       =          #{PACT_NAME},
+				PACT_TYPE       =          #{PACT_TYPE},
+				OTHER_UNIT      =          #{OTHER_UNIT},
+				MARK_MONEY      =          #{MARK_MONEY},
+				MAKE_DATE       =          #{MAKE_DATE},
+				SWORK_DATE      =          #{SWORK_DATE},
+				EWORK_DATE      =          #{EWORK_DATE},
+				PACT_DATE       =          #{PACT_DATE},
+				PACT_MARK       =          #{PACT_MARK},
+				PACT_AMOUNT     =          #{PACT_AMOUNT},
+				PACT_PRICE      =          #{PACT_PRICE},
+				PACT_UNIT       =          #{PACT_UNIT},
+				PACT_ADDRESS    =          #{PACT_ADDRESS},
+				REMARK         =           #{REMARK},
+				UPDATE_DATE     =          #{UPDATE_DATE},
+				UPDATE_BY       =          #{UPDATE_BY},
+				REVIEW_TYPE     =          #{REVIEW_TYPE},
+				OTHER_NUMBER         =     #{OTHER_NUMBER},
+				IDENTIFY_NUMBER     =      #{IDENTIFY_NUMBER},
+				OTHER_ADDRESS       =      #{OTHER_ADDRESS},
+				OTHER_PHONE     =          #{OTHER_PHONE},
+				REVIEW_STATE     =         #{REVIEW_STATE}
+			
+			where 
+				PACT_ID = #{PACT_ID}
+	</update>
+	
+	
+	<!-- 通过ID获取数据 -->
+	<select id="findById" parameterType="pd" resultType="pd">
+		select 
+			PACT_ID       
+			,ITEM_ID      
+			,PACT_NUMBER  
+			,PACT_NAME    
+			,PACT_TYPE    
+			,OTHER_UNIT   
+			,MARK_MONEY   
+			,MAKE_DATE    
+			,SWORK_DATE   
+			,EWORK_DATE   
+			,PACT_DATE    
+			,PACT_MARK    
+			,PACT_AMOUNT  
+			,PACT_PRICE   
+			,PACT_UNIT    
+			,PACT_ADDRESS 
+			,REMARK      
+			,FILE_PATH    
+			,FILE_NAME    
+			,IS_DEL       
+			,CREATE_DATE  
+			,CREATE_BY    
+			,UPDATE_DATE  
+			,UPDATE_BY 
+			,IDENTIFY_NUMBER
+			,OTHER_ADDRESS
+			,OTHER_PHONE
+			,OTHER_NUMBER   
+			,(SELECT ITEM_REVIEW_ID FROM `tt_item_review` t WHERE tt_pactinfo.`PACT_ID`=t.FOREIGN_KEY_ID AND TYPE=2) AS ITEM_REVIEW_ID				
+		from 
+			tt_pactinfo
+		where 
+			PACT_ID = #{PACT_ID} and IS_DEL=0
+	</select>
+<select id="pactTypes" resultType="pd">
+SELECT 
+  s.`NAME`,
+  s.`BIANMA` 
+FROM
+  sys_dictionaries s 
+WHERE s.`P_BM` LIKE 'HTLX_%' 
+</select>	
+<!-- 列表xiangq -->
+<select id="listpageAllForpactinfo" parameterType="page" resultType="pd">
+SELECT * FROM(SELECT 
+  a.PACT_ID,
+  a.ITEM_ID,
+  a.PACT_NUMBER,
+  a.PACT_NAME,
+  b.NAME PACT_TYPE,
+  b.BIANMA,
+  a.OTHER_UNIT,
+  a.MARK_MONEY,
+  a.MAKE_DATE,
+  a.SWORK_DATE,
+  a.EWORK_DATE,
+  a.PACT_DATE,
+  a.PACT_MARK,
+  a.PACT_AMOUNT,
+  a.PACT_PRICE,
+  a.PACT_UNIT,
+  a.PACT_ADDRESS,
+  a.REMARK,
+  a.FILE_PATH,
+  a.FILE_NAME,
+  a.IS_DEL,
+  a.CREATE_DATE,
+  a.CREATE_BY,
+  a.UPDATE_DATE,
+  a.UPDATE_BY,
+  (SELECT 
+    ITEM_REVIEW_ID 
+  FROM
+    `tt_item_review` t 
+  WHERE a.`PACT_ID` = t.FOREIGN_KEY_ID 
+    AND t.TYPE = 2) AS ITEM_REVIEW_ID,
+  (SELECT 
+    STATE 
+  FROM
+    `tt_item_review` t 
+  WHERE a.`PACT_ID` = t.FOREIGN_KEY_ID 
+    AND t.TYPE = 2) AS STATE 
+FROM
+  tt_pactinfo a 
+  LEFT JOIN sys_dictionaries b 
+    ON a.PACT_TYPE = b.BIANMA 
+WHERE 
+ a.IS_DEL=0 and 
+a.ITEM_ID = 
+  (SELECT 
+    ITEM_ID 
+  FROM
+    `tt_project_pact` t 
+  WHERE t.`PROJECT_PACT_ID` = #{pd.projectPactId})
+ORDER BY a.UPDATE_DATE DESC 
+) sa 
+WHERE 1=1 
+<if test="pd.ITEMCOLLECTNAME!=null and pd.ITEMCOLLECTNAME != '' ">
+ AND (
+ PACT_NAME LIKE  #{pd.ITEMCOLLECTNAME2}
+ OR OTHER_UNIT LIKE  #{pd.ITEMCOLLECTNAME2}
+ )
+</if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+	<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+	AND (
+	MAKE_DATE >= #{pd.LASTLOGINSTART1}
+	AND 
+	#{pd.LASTLOGINSTART2} > MAKE_DATE
+	)
+	</if>
+</if>
+<if test="pd.ITEMCOLLECTTYPE != null ">
+AND BIANMA =  #{pd.ITEMCOLLECTTYPE}
+</if>
+</select>
+	
+	
+	
+	<select id="listpageAllbuchongxieyi" parameterType="page" resultType="pd">
+SELECT * FROM(SELECT 
+  a.PACT_ID,
+  a.ITEM_ID,
+  a.PACT_NUMBER,
+  a.PACT_NAME,
+  b.NAME PACT_TYPE,
+  b.BIANMA,
+  a.OTHER_UNIT,
+  a.MARK_MONEY,
+  a.MAKE_DATE,
+  a.SWORK_DATE,
+  a.EWORK_DATE,
+  a.PACT_DATE,
+  a.PACT_MARK,
+  a.PACT_AMOUNT,
+  a.PACT_PRICE,
+  a.PACT_UNIT,
+  a.PACT_ADDRESS,
+  a.REMARK,
+  a.FILE_PATH,
+  a.FILE_NAME,
+  a.IS_DEL,
+  a.CREATE_DATE,
+  a.CREATE_BY,
+  a.UPDATE_DATE,
+  a.UPDATE_BY,
+  (SELECT 
+    ITEM_REVIEW_ID 
+  FROM
+    `tt_item_review` t 
+  WHERE a.`PACT_ID` = t.FOREIGN_KEY_ID 
+    AND t.TYPE = 2) AS ITEM_REVIEW_ID,
+  (SELECT 
+    STATE 
+  FROM
+    `tt_item_review` t 
+  WHERE a.`PACT_ID` = t.FOREIGN_KEY_ID 
+    AND t.TYPE = 2) AS STATE 
+FROM
+  tt_pactinfo a 
+  LEFT JOIN sys_dictionaries b 
+    ON a.PACT_TYPE = b.BIANMA 
+WHERE
+a.IS_DEL=0 and 
+ a.ITEM_ID = 
+  (SELECT 
+    ITEM_ID 
+  FROM
+    `tt_project_pact` t 
+  WHERE t.`PROJECT_PACT_ID` = #{pd.projectPactId})
+ORDER BY a.UPDATE_DATE DESC 
+) sa 
+WHERE 1=1 
+
+AND BIANMA ='3007'
+<if test="pd.ITEMCOLLECTNAME!=null and pd.ITEMCOLLECTNAME != '' ">
+ AND (
+ PACT_NAME LIKE  #{pd.ITEMCOLLECTNAME2}
+ OR OTHER_UNIT LIKE  #{pd.ITEMCOLLECTNAME2}
+ )
+</if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+	<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+	AND (
+	MAKE_DATE >= #{pd.LASTLOGINSTART1}
+	AND 
+	#{pd.LASTLOGINSTART2} > MAKE_DATE
+	)
+	</if>
+</if>
+
+</select>
+	
+	<select id="listpageAllMessage" parameterType="page" resultType="pd">
+SELECT * FROM(SELECT 
+  a.PACT_ID,
+  a.ITEM_ID,
+  a.PACT_NUMBER,
+  a.PACT_NAME,
+  b.NAME PACT_TYPE,
+  b.BIANMA,
+  a.OTHER_UNIT,
+  a.MARK_MONEY,
+  a.MAKE_DATE,
+  a.SWORK_DATE,
+  a.EWORK_DATE,
+  a.PACT_DATE,
+  a.PACT_MARK,
+  a.PACT_AMOUNT,
+  a.PACT_PRICE,
+  a.PACT_UNIT,
+  a.PACT_ADDRESS,
+  a.REMARK,
+  a.FILE_PATH,
+  a.FILE_NAME,
+  a.IS_DEL,
+  a.CREATE_DATE,
+  a.CREATE_BY,
+  a.UPDATE_DATE,
+  a.UPDATE_BY,
+  (SELECT 
+    ITEM_REVIEW_ID 
+  FROM
+    `tt_item_review` t 
+  WHERE a.`PACT_ID` = t.FOREIGN_KEY_ID 
+    AND t.TYPE = 2) AS ITEM_REVIEW_ID,
+  (SELECT 
+    STATE 
+  FROM
+    `tt_item_review` t 
+  WHERE a.`PACT_ID` = t.FOREIGN_KEY_ID 
+    AND t.TYPE = 2) AS STATE 
+FROM
+  tt_pactinfo a 
+  LEFT JOIN sys_dictionaries b 
+    ON a.PACT_TYPE = b.BIANMA 
+WHERE
+a.IS_DEL=0 and 
+ a.ITEM_ID = 
+  (SELECT 
+    ITEM_ID 
+  FROM
+    `tt_project_pact` t 
+  WHERE t.`PROJECT_PACT_ID` = #{pd.projectPactId})
+ORDER BY a.UPDATE_DATE DESC 
+) sa 
+WHERE 1=1 
+
+AND BIANMA !='3007'
+<if test="pd.ITEMCOLLECTNAME!=null and pd.ITEMCOLLECTNAME != '' ">
+ AND (
+ PACT_NAME LIKE  #{pd.ITEMCOLLECTNAME2}
+ OR OTHER_UNIT LIKE  #{pd.ITEMCOLLECTNAME2}
+ )
+</if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+	<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+	AND (
+	MAKE_DATE >= #{pd.LASTLOGINSTART1}
+	AND 
+	#{pd.LASTLOGINSTART2} > MAKE_DATE
+	)
+	</if>
+</if>
+<if test="pd.ITEMCOLLECTTYPE != null ">
+AND BIANMA =  #{pd.ITEMCOLLECTTYPE}
+</if>
+</select>
+<!-- 列表 -->
+<select id="datalistPage" parameterType="page" resultType="pd">
+SELECT 
+  a.PACT_ID,
+  a.ITEM_ID,
+  a.PACT_NUMBER,
+  a.PACT_NAME,
+  b.NAME PACT_TYPE,
+  a.`PACT_TYPE` AS TYPE,
+  a.OTHER_UNIT,
+  a.MARK_MONEY,
+  a.MAKE_DATE,
+  a.SWORK_DATE,
+  a.EWORK_DATE,
+  a.PACT_DATE,
+  a.PACT_MARK,
+  a.PACT_AMOUNT,
+  a.PACT_PRICE,
+  a.PACT_UNIT,
+  a.PACT_ADDRESS,
+  a.REMARK,
+  a.FILE_PATH,
+  a.FILE_NAME,
+  a.IS_DEL,
+  a.CREATE_DATE,
+  a.CREATE_BY,
+  a.UPDATE_DATE,
+  a.UPDATE_BY,
+  (SELECT 
+    ITEM_REVIEW_ID 
+  FROM
+    `tt_item_review` t 
+  WHERE a.`PACT_ID` = t.FOREIGN_KEY_ID 
+    AND t.TYPE = 2) AS ITEM_REVIEW_ID,
+  (SELECT 
+    STATE 
+  FROM
+    `tt_item_review` t 
+  WHERE a.`PACT_ID` = t.FOREIGN_KEY_ID 
+    AND t.TYPE = 2) AS STATE,
+  (
+    CASE
+      WHEN a.`PACT_TYPE` IN (
+        '3001',
+        '3002',
+        '3003',
+        '3004',
+        '3005'
+      ) 
+      THEN 'yes' 
+      ELSE 'no' 
+    END
+  ) IS_BASE 
+FROM
+  tt_pactinfo a 
+  LEFT JOIN sys_dictionaries b 
+    ON a.PACT_TYPE = b.BIANMA 
+where a.ITEM_ID=#{pd.ITEM_ID}
+and a.IS_DEL=0
+ <if test="pd.ITEMCOLLECTNAME!=null and pd.ITEMCOLLECTNAME != '' ">
+
+ 	and (PACT_NUMBER LIKE  CONCAT(CONCAT('%', #{pd.ITEMCOLLECTNAME}),'%') or PACT_NAME LIKE #{pd.ITEMCOLLECTNAME})
+</if>
+
+
+<if test="pd.ITEMCOLLECTTYPE!=null and pd.ITEMCOLLECTTYPE != '' ">
+ 	and (PACT_TYPE = #{pd.ITEMCOLLECTTYPE})
+</if>
+     <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+ 	<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+ 	AND (MAKE_DATE &gt;=#{pd.LASTLOGINSTART1} )AND (MAKE_DATE &lt;=#{pd.LASTLOGINSTART2} )
+</if>
+</if>
+ORDER BY a.UPDATE_DATE  DESC
+</select>
+
+
+
+<select id="itemPactlistPage" parameterType="page" resultType="pd">
+SELECT 
+  a.PACT_ID,
+  a.ITEM_ID,
+  a.PACT_NUMBER,
+  a.PACT_NAME,
+  b.NAME PACT_TYPE,
+  a.`PACT_TYPE` AS TYPE,
+  a.OTHER_UNIT,
+  a.MARK_MONEY,
+  a.MAKE_DATE,
+  a.SWORK_DATE,
+  a.EWORK_DATE,
+  a.PACT_DATE,
+  a.PACT_MARK,
+  a.PACT_AMOUNT,
+  a.PACT_PRICE,
+  a.PACT_UNIT,
+  a.PACT_ADDRESS,
+  a.REMARK,
+  a.FILE_PATH,
+  a.FILE_NAME,
+  a.IS_DEL,
+  a.CREATE_DATE,
+  a.CREATE_BY,
+  a.UPDATE_DATE,
+  a.UPDATE_BY,
+  (SELECT 
+    ITEM_REVIEW_ID 
+  FROM
+    `tt_item_review` t 
+  WHERE a.`PACT_ID` = t.FOREIGN_KEY_ID 
+    AND t.TYPE = 2) AS ITEM_REVIEW_ID,
+  (SELECT 
+    STATE 
+  FROM
+    `tt_item_review` t 
+  WHERE a.`PACT_ID` = t.FOREIGN_KEY_ID 
+    AND t.TYPE = 2) AS STATE,
+  (
+    CASE
+      WHEN a.`PACT_TYPE` IN (
+        '3001',
+        '3002',
+        '3003',
+        '3004',
+        '3005'
+      ) 
+      THEN 'yes' 
+      ELSE 'no' 
+    END
+  ) IS_BASE,
+   (SELECT i.`ITEM_NAME` FROM `tt_iteminfo` i WHERE i.`ITEM_ID`=a.`ITEM_ID`) AS ITEM_NAME,
+   (SELECT s.`STRUCT_NAME` FROM `sys_structinfo` s WHERE s.`STRUCT_ID`=(SELECT i.`STRUCT_ID` FROM `tt_iteminfo` i WHERE i.`ITEM_ID`=a.`ITEM_ID`)) AS STRUCT_NAME
+FROM
+  tt_pactinfo a 
+  LEFT JOIN sys_dictionaries b 
+    ON a.PACT_TYPE = b.BIANMA 
+where 1=1
+and a.IS_DEL=0
+<if test="pd.STRUCTID != null and pd.STRUCTID != ''">
+  AND (SELECT i.`STRUCT_ID` FROM `tt_iteminfo` i WHERE i.`ITEM_ID`=a.`ITEM_ID`)= #{pd.STRUCTID}
+  </if>
+  <if test="pd.ITEMID != null and pd.ITEMID != ''">
+  AND a.ITEM_ID = #{pd.ITEMID}
+  </if>
+ <if test="pd.ITEMCOLLECTNAME!=null and pd.ITEMCOLLECTNAME != '' ">
+
+ 	and (
+ 	PACT_NUMBER LIKE  CONCAT(CONCAT('%', #{pd.ITEMCOLLECTNAME}),'%') 
+ 	or 
+ 	PACT_NAME LIKE CONCAT(CONCAT('%', #{pd.ITEMCOLLECTNAME}),'%')
+ 	or
+ 	OTHER_UNIT LIKE CONCAT(CONCAT('%', #{pd.ITEMCOLLECTNAME}),'%')
+ 	or
+ 	MARK_MONEY LIKE CONCAT(CONCAT('%', #{pd.ITEMCOLLECTNAME}),'%')
+ 	)
+</if>
+
+
+<if test="pd.ITEMCOLLECTTYPE!=null and pd.ITEMCOLLECTTYPE != '' ">
+ 	and (PACT_TYPE = #{pd.ITEMCOLLECTTYPE})
+</if>
+     <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+ 	<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+ 	AND (MAKE_DATE &gt;=#{pd.LASTLOGINSTART1} )AND (MAKE_DATE &lt;=#{pd.LASTLOGINSTART2} )
+</if>
+</if>
+ORDER BY a.CREATE_DATE  DESC
+</select>
+	
+	<!-- 列表(全部) -->
+	<select id="listAll" parameterType="page" resultType="pd">
+		select
+			  a.PACT_ID       
+			 ,a.ITEM_ID       
+			 ,a.PACT_NUMBER   
+			 ,a.PACT_NAME     
+			 ,b.NAME PACT_TYPE 
+			 ,a.OTHER_UNIT    
+			 ,a.MARK_MONEY    
+			 ,a.MAKE_DATE     
+			 ,a.SWORK_DATE    
+			 ,a.EWORK_DATE    
+			 ,a.PACT_DATE     
+			 ,a.PACT_MARK     
+			 ,a.PACT_AMOUNT   
+			 ,a.PACT_PRICE    
+			 ,a.PACT_UNIT     
+			 ,a.PACT_ADDRESS  
+			 ,a.REMARK       
+			 ,a.FILE_PATH     
+			 ,a.FILE_NAME     
+			 ,a.IS_DEL        
+			 ,a.CREATE_DATE   
+			 ,a.CREATE_BY     
+			 ,a.UPDATE_DATE   
+			 ,a.UPDATE_BY     
+								
+		from 
+				tt_pactinfo a
+		left join sys_dictionaries b ON A.PACT_TYPE=b.BIANMA	
+		where
+		a.IS_DEL=0 and  a.ITEM_ID=#{pd.ITEM_ID}
+		ORDER BY a.UPDATE_DATE  DESC
+	</select>
+	
+	<!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String">
+		delete from tt_pactinfo
+		where 
+			PACT_ID in
+		<foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+		</foreach>
+	</delete>
+	
+	<select id="listPagePactInfoByItemid" resultType="pd" parameterType="page">
+		
+  SELECT
+			  a.PACT_ID       
+			 ,a.ITEM_ID       
+			 ,a.PACT_NUMBER   
+			 ,a.PACT_NAME     
+			 ,b.NAME PACT_TYPE     
+			 ,a.OTHER_UNIT    
+			 ,a.MARK_MONEY    
+			 ,a.MAKE_DATE     
+			 ,a.SWORK_DATE    
+			 ,a.EWORK_DATE    
+			 ,a.PACT_DATE     
+			 ,a.PACT_MARK     
+			 ,a.PACT_AMOUNT   
+			 ,a.PACT_PRICE    
+			 ,a.PACT_UNIT     
+			 ,a.PACT_ADDRESS  
+			 ,a.REMARK       
+			 ,a.FILE_PATH     
+			 ,a.FILE_NAME     
+			 ,a.IS_DEL        
+			 ,a.CREATE_DATE   
+			 ,a.CREATE_BY     
+			 ,a.UPDATE_DATE   
+			 ,a.UPDATE_BY 
+			 ,(SELECT STATE FROM `tt_item_review` t WHERE a.`PACT_ID`=t.FOREIGN_KEY_ID AND t.TYPE=2) AS STATE 
+		FROM 
+				tt_pactinfo a
+		LEFT JOIN sys_dictionaries b ON a.PACT_TYPE=b.BIANMA
+		 where  a.IS_DEL=0 and  a.PACT_TYPE=#{pd.PACT_TYPE} and a.ITEM_ID=#{pd.ITEM_ID} AND (SELECT STATE FROM `tt_item_review` t WHERE a.`PACT_ID`=t.FOREIGN_KEY_ID AND t.TYPE=2)=2
+		 AND a.PACT_TYPE IN ('3001','3002','3003','3004','3005')
+	
+	<if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 PACT_NUMBER LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					 
+					 or 
+					 PACT_NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+				)
+		</if>
+	
+	
+	</select>
+	
+	
+	<!-- 合同费用报表 -->
+	
+	
+	<select id="findPactinfoExcal" parameterType="pd" resultType="pd">
+		SELECT 
+		  p.`PACT_ID`,
+		  p.`PACT_NAME`,
+		  p.`PACT_NUMBER`,
+		   (SELECT di.`NAME` FROM sys_dictionaries di  WHERE di.`BIANMA`= p.`PACT_TYPE`) AS PACT_TYPE,
+		  p.`MARK_MONEY`,
+		  IFNULL(
+		    (SELECT 
+		      SUM(pb.`BUSINESS_PRICE`) 
+		    FROM
+		      tt_Pact_business pb 
+		    WHERE pb.`PACT_ID` = p.`PACT_ID` 
+		     <if test="StartData != null  and EndData!=''" >
+ 		     	AND   pb.`CREATE_DATE` &gt;= #{StartData} 	 
+ 	</if>
+ 	 <if test="EndData != null and EndData!=''" >
+ 		     		 AND    pb.`CREATE_DATE` &lt;= #{EndData}  	 
+ 	</if>
+		    
+		    
+		    ),
+		    0
+		  ) AS BUSINESS_PRICE,
+		  (SELECT 
+		  IFNULL(SUM(PAYMENT_AMOUNT),0)+( SELECT 
+		  IFNULL(SUM(AMOUNT),0)
+		FROM
+		  tt_out_storage o 
+		   WHERE OUT_STORAGE_OBJ =p.`PACT_ID`
+		      <if test="StartData != null  and EndData!=''" >
+ 		     	AND    o.`CREATE_DATE` &gt;= #{StartData} 	 
+ 	</if>
+ 	 <if test="EndData != null and EndData!=''" >
+ 		     		 AND    o.`CREATE_DATE` &lt;= #{EndData}  	 
+ 	</if>
+		   
+		   
+		   ) AS zhichu
+		FROM
+		  tt_item_payment tp,
+		  tt_pactinfo ttp 
+		WHERE tp.`IS_DEL` = 0 
+		  AND tp.ITEM_ID = ttp.ITEM_ID 
+		  AND ttp.PACT_ID = tp.PAYMENT_OBJ 
+		  AND tp.ITEM_ID = p.`ITEM_ID`
+		  AND ttp.PACT_ID= p.`PACT_ID`
+		    
+   <if test="StartData != null  and EndData!=''" >
+ 		     	AND    tp.`CREATE_DATE` &gt;= #{StartData} 	 
+ 	</if>
+ 	 <if test="EndData != null and EndData!=''" >
+ 		     		 AND    tp.`CREATE_DATE` &lt;= #{EndData}  	 
+ 	</if>
+		  
+		  ) AS zhichu
+		  
+		FROM
+		  `tt_pactinfo` p 
+		WHERE p.IS_DEL=0 and  p.`ITEM_ID` = #{ITEM_ID}
+	
+	 <if test="StartData != null  and EndData!=''" >
+ 		     	AND   p.`CREATE_DATE` &gt;= #{StartData} 	 
+ 	</if>
+ 	 <if test="EndData != null and EndData!=''" >
+ 		     		 AND    p.`CREATE_DATE` &lt;= #{EndData}  	 
+ 	</if>
+	
+	</select>
+	
+	
+	 <!-- 发送 -->
+ <update id="sentById" parameterType="pd" >
+		 UPDATE  `tt_item_review` SET STATE=1 WHERE ITEM_REVIEW_ID=#{itemReviewId,jdbcType=VARCHAR}
+ </update>
+ 
+ 	 <!-- 发送更改项目合同状态 -->
+ <update id="sentByIdPact" parameterType="pd" >
+		 UPDATE  `tt_pactinfo` SET REVIEW_STATE=1 WHERE PACT_ID=(SELECT FOREIGN_KEY_ID FROM `tt_item_review` WHERE ITEM_REVIEW_ID=#{itemReviewId,jdbcType=VARCHAR})
+ </update>
+</mapper>

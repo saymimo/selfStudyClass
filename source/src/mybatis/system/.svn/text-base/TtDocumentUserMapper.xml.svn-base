@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtDocumentUserMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtDocumentUser" >
+    <id column="DOCUMENT_USER_ID" property="documentUserId" jdbcType="VARCHAR" />
+    <result column="DOCUMENT_MANAGE_ID" property="documentManageId" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="IS_READ" property="isRead" jdbcType="INTEGER" />
+    <result column="READ_DATE" property="readDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    DOCUMENT_USER_ID, DOCUMENT_MANAGE_ID, USER_ID, IS_READ,READ_DATE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_document_user
+    where DOCUMENT_MANAGE_ID = #{documentManageId,jdbcType=VARCHAR} and USER_ID=#{USER_ID}
+    GROUP BY DOCUMENT_MANAGE_ID,USER_ID
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_document_user
+    where DOCUMENT_USER_ID = #{documentUserId,jdbcType=VARCHAR}
+  </delete>
+  
+  <update id="updateDocumentUser" parameterType="pd">
+  update tt_document_user set  IS_READ=1,READ_DATE=#{READ_DATE} where DOCUMENT_MANAGE_ID=#{documentManageId} and USER_ID=#{USER_ID}
+  </update>
+  <!-- 已读 -->
+  <select id="examinationbyReadList" resultType="pd" parameterType="pd">
+		  SELECT 
+		  s.`NAME`,
+		  s.`PHONE`,
+		  (SELECT 
+		    str.`STRUCT_NAME` 
+		  FROM
+		    `sys_structinfo` str 
+		  WHERE str.`STRUCT_ID` = s.`STRUCT_ID`) AS STRUCT_ID,
+		  d.`READ_DATE`,
+		  d.`IS_READ`,
+		  d.`DOCUMENT_MANAGE_ID`,
+		  d.`DOCUMENT_USER_ID` 
+		FROM
+		  `sys_user` s 
+		  LEFT JOIN tt_document_user d 
+		    ON s.`USER_ID` = d.`USER_ID` 
+		WHERE d.`DOCUMENT_MANAGE_ID` = #{documentManageId}  and  d.`IS_READ`=1
+		 GROUP BY s.`USER_ID` 
+  
+  </select>
+  <!-- 未读 -->
+    <select id="examinationbyUnreadList" resultType="pd" parameterType="pd">
+		  SELECT 
+		  s.`NAME`,
+		  s.`PHONE`,
+		  (SELECT 
+		    str.`STRUCT_NAME` 
+		  FROM
+		    `sys_structinfo` str 
+		  WHERE str.`STRUCT_ID` = s.`STRUCT_ID`) AS STRUCT_ID,
+		  d.`READ_DATE`,
+		  d.`IS_READ`,
+		  d.`DOCUMENT_MANAGE_ID`,
+		  d.`DOCUMENT_USER_ID` 
+		FROM
+		  `sys_user` s 
+		  LEFT JOIN tt_document_user d 
+		    ON s.`USER_ID` = d.`USER_ID` 
+		WHERE d.`DOCUMENT_MANAGE_ID` = #{documentManageId}  and  d.`IS_READ`=0
+		 GROUP BY s.`USER_ID` 
+  
+  </select>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtDocumentUser" >
+    insert into tt_document_user (DOCUMENT_USER_ID, DOCUMENT_MANAGE_ID, 
+      USER_ID, IS_READ)
+    values (#{documentUserId,jdbcType=VARCHAR}, #{documentManageId,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=VARCHAR}, #{isRead,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_document_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="documentUserId != null" >
+        DOCUMENT_USER_ID,
+      </if>
+      <if test="documentManageId != null" >
+        DOCUMENT_MANAGE_ID,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="isRead != null" >
+        IS_READ,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="documentUserId != null" >
+        #{documentUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="documentManageId != null" >
+        #{documentManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="isRead != null" >
+        #{isRead,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_document_user
+    <set >
+      <if test="documentManageId != null" >
+        DOCUMENT_MANAGE_ID = #{documentManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="isRead != null" >
+        IS_READ = #{isRead,jdbcType=INTEGER},
+      </if>
+    </set>
+    where DOCUMENT_USER_ID = #{documentUserId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtDocumentUser" >
+    update tt_document_user
+    set DOCUMENT_MANAGE_ID = #{documentManageId,jdbcType=VARCHAR},
+      USER_ID = #{userId,jdbcType=VARCHAR},
+      IS_READ = #{isRead,jdbcType=INTEGER}
+    where DOCUMENT_USER_ID = #{documentUserId,jdbcType=VARCHAR}
+  </update>
+</mapper>

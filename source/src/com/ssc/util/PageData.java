@@ -8,16 +8,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
-public class PageData
-  extends HashMap
-  implements Map
-{
+public class PageData extends HashMap implements Map{
   private static final long serialVersionUID = 1L;
   Map map = null;
   HttpServletRequest request;
   
-  public PageData(HttpServletRequest request)
-  {
+  public PageData(HttpServletRequest request){
     this.request = request;
     Map properties = request.getParameterMap();
     Map returnMap = new HashMap();
@@ -25,26 +21,20 @@ public class PageData
     
     String name = "";
     String value = "";
-    while (entries.hasNext())
-    {
+    while (entries.hasNext()){
       Map.Entry entry = (Map.Entry)entries.next();
       name = (String)entry.getKey();
       Object valueObj = entry.getValue();
-      if (valueObj == null)
-      {
+      if (valueObj == null){
         value = "";
-      }
-      else if ((valueObj instanceof String[]))
-      {
+      }else if ((valueObj instanceof String[])){
         String[] values = (String[])valueObj;
         value = "";
         for (int i = 0; i < values.length; i++) {
           value = value + values[i] + ",";
         }
         value = value.substring(0, value.length() - 1);
-      }
-      else
-      {
+      }else{
         value = valueObj.toString();
       }
       returnMap.put(name, value);
@@ -52,21 +42,20 @@ public class PageData
     this.map = returnMap;
   }
   
-  public PageData()
-  {
+  public PageData(Map map){
+	  this.map = map;
+  }
+  
+  public PageData(){
     this.map = new HashMap();
   }
   
-  public Object get(Object key)
-  {
+  public Object get(Object key){
     Object obj = null;
-    if ((this.map.get(key) instanceof Object[]))
-    {
+    if ((this.map.get(key) instanceof Object[])){
       Object[] arr = (Object[])this.map.get(key);
       obj = this.request.getParameter((String)key) == null ? arr : this.request == null ? arr : arr[0];
-    }
-    else
-    {
+    }else{
       obj = this.map.get(key);
     }
     return obj;

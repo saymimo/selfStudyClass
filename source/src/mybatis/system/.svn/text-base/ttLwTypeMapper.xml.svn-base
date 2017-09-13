@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="ttLwTypeMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.ttLwType" >
+    <id column="LW_TYPE_ID" property="lwTypeId" jdbcType="VARCHAR" />
+    <result column="LW_PERSONALINFO_ID" property="lwPersonalinfoId" jdbcType="VARCHAR" />
+    <result column="TYPE_CODE" property="typeCode" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    LW_TYPE_ID, LW_PERSONALINFO_ID, TYPE_CODE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_lw_type
+    where LW_TYPE_ID = #{lwTypeId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_lw_type
+    where LW_TYPE_ID = #{lwTypeId,jdbcType=VARCHAR}
+  </delete>
+  
+  <!-- 根据外键删除 -->
+  <delete id="deleteByFK" parameterType="pd" >
+    delete from tt_lw_type
+    where LW_PERSONALINFO_ID = #{LW_PERSONALINFO_ID,jdbcType=VARCHAR}
+  </delete>
+  <!-- 根据外键删除 -->
+  
+  <insert id="insert" parameterType="com.ssc.entity.system.ttLwType" >
+    insert into tt_lw_type (LW_TYPE_ID, LW_PERSONALINFO_ID, TYPE_CODE
+      )
+    values (#{lwTypeId,jdbcType=VARCHAR}, #{lwPersonalinfoId,jdbcType=VARCHAR}, #{typeCode,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.ttLwType" >
+    insert into tt_lw_type
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="lwTypeId != null" >
+        LW_TYPE_ID,
+      </if>
+      <if test="lwPersonalinfoId != null" >
+        LW_PERSONALINFO_ID,
+      </if>
+      <if test="typeCode != null" >
+        TYPE_CODE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="lwTypeId != null" >
+        #{lwTypeId,jdbcType=VARCHAR},
+      </if>
+      <if test="lwPersonalinfoId != null" >
+        #{lwPersonalinfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="typeCode != null" >
+        #{typeCode,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.ttLwType" >
+    update tt_lw_type
+    <set >
+      <if test="lwPersonalinfoId != null" >
+        LW_PERSONALINFO_ID = #{lwPersonalinfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="typeCode != null" >
+        TYPE_CODE = #{typeCode,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where LW_TYPE_ID = #{lwTypeId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.ttLwType" >
+    update tt_lw_type
+    set LW_PERSONALINFO_ID = #{lwPersonalinfoId,jdbcType=VARCHAR},
+      TYPE_CODE = #{typeCode,jdbcType=VARCHAR}
+    where LW_TYPE_ID = #{lwTypeId,jdbcType=VARCHAR}
+  </update>
+</mapper>

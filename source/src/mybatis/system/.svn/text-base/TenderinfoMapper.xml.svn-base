@@ -1,0 +1,985 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TenderinfoMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.Tenderinfo" >
+    <id column="TENDERINFO_ID" property="tenderinfoId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+    <result column="ITEM_NUMBER" property="itemNumber" jdbcType="VARCHAR" />
+    <result column="ITEM_TYPE" property="itemType" jdbcType="CHAR" />
+    <result column="CAREA" property="carea" jdbcType="VARCHAR" />
+    <result column="ITEM_NAME" property="itemName" jdbcType="VARCHAR" />
+    <result column="YJ_MONEY" property="yjMoney" jdbcType="DECIMAL" />
+    <result column="PARTY_UNIT" property="partyUnit" jdbcType="VARCHAR" />
+    <result column="TENDER_STRUCT" property="tenderStruct" jdbcType="VARCHAR" />
+    <result column="RESPONSIBLE" property="responsible" jdbcType="VARCHAR" />
+    <result column="TEND_MARK" property="tendMark" jdbcType="INTEGER" />
+    <result column="ENGINEERING_SD" property="engineeringSd" jdbcType="INTEGER" />
+    <result column="PLAN_START_DATE" property="planStartDate" jdbcType="DATE" />
+    <result column="PLAN_END_DATE" property="planEndDate" jdbcType="DATE" />
+    <result column="ITEM_RIPTION" property="itemRiption" jdbcType="VARCHAR" />
+    <result column="TENDER_FORMS" property="tenderForms" jdbcType="INTEGER" />
+    <result column="COST_SETTLEMENT" property="costSettlement" jdbcType="INTEGER" />
+    <result column="PROJECT_APPROVAL" property="projectApproval" jdbcType="VARCHAR" />
+    <result column="TEND_QUOTE" property="tendQuote" jdbcType="INTEGER" />
+    <result column="TEND_MARGIN" property="tendMargin" jdbcType="VARCHAR" />
+    <result column="JOB_FORMAT" property="jobFormat" jdbcType="INTEGER" />
+    <result column="MSOURCES" property="msources" jdbcType="INTEGER" />
+    <result column="TEND_TIME" property="tendTime" jdbcType="DATE" />
+    <result column="PERBOND" property="perbond" jdbcType="VARCHAR" />
+    <result column="AWARDNAME" property="awardname" jdbcType="VARCHAR" />
+    <result column="TRADES" property="trades" jdbcType="VARCHAR" />
+    <result column="NATURE_ENTER" property="natureEnter" jdbcType="VARCHAR" />
+    <result column="REGISTRATION" property="registration" jdbcType="VARCHAR" />
+    <result column="DESCRIPTION" property="description" jdbcType="VARCHAR" />
+    <result column="TEND_CLAIM" property="tendClaim" jdbcType="VARCHAR" />
+    <result column="REVIEW_STATE" property="reviewState" jdbcType="INTEGER" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="IS_ITEM" property="isItem" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="TENDER_START" property="tenderStart" jdbcType="TIMESTAMP"/>
+    <result column="TENDER_END" property="tenderEnd" jdbcType="TIMESTAMP"/>
+    <result column="TENDER_province" property="tenderProvince" jdbcType="CHAR" />
+    <result column="TENDER_CITY" property="tenderCity" jdbcType="CHAR" />
+    <result column="BUILD_UNIT" property="buildUnit" jdbcType="VARCHAR" />
+    <result column="PROJECT_PACT_ID" property="projectPactId" jdbcType="VARCHAR" />
+     <result column="NATURE" property="nature" jdbcType="VARCHAR" />
+    
+  </resultMap>
+  <sql id="Base_Column_List" >
+    TENDERINFO_ID, STRUCT_ID, ADDRESS,  ITEM_NUMBER, ITEM_TYPE, CAREA, 
+    ITEM_NAME, YJ_MONEY, PARTY_UNIT, TENDER_STRUCT, RESPONSIBLE, TEND_MARK, ENGINEERING_SD, 
+    PLAN_START_DATE, PLAN_END_DATE, ITEM_RIPTION, TENDER_FORMS, COST_SETTLEMENT, PROJECT_APPROVAL, 
+    TEND_QUOTE, TEND_MARGIN, JOB_FORMAT, MSOURCES, TEND_TIME, PERBOND, AWARDNAME, TRADES, 
+    NATURE_ENTER, REGISTRATION, DESCRIPTION, TEND_CLAIM, IS_DEL, IS_ITEM, CREATE_DATE, 
+    CREATE_BY, UPDATE_DATE, UPDATE_BY, TENDER_province, TENDER_CITY,REVIEW_STATE,BUILD_UNIT,TENDER_START,TENDER_END,NATURE
+  </sql>
+   <select id="selectByPK" resultType="pd" parameterType="pd" >
+    select 
+   	 *
+    from tt_tenderinfo
+    where TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR} and IS_DEL=0
+  </select>
+<!-- 修改投标表 与之关联的project  2016-11-30 -->
+<update id="toProjectUp" parameterType="pd">
+UPDATE 
+  tt_tenderinfo t 
+SET
+  t.`IS_ITEM` = 0,
+  t.`PROJECT_PACT_ID` = NULL
+WHERE t.`PROJECT_PACT_ID` = #{projectPactId,jdbcType=VARCHAR}
+</update>  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_tenderinfo
+    where TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR} and IS_DEL=0
+  </select>
+  
+  <update id="updateTenderinfoBytenderid" parameterType="pd">
+  	update tt_tenderinfo set REVIEW_STATE=#{reviewState} where TENDERINFO_ID=#{tenderinfoId}
+  
+  </update>
+  
+  
+  <update id="updateTenderinfoByReviewtype" parameterType="pd">
+  	update tt_tenderinfo set REVIEW_TYPE=#{reviewType} where TENDERINFO_ID=#{tenderinfoId}
+  
+  </update>
+  <!-- 投标管理发送 -->
+  <update id="updateTribuneFlowState" parameterType="pd">
+  	update tt_tribune set FLOW_STATE=1 where REVIEW_OBJ_ID=#{tenderinfoId} and TYPE=3
+  
+  </update>
+  <!-- 修改定标状态 -->
+  <update id="updateCalibrationState" parameterType="pd">
+  
+  update tt_tenderinfo set CALIBRATION_STATE=#{CALIBRATION_STATE} where TENDERINFO_ID=#{reviewObjId}
+  
+  </update>
+  
+   <update id="updateTenderinfoByTenderMark" parameterType="pd">
+  	update tt_tenderinfo set TEND_MARK=#{tendMark} where TENDERINFO_ID=#{tenderinfoId}
+  
+  </update>
+   <select id="checkTenderinfo" resultType="String" parameterType="pd" >
+    SELECT 
+    COUNT(*)
+    FROM tt_tenderinfo WHERE STRUCT_ID=#{STRUCTID} 
+    
+     <if test="ITEMNUMBER !=null ">
+     AND `ITEM_NUMBER` =  #{ITEMNUMBER}
+     </if>
+     <if test="ITEMNAME !=null ">
+     AND `ITEM_NAME`=#{ITEMNAME}
+      </if>
+      and IS_DEL=0
+      
+  </select>
+  <!-- 通过id查询  创建人 显示名字 -->
+  <select id="findTenderinfoByTenderId" resultMap="BaseResultMap" parameterType="pd">
+    select 
+     TENDERINFO_ID, STRUCT_ID, ADDRESS,  ITEM_NUMBER, ITEM_TYPE, CAREA, 
+    ITEM_NAME, YJ_MONEY, PARTY_UNIT, TENDER_STRUCT, RESPONSIBLE, TEND_MARK, ENGINEERING_SD, 
+    PLAN_START_DATE, PLAN_END_DATE, ITEM_RIPTION, TENDER_FORMS, COST_SETTLEMENT, PROJECT_APPROVAL, 
+    TEND_QUOTE, TEND_MARGIN, JOB_FORMAT, MSOURCES, TEND_TIME, PERBOND, AWARDNAME, TRADES, 
+    NATURE_ENTER, REGISTRATION, DESCRIPTION, TEND_CLAIM, IS_DEL, IS_ITEM, CREATE_DATE, 
+   (SELECT s.`NAME` FROM `sys_user` s WHERE s.`USER_ID`=t.CREATE_BY) as  CREATE_BY, UPDATE_DATE, UPDATE_BY, TENDER_province, TENDER_CITY,REVIEW_STATE
+    from tt_tenderinfo t
+    where TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR} and IS_DEL=0
+  </select>
+  
+  
+  <select id="findTenderinfoByTenderIdAndShenpi" parameterType="pd" resultType="pd">
+  select * from tt_tenderinfo  where TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR}
+  
+  </select>
+  <select id="listPageTenderinfoByStructid" parameterType="page" resultType="pd" useCache="false">
+    select 
+      TENDERINFO_ID AS tenderinfoId, STRUCT_ID AS structId, ADDRESS AS address,  ITEM_NUMBER AS itemNumber, ITEM_TYPE AS itemType, CAREA AS carea, 
+    ITEM_NAME AS itemName, YJ_MONEY AS yjMoney, PARTY_UNIT AS partyUnit, TENDER_STRUCT AS tenderStruct, RESPONSIBLE AS responsible, TEND_MARK AS tendMark, ENGINEERING_SD AS engineeringSd, 
+    PLAN_START_DATE AS planStartDate, PLAN_END_DATE AS planEndDate, ITEM_RIPTION AS itemRiption, TENDER_FORMS AS tenderForms, COST_SETTLEMENT AS costSettlement, PROJECT_APPROVAL AS projectApproval, 
+    TEND_QUOTE AS tendQuote , TEND_MARGIN AS tendMargin, JOB_FORMAT AS jobFormat, MSOURCES AS msources, TEND_TIME AS tendTime, PERBOND AS perbond, AWARDNAME AS awardname, TRADES AS trades, 
+    NATURE_ENTER AS natureEnter, REGISTRATION AS registration, DESCRIPTION AS description, TEND_CLAIM AS tendClaim, IS_DEL AS isDel, IS_ITEM AS isItem, CREATE_DATE AS createDate, 
+    CREATE_BY AS createBy, UPDATE_DATE AS updateDate, UPDATE_BY AS updateBy, TENDER_province AS tenderProvince, TENDER_CITY AS tenderCity,
+    (SELECT NAME FROM sys_dictionaries WHERE P_BM=tt_tenderinfo.`ITEM_TYPE` )AS xmlx,REVIEW_STATE as reviewState
+    ,  CASE    WHEN RIGHT(REVIEW_TYPE, 1) =     (SELECT       REVIEW_TYPE     FROM      sys_user u     WHERE u.USER_ID = #{pd.userid})    THEN 1     ELSE 0  END AS REVIEW_TYPE
+     ,(SELECT t.`STATE` FROM tt_tribune t WHERE t.`REVIEW_OBJ_ID`=TENDERINFO_ID AND t.`TYPE`=6)  AS state ,TENDER_START tenderStart ,TENDER_END tenderEnd
+    from tt_tenderinfo
+       WHERE IS_DEL = 0  
+        <if test="pd.SEL_STRUCT_ID!=null and  pd.SEL_STRUCT_ID!=''">
+        and	STRUCT_ID=#{pd.SEL_STRUCT_ID}
+        </if>
+       <if test="pd.selectAll!='selectAll' ">
+       AND (
+		    tt_tenderinfo.`TENDERINFO_ID` IN(
+SELECT tr.`REVIEW_OBJ_ID` FROM `tt_tribune` tr WHERE tr.`TRIBUNE_ID` IN (
+SELECT t.`TRIBUNE_ID` FROM `tt_tribune_user` t WHERE t.`USER_ID`=#{pd.userid}))  
+
+		    OR tt_tenderinfo.`CREATE_BY` = #{pd.userid}
+		  )
+		 </if>
+        <if test="pd.TENDERNAME!=null and pd.TENDERNAME != '' ">
+		 	and (ITEM_NUMBER LIKE #{pd.TENDERNAME2}
+       
+        OR item_Name LIKE #{pd.TENDERNAME2}) 
+		</if>
+		<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 		AND PLAN_START_DATE  &gt;=#{pd.LASTLOGINSTART1} AND PLAN_START_DATE &lt;=#{pd.LASTLOGINSTART2} 
+		 		</if>
+		</if>
+		
+		<if test="pd.LASTLOGINEND1!=null and pd.LASTLOGINEND1 != '' ">
+			 	<if test="pd.LASTLOGINEND2!=null and pd.LASTLOGINEND2 != '' ">
+		   	 	AND PLAN_END_DATE  &gt;=#{pd.LASTLOGINEND1} AND PLAN_END_DATE &lt;=#{pd.LASTLOGINEND2} 
+				</if>
+		</if>
+		
+       	ORDER BY `CREATE_DATE` DESC
+  </select>
+  
+  
+  <select id="TenderinfoByStructid" parameterType="page" resultType="pd" useCache="false">
+    select 
+      TENDERINFO_ID AS tenderinfoId, STRUCT_ID AS structId, ADDRESS AS address,  ITEM_NUMBER AS itemNumber, ITEM_TYPE AS itemType, CAREA AS carea, 
+    ITEM_NAME AS itemName, YJ_MONEY AS yjMoney, PARTY_UNIT AS partyUnit, TENDER_STRUCT AS tenderStruct, RESPONSIBLE AS responsible, TEND_MARK AS tendMark, ENGINEERING_SD AS engineeringSd, 
+    PLAN_START_DATE AS planStartDate, PLAN_END_DATE AS planEndDate, ITEM_RIPTION AS itemRiption, TENDER_FORMS AS tenderForms, COST_SETTLEMENT AS costSettlement, PROJECT_APPROVAL AS projectApproval, 
+    TEND_QUOTE AS tendQuote , TEND_MARGIN AS tendMargin, JOB_FORMAT AS jobFormat, MSOURCES AS msources, TEND_TIME AS tendTime, PERBOND AS perbond, AWARDNAME AS awardname, TRADES AS trades, 
+    NATURE_ENTER AS natureEnter, REGISTRATION AS registration, DESCRIPTION AS description, TEND_CLAIM AS tendClaim, IS_DEL AS isDel, IS_ITEM AS isItem, CREATE_DATE AS createDate, 
+    CREATE_BY AS createBy, UPDATE_DATE AS updateDate, UPDATE_BY AS updateBy, TENDER_province AS tenderProvince, TENDER_CITY AS tenderCity,
+    (SELECT NAME FROM sys_dictionaries WHERE P_BM=tt_tenderinfo.`ITEM_TYPE` )AS xmlx,REVIEW_STATE as reviewState
+    ,  CASE    WHEN RIGHT(REVIEW_TYPE, 1) =     (SELECT       REVIEW_TYPE     FROM      sys_user u     WHERE u.USER_ID = #{pd.userid})    THEN 1     ELSE 0  END AS REVIEW_TYPE
+     ,(SELECT t.`STATE` FROM tt_tribune t WHERE t.`REVIEW_OBJ_ID`=TENDERINFO_ID AND t.`TYPE`=6)  AS state ,TENDER_START tenderStart ,TENDER_END tenderEnd
+    from tt_tenderinfo
+       WHERE IS_DEL = 0  
+       AND (
+		    tt_tenderinfo.`TENDERINFO_ID` IN(
+SELECT tr.`REVIEW_OBJ_ID` FROM `tt_tribune` tr WHERE tr.`TRIBUNE_ID` IN (
+SELECT t.`TRIBUNE_ID` FROM `tt_tribune_user` t WHERE t.`USER_ID`=#{pd.userid}))  
+
+		    OR tt_tenderinfo.`CREATE_BY` = #{pd.userid}
+		  )
+       	ORDER BY `PLAN_START_DATE` DESC
+  </select>
+<!-- 只读页面  项目合同新增用 -->
+<select id="listReadonly" parameterType="page" resultType="pd">
+SELECT 
+  TENDERINFO_ID AS tenderinfoId,
+  STRUCT_ID AS structId,
+  ADDRESS AS address,
+  ITEM_NUMBER AS itemNumber,
+  ITEM_TYPE AS itemType,
+  CAREA AS carea,
+  ITEM_NAME AS itemName,
+  YJ_MONEY AS yjMoney,
+  PARTY_UNIT AS partyUnit,
+  TENDER_STRUCT AS tenderStruct,
+  RESPONSIBLE AS responsible,
+  TEND_MARK AS tendMark,
+  ENGINEERING_SD AS engineeringSd,
+  PLAN_START_DATE AS planStartDate,
+  PLAN_END_DATE AS planEndDate,
+  ITEM_RIPTION AS itemRiption,
+  TENDER_FORMS AS tenderForms,
+  COST_SETTLEMENT AS costSettlement,
+  PROJECT_APPROVAL AS projectApproval,
+  TEND_QUOTE AS tendQuote,
+  TEND_MARGIN AS tendMargin,
+  JOB_FORMAT AS jobFormat,
+  MSOURCES AS msources,
+  TEND_TIME AS tendTime,
+  PERBOND AS perbond,
+  AWARDNAME AS awardname,
+  TRADES AS trades,
+  NATURE_ENTER AS natureEnter,
+  REGISTRATION AS registration,
+  DESCRIPTION AS description,
+  TEND_CLAIM AS tendClaim,
+  IS_DEL AS isDel,
+  IS_ITEM AS isItem,
+  CREATE_DATE AS createDate,
+  CREATE_BY AS createBy,
+  UPDATE_DATE AS updateDate,
+  UPDATE_BY AS updateBy,
+  TENDER_province AS tenderProvince,
+  TENDER_CITY AS tenderCity,
+  (SELECT 
+    NAME 
+  FROM
+    sys_dictionaries 
+  WHERE tt_tenderinfo.`ITEM_TYPE` = sys_dictionaries.P_BM) AS xmlx,
+  REVIEW_STATE AS reviewState,
+  (SELECT 
+    tr.`STATE` 
+  FROM
+    `tt_tribune` tr 
+  WHERE tr.`REVIEW_OBJ_ID` = tt_tenderinfo.`TENDERINFO_ID` 
+    AND tr.`TYPE` = 3) AS state 
+FROM
+  tt_tenderinfo 
+WHERE IS_DEL = 0 
+ AND STRUCT_ID=#{pd.structId,jdbcType=VARCHAR}
+ AND TEND_MARK=2
+ AND IS_ITEM=0
+ <if test="pd.TENDERNAME!=null and pd.TENDERNAME != '' ">
+		 	and (ITEM_NUMBER LIKE #{pd.TENDERNAME2}
+       
+        OR item_Name LIKE #{pd.TENDERNAME2}) 
+		</if>
+		<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 		AND PLAN_START_DATE  &gt;=#{pd.LASTLOGINSTART1} AND PLAN_START_DATE &lt;=#{pd.LASTLOGINSTART2} 
+		 		</if>
+		</if>
+		<if test="pd.LASTLOGINEND1!=null and pd.LASTLOGINEND1 != '' ">
+			 	<if test="pd.LASTLOGINEND2!=null and pd.LASTLOGINEND2 != '' ">
+		   	 	AND PLAN_END_DATE  &gt;=#{pd.LASTLOGINEND1} AND PLAN_END_DATE &lt;=#{pd.LASTLOGINEND2} 
+				</if>
+		</if>
+		
+       	ORDER BY `PLAN_START_DATE` DESC
+</select>  
+
+  <!-- 查询投标管理 根据reviewState -->
+  <select id="findTenderinfolistPageByStructidAndReviewState" parameterType="page" resultType="pd" useCache="false">
+    select 
+      TENDERINFO_ID AS tenderinfoId, STRUCT_ID AS structId, ADDRESS AS address,  ITEM_NUMBER AS itemNumber, ITEM_TYPE AS itemType, CAREA AS carea, 
+    ITEM_NAME AS itemName, YJ_MONEY AS yjMoney, PARTY_UNIT AS partyUnit, TENDER_STRUCT AS tenderStruct, RESPONSIBLE AS responsible, TEND_MARK AS tendMark, ENGINEERING_SD AS engineeringSd, 
+    PLAN_START_DATE AS planStartDate, PLAN_END_DATE AS planEndDate, ITEM_RIPTION AS itemRiption, TENDER_FORMS AS tenderForms, COST_SETTLEMENT AS costSettlement, PROJECT_APPROVAL AS projectApproval, 
+    TEND_QUOTE AS tendQuote , TEND_MARGIN AS tendMargin, JOB_FORMAT AS jobFormat, MSOURCES AS msources, TEND_TIME AS tendTime, PERBOND AS perbond, AWARDNAME AS awardname, TRADES AS trades, 
+    NATURE_ENTER AS natureEnter, REGISTRATION AS registration, DESCRIPTION AS description, TEND_CLAIM AS tendClaim, IS_DEL AS isDel, IS_ITEM AS isItem, CREATE_DATE AS createDate, 
+    CREATE_BY AS createBy, UPDATE_DATE AS updateDate, UPDATE_BY AS updateBy, TENDER_province AS tenderProvince, TENDER_CITY AS tenderCity,
+    (SELECT NAME FROM sys_dictionaries WHERE P_BM=tt_tenderinfo.`ITEM_TYPE` )AS xmlx,REVIEW_STATE as reviewState,
+  (SELECT tr.`STATE` FROM `tt_tribune` tr WHERE tr.`REVIEW_OBJ_ID`=tt_tenderinfo.`TENDERINFO_ID` AND tr.`TYPE`=3) AS state,TENDER_START tenderStart ,TENDER_END tenderEnd
+    from tt_tenderinfo
+       WHERE IS_DEL = 0
+        <if test="pd.SEL_STRUCT_ID!=null and  pd.SEL_STRUCT_ID!=''">
+        and	STRUCT_ID=#{pd.SEL_STRUCT_ID}
+        </if>
+         <if test="pd.selectAll!='selectAll' ">
+     and TENDERINFO_ID IN (SELECT tr.`REVIEW_OBJ_ID` FROM `tt_tribune`  tr WHERE  tr.`TYPE`=6 AND tr.`STATE`=2)
+       AND   
+  (
+   tt_tenderinfo.`TENDERINFO_ID` IN ( SELECT p.`TENDERINFO_ID` FROM tt_tender_person p  WHERE p.`TENDERINFO_ID`=tt_tenderinfo.`TENDERINFO_ID` AND p.`USER_ID`=#{pd.userid} GROUP BY p.`TENDERINFO_ID`)
+  OR
+     tt_tenderinfo.`CREATE_BY` = #{pd.userid}
+  )
+       </if>
+        <if test="pd.TENDERNAME!=null and pd.TENDERNAME != '' ">
+		 	and (ITEM_NUMBER LIKE #{pd.TENDERNAME2}
+       
+        OR item_Name LIKE #{pd.TENDERNAME2}) 
+		</if>
+		<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 		AND PLAN_START_DATE  &gt;=#{pd.LASTLOGINSTART1} AND PLAN_START_DATE &lt;=#{pd.LASTLOGINSTART2} 
+		 		</if>
+		</if>
+		<if test="pd.LASTLOGINEND1!=null and pd.LASTLOGINEND1 != '' ">
+			 	<if test="pd.LASTLOGINEND2!=null and pd.LASTLOGINEND2 != '' ">
+		   	 	AND PLAN_END_DATE  &gt;=#{pd.LASTLOGINEND1} AND PLAN_END_DATE &lt;=#{pd.LASTLOGINEND2} 
+				</if>
+		</if>
+		
+       	ORDER BY `CREATE_DATE` DESC
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_tenderinfo
+    where TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR}
+  </delete>
+  
+  <delete id="deleteByTenderinfoid" parameterType="pd" >
+    update tt_tenderinfo set IS_DEL = 1 
+    where TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR}
+  </delete>
+  
+  <!-- 删除组织关系表数据 -->
+  <delete id="deleteItem" parameterType="pd" >
+    DELETE FROM tt_item_struct WHERE  ITEM_STRUCT_ID=#{ITEM_STRUCT_ID}
+  </delete>
+  
+  
+  <!-- 批量删除组织关系表数据  -->
+	<delete id="deleteAll" parameterType="String" flushCache="false">
+	 delete from tt_item_struct 
+		where 
+			ITEM_STRUCT_ID in
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+  
+  
+  <!-- 批量删除用户 -->
+	<delete id="deleteAllT" parameterType="String" flushCache="false">
+	 update tt_tenderinfo set   IS_DEL = 1
+		where 
+			TENDERINFO_ID in
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+  
+  <insert id="insert" parameterType="com.ssc.entity.system.Tenderinfo" >
+    insert into tt_tenderinfo (TENDERINFO_ID, STRUCT_ID, ADDRESS, 
+       ITEM_NUMBER, ITEM_TYPE, 
+      CAREA, ITEM_NAME, YJ_MONEY, 
+      PARTY_UNIT, TENDER_STRUCT, RESPONSIBLE, 
+      TEND_MARK, ENGINEERING_SD, PLAN_START_DATE, 
+      PLAN_END_DATE, ITEM_RIPTION, TENDER_FORMS, 
+      COST_SETTLEMENT, PROJECT_APPROVAL, TEND_QUOTE, 
+      TEND_MARGIN, JOB_FORMAT, MSOURCES, 
+      TEND_TIME, PERBOND, AWARDNAME, 
+      TRADES, NATURE_ENTER, REGISTRATION, 
+      DESCRIPTION, TEND_CLAIM, IS_DEL, 
+      IS_ITEM, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY, TENDER_province, 
+      TENDER_CITY)
+    values (#{tenderinfoId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, 
+        #{itemNumber,jdbcType=VARCHAR}, #{itemType,jdbcType=CHAR}, 
+      #{carea,jdbcType=VARCHAR}, #{itemName,jdbcType=VARCHAR}, #{yjMoney,jdbcType=DECIMAL}, 
+      #{partyUnit,jdbcType=VARCHAR}, #{tenderStruct,jdbcType=VARCHAR}, #{responsible,jdbcType=VARCHAR}, 
+      #{tendMark,jdbcType=INTEGER}, #{engineeringSd,jdbcType=INTEGER}, #{planStartDate,jdbcType=DATE}, 
+      #{planEndDate,jdbcType=DATE}, #{itemRiption,jdbcType=VARCHAR}, #{tenderForms,jdbcType=INTEGER}, 
+      #{costSettlement,jdbcType=INTEGER}, #{projectApproval,jdbcType=VARCHAR}, #{tendQuote,jdbcType=INTEGER}, 
+      #{tendMargin}, #{jobFormat,jdbcType=INTEGER}, #{msources,jdbcType=INTEGER}, 
+      #{tendTime,jdbcType=DATE}, #{perbond}, #{awardname,jdbcType=VARCHAR}, 
+      #{trades,jdbcType=VARCHAR}, #{natureEnter,jdbcType=VARCHAR}, #{registration,jdbcType=VARCHAR}, 
+      #{description,jdbcType=VARCHAR}, #{tendClaim,jdbcType=VARCHAR}, #{isDel,jdbcType=INTEGER}, 
+      #{isItem,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, #{tenderProvince,jdbcType=CHAR}, 
+      #{tenderCity,jdbcType=CHAR})
+  </insert>
+  
+  <insert id="insertPd" parameterType="pd" >
+    insert into tt_tenderinfo (TENDERINFO_ID, STRUCT_ID, ADDRESS, 
+      ITEM_NUMBER, ITEM_TYPE, 
+      CAREA, ITEM_NAME, YJ_MONEY, 
+      PARTY_UNIT, TENDER_STRUCT, RESPONSIBLE, 
+      TEND_MARK, ENGINEERING_SD, PLAN_START_DATE, 
+      PLAN_END_DATE, ITEM_RIPTION, TENDER_FORMS, 
+      COST_SETTLEMENT, PROJECT_APPROVAL, TEND_QUOTE, 
+      TEND_MARGIN, JOB_FORMAT, MSOURCES, 
+      TEND_TIME, PERBOND, AWARDNAME, 
+      TRADES, NATURE_ENTER, REGISTRATION, 
+      DESCRIPTION, TEND_CLAIM, IS_DEL, 
+      IS_ITEM, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY, TENDER_province, 
+      TENDER_CITY,REVIEW_STATE)
+    values (#{tenderinfoId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, 
+      #{itemNumber,jdbcType=VARCHAR}, #{itemType,jdbcType=CHAR}, 
+      #{carea,jdbcType=VARCHAR}, #{itemName,jdbcType=VARCHAR}, #{yjMoney,jdbcType=DECIMAL}, 
+      #{partyUnit,jdbcType=VARCHAR}, #{tenderStruct,jdbcType=VARCHAR}, #{responsible,jdbcType=VARCHAR}, 
+      #{tendMark,jdbcType=INTEGER}, #{engineeringSd,jdbcType=INTEGER}, #{planStartDate,jdbcType=DATE}, 
+      #{planEndDate,jdbcType=DATE}, #{itemRiption,jdbcType=VARCHAR}, #{tenderForms,jdbcType=INTEGER}, 
+      #{costSettlement,jdbcType=INTEGER}, #{projectApproval,jdbcType=VARCHAR}, #{tendQuote,jdbcType=INTEGER}, 
+      #{tendMargin}, #{jobFormat,jdbcType=INTEGER}, #{msources,jdbcType=INTEGER}, 
+      #{tendTime,jdbcType=DATE}, #{perbond}, #{awardname,jdbcType=VARCHAR}, 
+      #{trades,jdbcType=VARCHAR}, #{natureEnter,jdbcType=VARCHAR}, #{registration,jdbcType=VARCHAR}, 
+      #{description,jdbcType=VARCHAR}, #{tendClaim,jdbcType=VARCHAR}, #{isDel,jdbcType=INTEGER}, 
+      #{isItem,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, #{tenderProvince,jdbcType=CHAR}, 
+      #{tenderCity,jdbcType=CHAR},#{reviewState,jdbcType=INTEGER})
+  </insert>
+  
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_tenderinfo
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tenderinfoId != null" >
+        TENDERINFO_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="address != null" >
+        ADDRESS,
+      </if>
+      <if test="itemNumber != null" >
+        ITEM_NUMBER,
+      </if>
+      <if test="itemType != null" >
+        ITEM_TYPE,
+      </if>
+      <if test="carea != null" >
+        CAREA,
+      </if>
+      <if test="itemName != null" >
+        ITEM_NAME,
+      </if>
+      <if test="yjMoney != null" >
+        YJ_MONEY,
+      </if>
+      <if test="partyUnit != null" >
+        PARTY_UNIT,
+      </if>
+      <if test="tenderStruct != null" >
+        TENDER_STRUCT,
+      </if>
+      <if test="responsible != null" >
+        RESPONSIBLE,
+      </if>
+      <if test="tendMark != null" >
+        TEND_MARK,
+      </if>
+      <if test="engineeringSd != null" >
+        ENGINEERING_SD,
+      </if>
+      <if test="planStartDate != null" >
+        PLAN_START_DATE,
+      </if>
+      <if test="planEndDate != null" >
+        PLAN_END_DATE,
+      </if>
+      <if test="itemRiption != null" >
+        ITEM_RIPTION,
+      </if>
+      <if test="tenderForms != null" >
+        TENDER_FORMS,
+      </if>
+      <if test="costSettlement != null" >
+        COST_SETTLEMENT,
+      </if>
+      <if test="projectApproval != null" >
+        PROJECT_APPROVAL,
+      </if>
+      <if test="tendQuote != null" >
+        TEND_QUOTE,
+      </if>
+      <if test="tendMargin != null" >
+        TEND_MARGIN,
+      </if>
+      <if test="jobFormat != null" >
+        JOB_FORMAT,
+      </if>
+      <if test="msources != null" >
+        MSOURCES,
+      </if>
+      <if test="tendTime != null" >
+        TEND_TIME,
+      </if>
+      <if test="perbond != null" >
+        PERBOND,
+      </if>
+      <if test="awardname != null" >
+        AWARDNAME,
+      </if>
+      <if test="trades != null" >
+        TRADES,
+      </if>
+      <if test="natureEnter != null" >
+        NATURE_ENTER,
+      </if>
+      <if test="registration != null" >
+        REGISTRATION,
+      </if>
+      <if test="description != null" >
+        DESCRIPTION,
+      </if>
+      <if test="tendClaim != null" >
+        TEND_CLAIM,
+      </if>
+       <if test="reviewState != null" >
+        REVIEW_STATE,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="isItem != null" >
+        IS_ITEM,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="tenderProvince != null" >
+        TENDER_province,
+      </if>
+      <if test="tenderCity != null" >
+        TENDER_CITY,
+      </if>
+       <if test="reviewType != null" >
+        REVIEW_TYPE,
+      </if>
+      <if test="buildUnit != null" >
+        BUILD_UNIT,
+      </if>
+      <if test="nature != null" >
+        NATURE,
+      </if>
+      
+      
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tenderinfoId != null" >
+        #{tenderinfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="itemNumber != null" >
+        #{itemNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="itemType != null" >
+        #{itemType,jdbcType=CHAR},
+      </if>
+      <if test="carea != null" >
+        #{carea,jdbcType=VARCHAR},
+      </if>
+      <if test="itemName != null" >
+        #{itemName,jdbcType=VARCHAR},
+      </if>
+      <if test="yjMoney != null" >
+        #{yjMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="partyUnit != null" >
+        #{partyUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderStruct != null" >
+        #{tenderStruct,jdbcType=VARCHAR},
+      </if>
+      <if test="responsible != null" >
+        #{responsible,jdbcType=VARCHAR},
+      </if>
+      <if test="tendMark != null" >
+        #{tendMark,jdbcType=INTEGER},
+      </if>
+      <if test="engineeringSd != null" >
+        #{engineeringSd,jdbcType=INTEGER},
+      </if>
+      <if test="planStartDate != null" >
+        #{planStartDate,jdbcType=DATE},
+      </if>
+      <if test="planEndDate != null" >
+        #{planEndDate,jdbcType=DATE},
+      </if>
+      <if test="itemRiption != null" >
+        #{itemRiption,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderForms != null" >
+        #{tenderForms,jdbcType=INTEGER},
+      </if>
+      <if test="costSettlement != null" >
+        #{costSettlement,jdbcType=INTEGER},
+      </if>
+      <if test="projectApproval != null" >
+        #{projectApproval,jdbcType=VARCHAR},
+      </if>
+      <if test="tendQuote != null" >
+        #{tendQuote,jdbcType=INTEGER},
+      </if>
+      <if test="tendMargin != null" >
+        #{tendMargin},
+      </if>
+      <if test="jobFormat != null" >
+        #{jobFormat,jdbcType=INTEGER},
+      </if>
+      <if test="msources != null" >
+        #{msources,jdbcType=INTEGER},
+      </if>
+      <if test="tendTime != null" >
+        #{tendTime,jdbcType=DATE},
+      </if>
+      <if test="perbond != null" >
+        #{perbond},
+      </if>
+      <if test="awardname != null" >
+        #{awardname,jdbcType=VARCHAR},
+      </if>
+      <if test="trades != null" >
+        #{trades,jdbcType=VARCHAR},
+      </if>
+      <if test="natureEnter != null" >
+        #{natureEnter,jdbcType=VARCHAR},
+      </if>
+      <if test="registration != null" >
+        #{registration,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="tendClaim != null" >
+        #{tendClaim,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewState != null" >
+        #{reviewState,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="isItem != null" >
+        #{isItem,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderProvince != null" >
+        #{tenderProvince,jdbcType=CHAR},
+      </if>
+      <if test="tenderCity != null" >
+        #{tenderCity,jdbcType=CHAR},
+      </if>
+       <if test="reviewType != null" >
+        #{reviewType},
+      </if>
+      <if test="buildUnit != null" >
+        #{buildUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="nature != null" >
+        #{nature},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_tenderinfo
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        ADDRESS = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="itemNumber != null" >
+        ITEM_NUMBER = #{itemNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="itemType != null" >
+        ITEM_TYPE = #{itemType,jdbcType=CHAR},
+      </if>
+      <if test="carea != null" >
+        CAREA = #{carea,jdbcType=VARCHAR},
+      </if>
+      <if test="itemName != null" >
+        ITEM_NAME = #{itemName,jdbcType=VARCHAR},
+      </if>
+      <if test="yjMoney != null" >
+        YJ_MONEY = #{yjMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="partyUnit != null" >
+        PARTY_UNIT = #{partyUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderStruct != null" >
+        TENDER_STRUCT = #{tenderStruct,jdbcType=VARCHAR},
+      </if>
+      <if test="responsible != null" >
+        RESPONSIBLE = #{responsible,jdbcType=VARCHAR},
+      </if>
+      <if test="tendMark != null" >
+        TEND_MARK = #{tendMark,jdbcType=INTEGER},
+      </if>
+      <if test="engineeringSd != null" >
+        ENGINEERING_SD = #{engineeringSd,jdbcType=INTEGER},
+      </if>
+      <if test="planStartDate != null" >
+        PLAN_START_DATE = #{planStartDate,jdbcType=DATE},
+      </if>
+      <if test="planEndDate != null" >
+        PLAN_END_DATE = #{planEndDate,jdbcType=DATE},
+      </if>
+      <if test="itemRiption != null" >
+        ITEM_RIPTION = #{itemRiption,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderForms != null" >
+        TENDER_FORMS = #{tenderForms,jdbcType=INTEGER},
+      </if>
+      <if test="costSettlement != null" >
+        COST_SETTLEMENT = #{costSettlement,jdbcType=INTEGER},
+      </if>
+      <if test="projectApproval != null" >
+        PROJECT_APPROVAL = #{projectApproval,jdbcType=VARCHAR},
+      </if>
+      <if test="tendQuote != null" >
+        TEND_QUOTE = #{tendQuote,jdbcType=INTEGER},
+      </if>
+      <if test="tendMargin != null" >
+        TEND_MARGIN = #{tendMargin},
+      </if>
+      <if test="jobFormat != null" >
+        JOB_FORMAT = #{jobFormat,jdbcType=INTEGER},
+      </if>
+      <if test="msources != null" >
+        MSOURCES = #{msources,jdbcType=INTEGER},
+      </if>
+      <if test="tendTime != null" >
+        TEND_TIME = #{tendTime,jdbcType=DATE},
+      </if>
+      <if test="perbond != null" >
+        PERBOND = #{perbond},
+      </if>
+      <if test="awardname != null" >
+        AWARDNAME = #{awardname,jdbcType=VARCHAR},
+      </if>
+      <if test="trades != null" >
+        TRADES = #{trades,jdbcType=VARCHAR},
+      </if>
+      <if test="natureEnter != null" >
+        NATURE_ENTER = #{natureEnter,jdbcType=VARCHAR},
+      </if>
+      <if test="registration != null" >
+        REGISTRATION = #{registration,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null" >
+        DESCRIPTION = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="tendClaim != null" >
+        TEND_CLAIM = #{tendClaim,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewState != null" >
+        REVIEW_STATE = #{reviewState,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="isItem != null" >
+        IS_ITEM = #{isItem,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderProvince != null" >
+        TENDER_province = #{tenderProvince,jdbcType=CHAR},
+      </if>
+      <if test="tenderCity != null" >
+        TENDER_CITY = #{tenderCity,jdbcType=CHAR},
+      </if>
+      <if test="tenderStart != null">
+      	TENDER_START = #{tenderStart,jdbcType=TIMESTAMP}
+      </if>
+      <if test="tenderEnd != null">
+      	TENDER_END = #{tenderEnd,jdbcType=TIMESTAMP}
+      </if>
+      <if test="reviewType != null" >
+      	REVIEW_TYPE= #{reviewType},
+      </if>
+      <if test="buildUnit != null" >
+        BUILD_UNIT = #{buildUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="projectPactId != null" >
+        PROJECT_PACT_ID = #{projectPactId,jdbcType=VARCHAR},
+      </if>
+       <if test="nature != null" >
+        NATURE = #{nature,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.Tenderinfo" >
+    update tt_tenderinfo
+    set STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      ADDRESS = #{address,jdbcType=VARCHAR},
+      ITEM_NUMBER = #{itemNumber,jdbcType=VARCHAR},
+      ITEM_TYPE = #{itemType,jdbcType=CHAR},
+      CAREA = #{carea,jdbcType=VARCHAR},
+      ITEM_NAME = #{itemName,jdbcType=VARCHAR},
+      YJ_MONEY = #{yjMoney,jdbcType=DECIMAL},
+      PARTY_UNIT = #{partyUnit,jdbcType=VARCHAR},
+      TENDER_STRUCT = #{tenderStruct,jdbcType=VARCHAR},
+      RESPONSIBLE = #{responsible,jdbcType=VARCHAR},
+      TEND_MARK = #{tendMark,jdbcType=INTEGER},
+      ENGINEERING_SD = #{engineeringSd,jdbcType=INTEGER},
+      PLAN_START_DATE = #{planStartDate,jdbcType=DATE},
+      PLAN_END_DATE = #{planEndDate,jdbcType=DATE},
+      ITEM_RIPTION = #{itemRiption,jdbcType=VARCHAR},
+      TENDER_FORMS = #{tenderForms,jdbcType=INTEGER},
+      COST_SETTLEMENT = #{costSettlement,jdbcType=INTEGER},
+      PROJECT_APPROVAL = #{projectApproval,jdbcType=VARCHAR},
+      TEND_QUOTE = #{tendQuote,jdbcType=INTEGER},
+      TEND_MARGIN = #{tendMargin},
+      JOB_FORMAT = #{jobFormat,jdbcType=INTEGER},
+      MSOURCES = #{msources,jdbcType=INTEGER},
+      TEND_TIME = #{tendTime,jdbcType=DATE},
+      PERBOND = #{perbond},
+      AWARDNAME = #{awardname,jdbcType=VARCHAR},
+      TRADES = #{trades,jdbcType=VARCHAR},
+      NATURE_ENTER = #{natureEnter,jdbcType=VARCHAR},
+      REGISTRATION = #{registration,jdbcType=VARCHAR},
+      DESCRIPTION = #{description,jdbcType=VARCHAR},
+      TEND_CLAIM = #{tendClaim,jdbcType=VARCHAR},
+      REVIEW_STATE = #{reviewState,jdbcType=INTEGER},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      IS_ITEM = #{isItem,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      TENDER_province = #{tenderProvince,jdbcType=CHAR},
+      TENDER_CITY = #{tenderCity,jdbcType=CHAR}
+    where TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="findstructName" resultType="java.lang.String" >
+  
+  SELECT STRUCT_NAME FROM `sys_structinfo` WHERE STRUCT_ID=#{structId}
+  
+  </select>
+  
+  
+  <select id="findnameID" resultType="java.lang.String" >
+  
+  SELECT u.`USER_ID` FROM `sys_user` u WHERE u.`USERNAME`=(SELECT SACCOUNT FROM `sys_structinfo` 
+  WHERE STRUCT_ID=#{structId})
+  
+  </select>
+  
+  <select id="finduserName" resultType="java.lang.String" >
+  
+  SELECT u.`NAME` FROM `sys_user` u WHERE u.`USERNAME`=(SELECT SACCOUNT FROM `sys_structinfo`
+   WHERE STRUCT_ID=#{structId})
+  
+  </select>
+  
+  
+  <select id="findBM" resultType="java.lang.String" >
+  
+  SELECT BM FROM `sys_structinfo`
+   WHERE STRUCT_ID=#{structId}
+  
+  </select>
+  
+  
+	<select id="findnumber" resultType="pd">
+		  SELECT 
+		  ITEM_NUMBER
+		FROM
+		  `tt_tenderinfo`
+		WHERE 1=1
+	</select>
+  
+  
+   <select id="listPageAllItemStruct" parameterType="page" resultType="pd" useCache="false">
+   		SELECT 
+   t.`ITEM_STRUCT_ID`,
+  (SELECT 
+    STRUCT_NAME 
+  FROM
+    `sys_structinfo` 
+  WHERE is_del = 0 
+    AND sys_structinfo.`STRUCT_ID`= t.`STRUCT_ID`) AS NAME,
+  (SELECT 
+    NAME 
+  FROM
+    `sys_user` u 
+  WHERE u.USER_ID = t.`CREATE_BY`) AS CREATE_NAME,
+  t.`CREATE_DATE`,
+  (SELECT 
+    RESPEOPLE 
+  FROM
+    `sys_structinfo` i 
+  WHERE i.STRUCT_NAME = NAME) AS PERSON 
+FROM
+  `tt_item_struct` t 
+WHERE t.`ITEM_ID` =  #{pd.tenderinfoId}
+		
+       	ORDER BY CREATE_DATE DESC
+   </select>
+   
+   
+   <select id="selectCCId"  parameterType="pd" resultType="java.lang.String">
+SELECT GROUP_CONCAT(t.`USER_ID`) FROM `tt_tender_review_person` t WHERE t.`TENDERINFO_ID`=#{tenderid,jdbcType=VARCHAR}
+  </select>
+  
+  
+   <select id="findStructinfobyNumber" resultType="pd" parameterType="pd" >
+  	SELECT 
+ item.*,
+ CONCAT((SELECT s.`BM` FROM  `sys_structinfo` s WHERE s.`STRUCT_ID`=#{structId}),'_','000001') AS structidbm
+ FROM (
+
+ SELECT 
+  CONCAT(
+    SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', 1),
+    '_',
+    CASE WHEN LENGTH(CONCAT(SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', - 1) + 1 ))=1 
+	THEN CONCAT('00000',SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', - 1) + 1 )
+	WHEN LENGTH(CONCAT(SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', - 1) + 1 ))=2 
+	THEN CONCAT('0000',SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', - 1) + 1 )
+	WHEN LENGTH(CONCAT(SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', - 1) + 1 ))=3
+	THEN CONCAT('000',SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', - 1) + 1 )
+	WHEN LENGTH(CONCAT(SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', - 1) + 1 ))=4
+	THEN CONCAT('00',SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', - 1) + 1 )
+	WHEN LENGTH(CONCAT(SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', - 1) + 1 ))=5
+	THEN CONCAT('0',SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', - 1) + 1 )
+	WHEN LENGTH(CONCAT(SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', - 1) + 1 ))>5
+	THEN CONCAT(SUBSTRING_INDEX(MAX(str.`ITEM_NUMBER`), '_', - 1) + 1 )
+	END
+  ) AS ITEM_NUMBER
+FROM
+   `tt_tenderinfo`  str  WHERE str.`STRUCT_ID`=#{structId} and str.IS_DEL=0
+  AND 
+  SUBSTRING_INDEX((str.`ITEM_NUMBER`), '_', 1) = (SELECT s.`BM` FROM  `sys_structinfo` s WHERE s.`STRUCT_ID`=#{structId})
+  ) AS item
+    </select>
+</mapper>

@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtMemoMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtMemo" >
+    <id column="MEMO_ID" property="memoId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="MEMO_TITLE" property="memoTitle" jdbcType="VARCHAR" />
+    <result column="MEMO_CONTENT" property="memoContent" jdbcType="VARCHAR" />
+    <result column="HAPPEN_DATE" property="happenDate" jdbcType="TIMESTAMP" />
+      <result column="HAPPEND_END_DATE" property="happendEndDate" jdbcType="TIMESTAMP" />
+    <result column="RESULT" property="result" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+     <result column="MARK" property="mark" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    MEMO_ID, STRUCT_ID, MEMO_TITLE, MEMO_CONTENT, HAPPEN_DATE, RESULT, IS_DEL, CREATE_DATE, 
+    CREATE_BY, UPDATE_DATE, UPDATE_BY,MARK,HAPPEND_END_DATE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_memo
+    where MEMO_ID = #{memoId,jdbcType=VARCHAR}
+  </select>
+    <select id="findMemoByStructId" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_memo
+    where STRUCT_ID = #{STRUCT_ID,jdbcType=VARCHAR} and IS_DEL=0
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_memo
+    where MEMO_ID = #{memoId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtMemo" >
+    insert into tt_memo (MEMO_ID, STRUCT_ID, MEMO_TITLE, 
+      MEMO_CONTENT, HAPPEN_DATE, RESULT, 
+      IS_DEL, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY,MARK)
+    values (#{memoId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{memoTitle,jdbcType=VARCHAR}, 
+      #{memoContent,jdbcType=VARCHAR}, #{happenDate,jdbcType=TIMESTAMP}, #{result,jdbcType=VARCHAR}, 
+      #{isDel,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR},#{mark,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_memo
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="memoId != null" >
+        MEMO_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="memoTitle != null" >
+        MEMO_TITLE,
+      </if>
+      <if test="memoContent != null" >
+        MEMO_CONTENT,
+      </if>
+      <if test="happenDate != null" >
+        HAPPEN_DATE,
+      </if>
+       <if test="happendEndDate != null" >
+        HAPPEND_END_DATE,
+      </if>
+      
+      <if test="result != null" >
+        RESULT,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="mark != null" >
+        MARK,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="memoId != null" >
+        #{memoId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="memoTitle != null" >
+        #{memoTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="memoContent != null" >
+        #{memoContent,jdbcType=VARCHAR},
+      </if>
+      <if test="happenDate != null" >
+        #{happenDate,jdbcType=TIMESTAMP},
+      </if>
+       <if test="happendEndDate != null" >
+        #{happendEndDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="result != null" >
+        #{result,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+       <if test="mark != null" >
+        #{mark,jdbcType=INTEGER},
+      </if>
+      
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_memo
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="memoTitle != null" >
+        MEMO_TITLE = #{memoTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="memoContent != null" >
+        MEMO_CONTENT = #{memoContent,jdbcType=VARCHAR},
+      </if>
+      <if test="happenDate != null" >
+        HAPPEN_DATE = #{happenDate,jdbcType=TIMESTAMP},
+      </if>
+        <if test="happendEndDate != null" >
+        HAPPEND_END_DATE=#{happendEndDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="result != null" >
+        RESULT = #{result,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="mark != null" >
+      	 MARK= #{mark,jdbcType=INTEGER},
+      </if>
+    </set>
+    where MEMO_ID = #{memoId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtMemo" >
+    update tt_memo
+    set STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      MEMO_TITLE = #{memoTitle,jdbcType=VARCHAR},
+      MEMO_CONTENT = #{memoContent,jdbcType=VARCHAR},
+      HAPPEN_DATE = #{happenDate,jdbcType=TIMESTAMP},
+      RESULT = #{result,jdbcType=VARCHAR},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+      MAEK= #{mark,jdbcType=INTEGER},
+    where MEMO_ID = #{memoId,jdbcType=VARCHAR}
+  </update>
+  
+   <!-- 通过struct_id获取备忘列表 -->
+	<select id="listPageAllMemoStructid" parameterType="page" resultType="pd" useCache="false">
+		 select 
+		   MEMO_ID, STRUCT_ID, MEMO_TITLE, MEMO_CONTENT, HAPPEN_DATE, RESULT, IS_DEL, CREATE_DATE, 
+   		 (SELECT s.NAME FROM sys_user s WHERE s.USER_ID=t.CREATE_BY) as CREATE_BY, UPDATE_DATE, UPDATE_BY,MARK
+	    from tt_memo t
+	    where
+		  IS_DEL=0 and t.CREATE_BY=#{pd.CREATE_BY}
+		 <if test="pd.ITEMNAME != null and pd.ITEMNAME != ''">
+			and
+				(
+					 MEMO_TITLE LIKE CONCAT(CONCAT('%', #{pd.ITEMNAME}),'%')
+					 or 
+					 MEMO_CONTENT LIKE CONCAT(CONCAT('%', #{pd.ITEMNAME}),'%') 
+				)
+		</if><!-- 关键词检索 -->
+		
+		
+	</select>
+	
+	<!-- 微信点击我的备忘 弹出消息3条 -->
+	<select id="findMyMemo" parameterType="pd" resultType="pd" useCache="false">
+		 select 
+		   MEMO_ID, STRUCT_ID, MEMO_TITLE, MEMO_CONTENT, HAPPEN_DATE, RESULT, IS_DEL, CREATE_DATE, 
+   		 (SELECT s.NAME FROM sys_user s WHERE s.USER_ID=t.CREATE_BY) as CREATE_BY, UPDATE_DATE, UPDATE_BY,MARK
+	    from tt_memo t
+	    where IS_DEL=0 and t.CREATE_BY= (SELECT    user_id       FROM        sys_user 
+      WHERE open_id = #{OPEN_ID}) ORDER BY CREATE_DATE DESC LIMIT 3
+		
+	</select>
+	
+	<!-- 微信点击我的备忘 -->
+	<select id="findMyMemoAll" parameterType="pd" resultType="pd" useCache="false">
+		 select 
+		   MEMO_ID, STRUCT_ID, MEMO_TITLE, MEMO_CONTENT, HAPPEN_DATE, RESULT, IS_DEL, CREATE_DATE, 
+   		 (SELECT s.NAME FROM sys_user s WHERE s.USER_ID=t.CREATE_BY) as CREATE_BY, UPDATE_DATE, UPDATE_BY,MARK
+	    from tt_memo t
+	    where IS_DEL=0 and t.CREATE_BY= (SELECT    user_id       FROM        sys_user 
+      WHERE open_id = #{OPEN_ID}) ORDER BY CREATE_DATE DESC
+	</select>
+	
+		 <!-- 通过struct_id获取备忘列表tab -->
+	<select id="listAllMemoStructidTab" parameterType="page" resultType="pd" useCache="false">
+		  select 
+		   MEMO_ID, STRUCT_ID, MEMO_TITLE, MEMO_CONTENT, HAPPEN_DATE, RESULT, IS_DEL, CREATE_DATE, 
+   		 (SELECT s.NAME FROM sys_user s WHERE s.USER_ID=t.CREATE_BY) as CREATE_BY, UPDATE_DATE, UPDATE_BY,MARK
+	    from tt_memo t
+	    where
+		  IS_DEL=0 and t.CREATE_BY=#{pd.CREATE_BY}
+		 <if test="pd.ITEMNAME != null and pd.ITEMNAME != ''">
+			and
+				(
+					 MEMO_TITLE LIKE CONCAT(CONCAT('%', #{pd.ITEMNAME}),'%')
+					 or 
+					 MEMO_CONTENT LIKE CONCAT(CONCAT('%', #{pd.ITEMNAME}),'%') 
+				)
+		</if><!-- 关键词检索 -->
+	</select>
+  	
+		<!-- 通过id获取数据 -->
+	<select id="findByMemoById" parameterType="pd" resultType="pd" useCache="false">
+		 select 
+    		<include refid="Base_Column_List" />
+	    from tt_memo
+	        where MEMO_ID=#{MEMO_ID}
+	</select>
+	
+  	<!-- 删除 -->
+	  <update id="updateByIsDel" parameterType="pd">
+  		 update tt_memo   set   IS_DEL = 1 where MEMO_ID=#{MEMO_ID}
+	  </update>
+	  <!-- 批量删除 -->
+	<delete id="deleteAllMemo" parameterType="String" flushCache="false">
+		update tt_memo
+		 set
+			IS_DEL =1 where MEMO_ID in 
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+	
+		<!-- head.jsp页面显示的个人备忘 -->
+	<select id="findByMemoByUserid" parameterType="pd" resultType="pd" useCache="false">
+			SELECT
+			MEMO_ID, STRUCT_ID, MEMO_TITLE, MEMO_CONTENT, HAPPEN_DATE, RESULT, IS_DEL,
+			CREATE_DATE,
+			CREATE_BY, UPDATE_DATE, UPDATE_BY,MARK
+			FROM `tt_memo`
+			WHERE create_by = #{USER_ID} AND mark = 0
+	</select>
+	
+  
+</mapper>

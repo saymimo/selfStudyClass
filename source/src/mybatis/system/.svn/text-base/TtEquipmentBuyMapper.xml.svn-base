@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtEquipmentBuyMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtEquipmentBuy" >
+    <id column="EQUIPMENT_BUY_ID" property="equipmentBuyId" jdbcType="VARCHAR" />
+    <result column="EQUIPMENT_ID" property="equipmentId" jdbcType="VARCHAR" />
+    <result column="BUY_NUMBER" property="buyNumber" jdbcType="INTEGER" />
+    <result column="UNIT_PRICE" property="unitPrice" jdbcType="DECIMAL" />
+    <result column="BUY_AMOUNT" property="buyAmount" jdbcType="DECIMAL" />
+    <result column="BUY_DATE" property="buyDate" jdbcType="DATE" />
+    <result column="BUY_UNIT" property="buyUnit" jdbcType="VARCHAR" />
+    <result column="BUY_USER" property="buyUser" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    
+    <result column="ADD_DATE" property="addDate" jdbcType="DATE" />
+    <result column="RECORD_NO" property="recordNo" jdbcType="VARCHAR" />
+    <result column="NO" property="no" jdbcType="VARCHAR" />
+    <result column="MODEL" property="model" jdbcType="VARCHAR" />
+    <result column="MANUFACTURER" property="manufacturer" jdbcType="VARCHAR" />
+    
+   
+   
+    
+    
+    
+    
+  </resultMap>
+  <sql id="Base_Column_List" >
+    EQUIPMENT_BUY_ID, EQUIPMENT_ID, BUY_NUMBER, UNIT_PRICE, BUY_AMOUNT, BUY_DATE, BUY_UNIT, 
+    BUY_USER, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,ADD_DATE,RECORD_NO,NO,MODEL,MANUFACTURER
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_equipment_buy
+    where EQUIPMENT_BUY_ID = #{equipmentBuyId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_equipment_buy
+    where EQUIPMENT_BUY_ID = #{equipmentBuyId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtEquipmentBuy" >
+    insert into tt_equipment_buy (EQUIPMENT_BUY_ID, EQUIPMENT_ID, BUY_NUMBER, 
+      UNIT_PRICE, BUY_AMOUNT, BUY_DATE, 
+      BUY_UNIT, BUY_USER, IS_DEL, 
+      CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+      UPDATE_BY)
+    values (#{equipmentBuyId,jdbcType=VARCHAR}, #{equipmentId,jdbcType=VARCHAR}, #{buyNumber,jdbcType=INTEGER}, 
+      #{unitPrice,jdbcType=DECIMAL}, #{buyAmount,jdbcType=DECIMAL}, #{buyDate,jdbcType=DATE}, 
+      #{buyUnit,jdbcType=VARCHAR}, #{buyUser,jdbcType=VARCHAR}, #{isDel,jdbcType=INTEGER}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, 
+      #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_equipment_buy
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="equipmentBuyId != null" >
+        EQUIPMENT_BUY_ID,
+      </if>
+      <if test="equipmentId != null" >
+        EQUIPMENT_ID,
+      </if>
+      <if test="buyNumber != null" >
+        BUY_NUMBER,
+      </if>
+      <if test="unitPrice != null" >
+        UNIT_PRICE,
+      </if>
+      <if test="buyAmount != null" >
+        BUY_AMOUNT,
+      </if>
+      <if test="buyDate != null" >
+        BUY_DATE,
+      </if>
+      <if test="buyUnit != null" >
+        BUY_UNIT,
+      </if>
+      <if test="buyUser != null" >
+        BUY_USER,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      
+      
+      
+      <if test="manufacturer != null and manufacturer!=''" >
+        MANUFACTURER,
+      </if>
+      <if test="model != null  and model!=''" >
+        MODEL,
+      </if>
+      <if test="no != null and no!=''" >
+        NO,
+      </if>
+      <if test="recordNo != null  and recordNo!=''" >
+        RECORD_NO,
+      </if>
+      <if test="addDate != null and addDate!=''" >
+        ADD_DATE,
+      </if>
+       
+    
+    
+    
+    
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="equipmentBuyId != null" >
+        #{equipmentBuyId,jdbcType=VARCHAR},
+      </if>
+      <if test="equipmentId != null" >
+        #{equipmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="buyNumber != null" >
+        #{buyNumber,jdbcType=INTEGER},
+      </if>
+      <if test="unitPrice != null" >
+        #{unitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="buyAmount != null" >
+        #{buyAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="buyDate != null" >
+        #{buyDate,jdbcType=DATE},
+      </if>
+      <if test="buyUnit != null" >
+        #{buyUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="buyUser != null" >
+        #{buyUser,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      
+      
+       <if test="manufacturer != null and manufacturer!=''" >
+        #{manufacturer},
+      </if>
+      <if test="model != null  and model!=''" >
+        #{model},
+      </if>
+      <if test="no != null and no!=''" >
+        #{no},
+      </if>
+      <if test="recordNo != null  and recordNo!=''" >
+        #{recordNo},
+      </if>
+      <if test="addDate != null and addDate!=''" >
+        #{addDate},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_equipment_buy
+    <set >
+      <if test="equipmentId != null" >
+        EQUIPMENT_ID = #{equipmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="buyNumber != null" >
+        BUY_NUMBER = #{buyNumber,jdbcType=INTEGER},
+      </if>
+      <if test="unitPrice != null" >
+        UNIT_PRICE = #{unitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="buyAmount != null" >
+        BUY_AMOUNT = #{buyAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="buyDate != null" >
+        BUY_DATE = #{buyDate,jdbcType=DATE},
+      </if>
+      <if test="buyUnit != null" >
+        BUY_UNIT = #{buyUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="buyUser != null" >
+        BUY_USER = #{buyUser,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      
+      
+       <if test="manufacturer != null and manufacturer!=''" >
+        MANUFACTURER=#{manufacturer},
+      </if>
+      <if test="model != null  and model!=''" >
+        MODEL=#{model},
+      </if>
+      <if test="no != null and no!=''" >
+        NO=#{no},
+      </if>
+      <if test="recordNo != null  and recordNo!=''" >
+        RECORD_NO=#{recordNo},
+      </if>
+      <if test="addDate != null and addDate!=''" >
+        ADD_DATE=#{addDate},
+      </if>
+    </set>
+    where EQUIPMENT_BUY_ID = #{equipmentBuyId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtEquipmentBuy" >
+    update tt_equipment_buy
+    set EQUIPMENT_ID = #{equipmentId,jdbcType=VARCHAR},
+      BUY_NUMBER = #{buyNumber,jdbcType=INTEGER},
+      UNIT_PRICE = #{unitPrice,jdbcType=DECIMAL},
+      BUY_AMOUNT = #{buyAmount,jdbcType=DECIMAL},
+      BUY_DATE = #{buyDate,jdbcType=DATE},
+      BUY_UNIT = #{buyUnit,jdbcType=VARCHAR},
+      BUY_USER = #{buyUser,jdbcType=VARCHAR},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where EQUIPMENT_BUY_ID = #{equipmentBuyId,jdbcType=VARCHAR}
+  </update>
+  
+  
+   <select id="listPageAllEquimpentBuyStructid" resultMap="BaseResultMap" parameterType="page" >
+    select 
+    EQUIPMENT_BUY_ID, EQUIPMENT_ID, BUY_NUMBER, UNIT_PRICE, BUY_AMOUNT, BUY_DATE, BUY_UNIT, 
+    BUY_USER, IS_DEL, CREATE_DATE,(SELECT s.`NAME` FROM `sys_user`  s WHERE s.`USER_ID`=t.CREATE_BY) as CREATE_BY, UPDATE_DATE, UPDATE_BY
+    from tt_equipment_buy t
+    where EQUIPMENT_ID = #{pd.equipmentId,jdbcType=VARCHAR} and IS_DEL=0
+  </select>
+  
+  <!-- 删除 -->
+	  <update id="updateByIsDel" parameterType="pd">
+  		 update tt_equipment_buy   set   IS_DEL = 1 where EQUIPMENT_BUY_ID=#{equipmentBuyId}
+	  </update>
+	  <!-- 批量删除 -->
+	<delete id="deleteAllEquipmentBuy" parameterType="String" flushCache="false">
+		update tt_equipment_buy
+		 set
+			IS_DEL =1 where EQUIPMENT_BUY_ID in 
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+  
+</mapper>

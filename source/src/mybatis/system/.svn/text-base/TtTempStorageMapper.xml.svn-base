@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtTempStorageMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtTempStorage" >
+    <id column="TEMP_STORAGE_ID" property="tempStorageId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="NO" property="no" jdbcType="VARCHAR" />
+    <result column="SPECIFICATION" property="specification" jdbcType="VARCHAR" />
+    <result column="UNIT" property="unit" jdbcType="VARCHAR" />
+    <result column="UNIT_PRICE" property="unitPrice" jdbcType="DECIMAL" />
+    <result column="NUM" property="num" jdbcType="DECIMAL" />
+    <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="IS_STORAGE" property="isStorage" jdbcType="INTEGER" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    TEMP_STORAGE_ID, ITEM_ID, NAME, NO, SPECIFICATION, UNIT, UNIT_PRICE, NUM, AMOUNT, 
+    REMARK, IS_STORAGE, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY
+  </sql>
+  
+  
+  
+  	  <update id="updateIsStorage" parameterType="pd" >
+  		 update  tt_temp_storage  set IS_STORAGE=1  where TEMP_STORAGE_ID = #{tempStorageId} 
+	  </update>
+  
+  
+  
+  
+  <select id="findItemStorageNameBytempStorageId" resultType="pd" parameterType="pd" >
+  
+  SELECT 
+  ITEM_STORAGE_ID,
+  ITEM_ID,
+  NAME,
+  SPECIFICATION,
+  UNIT,
+  TYPE,
+  PRICE,
+  NUM,
+  AMOUNT,
+  IS_DEL,
+  CREATE_DATE,
+  CREATE_BY,
+  UPDATE_DATE,
+  UPDATE_BY 
+FROM
+  `tt_item_storage` i 
+WHERE i.`NAME` = 
+  (SELECT 
+    ts.`NAME` 
+  FROM
+    `tt_temp_storage` ts 
+  WHERE ts.`TEMP_STORAGE_ID` = #{tempStorageId}) 
+  AND i.`SPECIFICATION` = 
+  (SELECT 
+    ts.`SPECIFICATION` 
+  FROM
+    `tt_temp_storage` ts 
+  WHERE ts.`TEMP_STORAGE_ID` = #{tempStorageId}) 
+  AND i.`UNIT` = 
+  (SELECT 
+    ts.`UNIT` 
+  FROM
+    `tt_temp_storage` ts 
+  WHERE ts.`TEMP_STORAGE_ID` = #{tempStorageId}) ;
+
+  
+  
+  </select>
+  
+  
+  
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_temp_storage
+    where TEMP_STORAGE_ID = #{tempStorageId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_temp_storage
+    where TEMP_STORAGE_ID = #{tempStorageId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtTempStorage" >
+    insert into tt_temp_storage (TEMP_STORAGE_ID, ITEM_ID, NAME, 
+      NO, SPECIFICATION, UNIT, 
+      UNIT_PRICE, NUM, AMOUNT, 
+      REMARK, IS_STORAGE, IS_DEL, 
+      CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+      UPDATE_BY)
+    values (#{tempStorageId,jdbcType=VARCHAR}, #{itemId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{no,jdbcType=VARCHAR}, #{specification,jdbcType=VARCHAR}, #{unit,jdbcType=VARCHAR}, 
+      #{unitPrice,jdbcType=DECIMAL}, #{num,jdbcType=DECIMAL}, #{amount,jdbcType=DECIMAL}, 
+      #{remark,jdbcType=VARCHAR}, #{isStorage,jdbcType=INTEGER}, #{isDel,jdbcType=INTEGER}, 
+      #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, 
+      #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.TtTempStorage" >
+    insert into tt_temp_storage
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tempStorageId != null" >
+        TEMP_STORAGE_ID,
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="name != null" >
+        NAME,
+      </if>
+      <if test="no != null" >
+        NO,
+      </if>
+      <if test="specification != null" >
+        SPECIFICATION,
+      </if>
+      <if test="unit != null" >
+        UNIT,
+      </if>
+      <if test="unitPrice != null" >
+        UNIT_PRICE,
+      </if>
+      <if test="num != null" >
+        NUM,
+      </if>
+      <if test="amount != null" >
+        AMOUNT,
+      </if>
+      <if test="remark != null" >
+        REMARK,
+      </if>
+      <if test="isStorage != null" >
+        IS_STORAGE,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tempStorageId != null" >
+        #{tempStorageId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="no != null" >
+        #{no,jdbcType=VARCHAR},
+      </if>
+      <if test="specification != null" >
+        #{specification,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="unitPrice != null" >
+        #{unitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="num != null" >
+        #{num,jdbcType=DECIMAL},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isStorage != null" >
+        #{isStorage,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtTempStorage" >
+    update tt_temp_storage
+    <set >
+      <if test="itemId != null" >
+        ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        NAME = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="no != null" >
+        NO = #{no,jdbcType=VARCHAR},
+      </if>
+      <if test="specification != null" >
+        SPECIFICATION = #{specification,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        UNIT = #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="unitPrice != null" >
+        UNIT_PRICE = #{unitPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="num != null" >
+        NUM = #{num,jdbcType=DECIMAL},
+      </if>
+      <if test="amount != null" >
+        AMOUNT = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="remark != null" >
+        REMARK = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isStorage != null" >
+        IS_STORAGE = #{isStorage,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where TEMP_STORAGE_ID = #{tempStorageId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtTempStorage" >
+    update tt_temp_storage
+    set ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      NAME = #{name,jdbcType=VARCHAR},
+      NO = #{no,jdbcType=VARCHAR},
+      SPECIFICATION = #{specification,jdbcType=VARCHAR},
+      UNIT = #{unit,jdbcType=VARCHAR},
+      UNIT_PRICE = #{unitPrice,jdbcType=DECIMAL},
+      NUM = #{num,jdbcType=DECIMAL},
+      AMOUNT = #{amount,jdbcType=DECIMAL},
+      REMARK = #{remark,jdbcType=VARCHAR},
+      IS_STORAGE = #{isStorage,jdbcType=INTEGER},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where TEMP_STORAGE_ID = #{tempStorageId,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 查询临时入库单列表 -->
+  <select id="listPageTempStorageByItemId" resultMap="BaseResultMap" parameterType="page">
+  		SELECT 
+  t.`TEMP_STORAGE_ID`,
+  t.`ITEM_ID`,
+  t.`NAME`,
+  t.`NO`,
+  t.`SPECIFICATION`,
+  t.`UNIT`,
+  t.`UNIT_PRICE`,
+  t.`NUM`,
+  t.`AMOUNT`,
+  t.`REMARK`,
+  t.`IS_STORAGE`,
+  t.`IS_DEL`,
+  t.`CREATE_DATE`,
+  t.`CREATE_BY` 
+FROM
+  `tt_temp_storage` t  
+WHERE t.`ITEM_ID`= #{pd.ITEM_ID,jdbcType=VARCHAR} and IS_DEL=0
+		    
+		     <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+				)
+		</if>
+  ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  
+  <!-- 删除 -->
+	  <update id="delete" parameterType="pd" >
+  		 update tt_temp_storage   set   IS_DEL = 1 where TEMP_STORAGE_ID = #{tempStorageId,jdbcType=VARCHAR}
+	  </update>
+	  <!-- 批量删除 -->
+	<delete id="deleteAll" parameterType="String" flushCache="false">
+		update tt_temp_storage
+		 set
+			IS_DEL =1 where TEMP_STORAGE_ID in 
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+ </delete>
+</mapper>

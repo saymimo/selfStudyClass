@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtTenderReviewReplyMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtTenderReviewReply" >
+    <id column="TENDER_REVIEW_REPLY_ID" property="tenderReviewReplyId" jdbcType="VARCHAR" />
+    <result column="TENDERINFO_ID" property="tenderinfoId" jdbcType="VARCHAR" />
+    <result column="APPLY_CONTENT" property="applyContent" jdbcType="VARCHAR" />
+    <result column="REVIEW_STATE" property="reviewState" jdbcType="INTEGER" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="APPLY_DATE" property="applyDate" jdbcType="TIMESTAMP" />
+    <result column="APPLY_BY" property="applyBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    TENDER_REVIEW_REPLY_ID, TENDERINFO_ID, APPLY_CONTENT, REVIEW_STATE, IS_DEL, 
+    APPLY_DATE, APPLY_BY
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_tender_review_reply
+    where TENDER_REVIEW_REPLY_ID = #{tenderReviewReplyId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_tender_review_reply
+    where TENDER_REVIEW_REPLY_ID = #{tenderReviewReplyId,jdbcType=VARCHAR}
+  </delete>
+  
+  
+  <insert id="insert" parameterType="com.ssc.entity.system.TtTenderReviewReply" >
+    insert into tt_tender_review_reply (TENDER_REVIEW_REPLY_ID, TENDERINFO_ID, 
+      APPLY_CONTENT, REVIEW_STATE, IS_DEL, 
+      APPLY_DATE, APPLY_BY)
+    values (#{tenderReviewReplyId,jdbcType=VARCHAR}, #{tenderinfoId,jdbcType=VARCHAR}, 
+      #{applyContent,jdbcType=VARCHAR}, #{reviewState,jdbcType=INTEGER}, #{isDel,jdbcType=INTEGER}, 
+      #{applyDate,jdbcType=TIMESTAMP}, #{applyBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_tender_review_reply
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tenderReviewReplyId != null" >
+        TENDER_REVIEW_REPLY_ID,
+      </if>
+      <if test="tenderinfoId != null" >
+        TENDERINFO_ID,
+      </if>
+      <if test="applyContent != null" >
+        APPLY_CONTENT,
+      </if>
+      <if test="reviewState != null" >
+        REVIEW_STATE,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="applyDate != null" >
+        APPLY_DATE,
+      </if>
+      <if test="applyBy != null" >
+        APPLY_BY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tenderReviewReplyId != null" >
+        #{tenderReviewReplyId,jdbcType=VARCHAR},
+      </if>
+      <if test="tenderinfoId != null" >
+        #{tenderinfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="applyContent != null" >
+        #{applyContent,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewState != null" >
+        #{reviewState,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="applyDate != null" >
+        #{applyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="applyBy != null" >
+        #{applyBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtTenderReviewReply" >
+    update tt_tender_review_reply
+    <set >
+      <if test="tenderinfoId != null" >
+        TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR},
+      </if>
+      <if test="applyContent != null" >
+        APPLY_CONTENT = #{applyContent,jdbcType=VARCHAR},
+      </if>
+      <if test="reviewState != null" >
+        REVIEW_STATE = #{reviewState,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="applyDate != null" >
+        APPLY_DATE = #{applyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="applyBy != null" >
+        APPLY_BY = #{applyBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where TENDER_REVIEW_REPLY_ID = #{tenderReviewReplyId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtTenderReviewReply" >
+    update tt_tender_review_reply
+    set TENDERINFO_ID = #{tenderinfoId,jdbcType=VARCHAR},
+      APPLY_CONTENT = #{applyContent,jdbcType=VARCHAR},
+      REVIEW_STATE = #{reviewState,jdbcType=INTEGER},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      APPLY_DATE = #{applyDate,jdbcType=TIMESTAMP},
+      APPLY_BY = #{applyBy,jdbcType=VARCHAR}
+    where TENDER_REVIEW_REPLY_ID = #{tenderReviewReplyId,jdbcType=VARCHAR}
+  </update>
+</mapper>

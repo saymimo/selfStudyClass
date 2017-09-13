@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtDocumentManageMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtDocumentManage" >
+    <id column="DOCUMENT_MANAGE_ID" property="documentManageId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="DOCUMENT_NO" property="documentNo" jdbcType="VARCHAR" />
+    <result column="DOCUMENT_TITLE" property="documentTitle" jdbcType="VARCHAR" />
+    <result column="DOCUMENT_TYPE" property="documentType" jdbcType="VARCHAR" />
+    <result column="DOCUMENT_CONTENT" property="documentContent" jdbcType="VARCHAR" />
+    <result column="DOCUMENT_RELEASE" property="documentRelease" jdbcType="INTEGER" />
+    <result column="REVIEW_STATE" property="reviewState" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="FLOW_STATE" property="flowState" jdbcType="INTEGER" />
+    <result column="DOCUMENT_UNIT" property="documentUnit" jdbcType="VARCHAR" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    DOCUMENT_MANAGE_ID, STRUCT_ID, DOCUMENT_NO, DOCUMENT_TITLE, DOCUMENT_TYPE, DOCUMENT_CONTENT, 
+    DOCUMENT_RELEASE, REVIEW_STATE, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,FLOW_STATE,DOCUMENT_UNIT
+  </sql>
+  
+  
+  
+   <select id="findManageMessage" resultType="pd" parameterType="pd" >
+    select 
+    DOCUMENT_MANAGE_ID, STRUCT_ID, DOCUMENT_NO, DOCUMENT_TITLE, DOCUMENT_TYPE, DOCUMENT_CONTENT, 
+    DOCUMENT_RELEASE, REVIEW_STATE, CREATE_DATE,(  SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`= tt_document_manage.CREATE_BY) as CREATE_BY, UPDATE_DATE, UPDATE_BY,FLOW_STATE,DOCUMENT_UNIT
+    from tt_document_manage
+    where DOCUMENT_MANAGE_ID = #{documentManageId,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_document_manage
+    where DOCUMENT_MANAGE_ID = #{documentManageId,jdbcType=VARCHAR}
+  </select>
+    <update id="updateByState" parameterType="pd">
+  		 update tt_document_manage   set   REVIEW_STATE = #{reviewState,jdbcType=INTEGER} where DOCUMENT_MANAGE_ID=#{documentManageId}
+	  </update>
+	   <update id="updateByDocumentRelease" parameterType="pd">
+  		 update tt_document_manage   set   DOCUMENT_RELEASE =1 where DOCUMENT_MANAGE_ID=#{documentManageId}
+	  </update>
+	  <!-- 发文评审列表 -->
+   <select id="findDocumentManageBylistPage" resultType="pd" parameterType="page" >
+  SELECT 
+  d.`DOCUMENT_MANAGE_ID`,
+  d.`STRUCT_ID`,
+  d.`DOCUMENT_NO`,
+  d.`DOCUMENT_TITLE`,
+  d.`DOCUMENT_TYPE`,
+  d.`DOCUMENT_CONTENT`,
+  d.`DOCUMENT_RELEASE`,
+  d.`REVIEW_STATE`,
+  d.`CREATE_DATE`,
+  d.FLOW_STATE,
+  (SELECT s.name FROM `sys_user` s WHERE  s.`USER_ID`=d.`CREATE_BY`) AS CREATE_BY,
+  t.`TRIBUNE_ID` ,t.`STATE`
+FROM
+  tt_document_manage d 
+  LEFT JOIN `tt_tribune` t 
+    ON d.`DOCUMENT_MANAGE_ID` = t.`REVIEW_OBJ_ID` 
+    where STRUCT_ID = #{pd.STRUCT_ID,jdbcType=VARCHAR}
+    AND d.`TYPE`=1
+    
+    <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 d.DOCUMENT_TITLE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+				)
+		</if>
+  </select>
+  
+  <!-- 发文单位主页查询 -->
+   <select id="findDocumentBylistPage" resultType="pd" parameterType="page" >
+  SELECT 
+  d.`DOCUMENT_MANAGE_ID`,
+  d.`STRUCT_ID`,
+  d.`DOCUMENT_NO`,
+  d.`DOCUMENT_TITLE`,
+  d.`DOCUMENT_TYPE`,
+  d.`DOCUMENT_CONTENT`,
+  d.`DOCUMENT_RELEASE`,
+  d.`REVIEW_STATE`,
+  d.`CREATE_DATE`,
+  d.`FLOW_STATE`,
+  d.`DOCUMENT_UNIT`,
+  (SELECT s.name FROM `sys_user` s WHERE  s.`USER_ID`=d.`CREATE_BY`) AS CREATE_BY,
+  t.`TRIBUNE_ID` 
+FROM
+  tt_document_manage d 
+   LEFT JOIN `tt_tribune` t 
+    ON d.`DOCUMENT_MANAGE_ID` = t.`REVIEW_OBJ_ID`
+    where STRUCT_ID = #{pd.STRUCT_ID,jdbcType=VARCHAR}
+    AND d.`TYPE`=0
+    
+    <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+			and
+				(
+					 d.DOCUMENT_TITLE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+				)
+		</if>
+  </select>
+  
+  
+  <!-- 发文管理列表 -->
+    <select id="findDocumentManageTwoBylistPage" resultType="pd" parameterType="page" >
+	  SELECT 
+	  d.`DOCUMENT_MANAGE_ID`,
+	  d.`STRUCT_ID`,
+	  d.`DOCUMENT_NO`,
+	  d.`DOCUMENT_TITLE`,
+	  d.`DOCUMENT_TYPE`,
+	  d.`DOCUMENT_CONTENT`,
+	  d.`DOCUMENT_RELEASE`,
+	  d.`REVIEW_STATE`,
+	  d.`CREATE_DATE`,
+	  (SELECT s.name FROM `sys_user` s WHERE  s.`USER_ID`=d.`CREATE_BY`) AS CREATE_BY,
+	  t.`TRIBUNE_ID` 
+	FROM
+	  tt_document_manage d 
+	  LEFT JOIN `tt_tribune` t 
+	    ON d.`DOCUMENT_MANAGE_ID` = t.`REVIEW_OBJ_ID` 
+	    where STRUCT_ID = #{pd.STRUCT_ID,jdbcType=VARCHAR}
+	     and ( t.`STATE`=2 OR d.`REVIEW_STATE`=2)
+	    <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+				and
+					(
+						 d.DOCUMENT_TITLE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					)
+			</if>
+  </select>
+  
+  <select id="selectdocumentManagelistPage" resultType="pd" parameterType="page">
+	  	SELECT 
+	  DISTINCT d.`DOCUMENT_MANAGE_ID`,
+	  d.`STRUCT_ID`,
+	  d.`DOCUMENT_NO`,
+	  d.`DOCUMENT_TITLE`,
+	  d.`DOCUMENT_TYPE`,
+	  d.`DOCUMENT_CONTENT`,
+	  d.`DOCUMENT_RELEASE`,
+	  d.`REVIEW_STATE`,
+	  d.`CREATE_DATE`,
+	  (SELECT 
+	    s.name 
+	  FROM
+	    `sys_user` s 
+	  WHERE s.`USER_ID` = d.`CREATE_BY`) AS CREATE_BY,
+	  t.`TRIBUNE_ID` 
+	FROM
+	  tt_document_manage d 
+	  LEFT JOIN `tt_tribune` t 
+	    ON d.`DOCUMENT_MANAGE_ID` = t.`REVIEW_OBJ_ID` 
+	    LEFT JOIN tt_document_user u ON
+	    u.`DOCUMENT_MANAGE_ID`=d.`DOCUMENT_MANAGE_ID`
+	WHERE 	  u.`USER_ID`=#{pd.USER_ID}
+	  <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+				and
+					(
+						 d.DOCUMENT_TITLE LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					)
+			</if>
+  </select>
+  
+   <select id="selectdocumentManageByUserId" resultType="pd" parameterType="pd">
+	  	SELECT 
+	  DISTINCT d.`DOCUMENT_MANAGE_ID`,
+	  d.`STRUCT_ID`,
+	  d.`DOCUMENT_NO`,
+	  d.`DOCUMENT_TITLE`,
+	  d.`DOCUMENT_TYPE`,
+	  d.`DOCUMENT_CONTENT`,
+	  d.`DOCUMENT_RELEASE`,
+	  d.`REVIEW_STATE`,
+	  d.`CREATE_DATE`,
+	  (SELECT 
+	    s.name 
+	  FROM
+	    `sys_user` s 
+	  WHERE s.`USER_ID` = d.`CREATE_BY`) AS CREATE_BY,
+	  t.`TRIBUNE_ID` 
+	FROM
+	  tt_document_manage d 
+	  LEFT JOIN `tt_tribune` t 
+	    ON d.`DOCUMENT_MANAGE_ID` = t.`REVIEW_OBJ_ID` 
+	    LEFT JOIN tt_document_user u ON
+	    u.`DOCUMENT_MANAGE_ID`=d.`DOCUMENT_MANAGE_ID` AND u.`IS_READ`=0
+	WHERE 	  u.`USER_ID`=#{USER_ID}
+  </select>
+  <select id="findSysUserinfo" parameterType="pd" resultType="pd">
+  
+			  SELECT 
+			  t.`USER_ID`,t.`NAME` 
+			FROM
+			  `sys_user` t,
+			  `sys_user_role` tt 
+			WHERE t.`USER_ID` = tt.`USER_ID` 
+			  AND t.`STRUCT_ID` IN  
+			   <foreach item="structId" index="index" collection="structIdMap" open="(" separator="," close=")">
+                  #{structId}
+             </foreach>
+			  AND tt.`ROLE_ID` IN 
+			  (SELECT 
+			    tr.role_id 
+			  FROM
+			    `sys_role` tr 
+			  WHERE tr.role_code IN 
+			   <foreach item="bianmaMap" index="index" collection="bianma" open="(" separator="," close=")">
+                  #{bianmaMap}
+             </foreach>
+			  
+			  ) 
+  
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="pd" >
+    delete from tt_document_manage
+    where DOCUMENT_MANAGE_ID = #{documentManageId,jdbcType=VARCHAR}
+  </delete>
+  
+  <!-- fasong -->
+  <update id="sentDocumentManage" parameterType="pd" >
+    update  tt_document_manage set FLOW_STATE=1
+    where DOCUMENT_MANAGE_ID = #{documentManageId,jdbcType=VARCHAR}
+  </update>
+  
+  
+  
+    <!-- fasong -->
+  <update id="sentDocumentManageTribuneid" parameterType="pd" >
+  		 update  tt_tribune  set STATE=1  where TRIBUNE_ID = #{tribuneId}
+  </update>
+  
+  
+   <!-- 发文 -->
+  <update id="sentDocument" parameterType="pd" >
+    update  tt_document_manage set REVIEW_STATE=2
+    where DOCUMENT_MANAGE_ID = #{documentManageId,jdbcType=VARCHAR}
+  </update>
+  
+  <insert id="insert" parameterType="com.ssc.entity.system.TtDocumentManage" >
+    insert into tt_document_manage (DOCUMENT_MANAGE_ID, STRUCT_ID, DOCUMENT_NO, 
+      DOCUMENT_TITLE, DOCUMENT_TYPE, DOCUMENT_CONTENT, 
+      DOCUMENT_RELEASE, REVIEW_STATE, CREATE_DATE, 
+      CREATE_BY, UPDATE_DATE, UPDATE_BY
+      )
+    values (#{documentManageId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{documentNo,jdbcType=VARCHAR}, 
+      #{documentTitle,jdbcType=VARCHAR}, #{documentType,jdbcType=VARCHAR}, #{documentContent,jdbcType=VARCHAR}, 
+      #{documentRelease,jdbcType=INTEGER}, #{reviewState,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_document_manage
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="documentManageId != null" >
+        DOCUMENT_MANAGE_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="documentNo != null" >
+        DOCUMENT_NO,
+      </if>
+      <if test="documentTitle != null" >
+        DOCUMENT_TITLE,
+      </if>
+      <if test="documentType != null" >
+        DOCUMENT_TYPE,
+      </if>
+      <if test="documentContent != null" >
+        DOCUMENT_CONTENT,
+      </if>
+      <if test="documentRelease != null" >
+        DOCUMENT_RELEASE,
+      </if>
+      <if test="reviewState != null" >
+        REVIEW_STATE,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="flowState != null" >
+        FLOW_STATE,
+      </if>
+      <if test="documentUnit != null" >
+        DOCUMENT_UNIT,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="documentManageId != null" >
+        #{documentManageId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="documentNo != null" >
+        #{documentNo,jdbcType=VARCHAR},
+      </if>
+      <if test="documentTitle != null" >
+        #{documentTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="documentType != null" >
+        #{documentType,jdbcType=VARCHAR},
+      </if>
+      <if test="documentContent != null" >
+        #{documentContent,jdbcType=VARCHAR},
+      </if>
+      <if test="documentRelease != null" >
+        #{documentRelease,jdbcType=INTEGER},
+      </if>
+      <if test="reviewState != null" >
+        #{reviewState,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="flowState != null" >
+        #{flowState,jdbcType=INTEGER},
+      </if>
+      <if test="documentUnit != null" >
+        #{documentUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_document_manage
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="documentNo != null" >
+        DOCUMENT_NO = #{documentNo,jdbcType=VARCHAR},
+      </if>
+      <if test="documentTitle != null" >
+        DOCUMENT_TITLE = #{documentTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="documentType != null" >
+        DOCUMENT_TYPE = #{documentType,jdbcType=VARCHAR},
+      </if>
+      <if test="documentContent != null" >
+        DOCUMENT_CONTENT = #{documentContent,jdbcType=VARCHAR},
+      </if>
+      <if test="documentRelease != null" >
+        DOCUMENT_RELEASE = #{documentRelease,jdbcType=INTEGER},
+      </if>
+      <if test="reviewState != null" >
+        REVIEW_STATE = #{reviewState,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="flowState != null" >
+        FLOW_STATE = #{flowState,jdbcType=INTEGER},
+      </if>
+      <if test="documentUnit != null" >
+        DOCUMENT_UNIT = #{documentUnit,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where DOCUMENT_MANAGE_ID = #{documentManageId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtDocumentManage" >
+    update tt_document_manage
+    set STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      DOCUMENT_NO = #{documentNo,jdbcType=VARCHAR},
+      DOCUMENT_TITLE = #{documentTitle,jdbcType=VARCHAR},
+      DOCUMENT_TYPE = #{documentType,jdbcType=VARCHAR},
+      DOCUMENT_CONTENT = #{documentContent,jdbcType=VARCHAR},
+      DOCUMENT_RELEASE = #{documentRelease,jdbcType=INTEGER},
+      REVIEW_STATE = #{reviewState,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where DOCUMENT_MANAGE_ID = #{documentManageId,jdbcType=VARCHAR}
+  </update>
+  
+  <select id="selectCCId"  parameterType="pd" resultType="java.lang.String">
+     SELECT GROUP_CONCAT(t.`USER_ID`) FROM `tt_tribune_user` t WHERE t.`TRIBUNE_ID`=#{TRIBUNE_ID}
+  </select>
+</mapper>

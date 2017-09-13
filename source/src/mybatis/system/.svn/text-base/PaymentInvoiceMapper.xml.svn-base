@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="PaymentInvoiceMapper" >
+  <select id="checkNo" parameterType="pd" resultType="pd">
+SELECT 
+  COUNT(1) AS counts,
+  u.NAME AS CREATE_NAME,
+  DATE_FORMAT(o.`CREATE_DATE`, '%Y-%m-%d %T') AS CREATE_DATE,
+  u.`PHONE` 
+FROM
+  tt_in_invoice o,
+  sys_user u 
+WHERE o.`INVOICE_CODE`= #{invoiceCode,jdbcType=VARCHAR}
+  AND o.`INVOICE_NO` = #{invoiceNo,jdbcType=VARCHAR}
+  AND o.IS_DEL = 0 
+  AND u.`USER_ID` = o.`CREATE_BY` 
+  <if test="inInvoiceId != null and inInvoiceId != ''">
+    AND o.`IN_INVOICE_ID` != #{inInvoiceId,jdbcType=VARCHAR} 
+   </if>
+  </select>
+ <select id="selectInvioce" parameterType="pd" resultType="Integer">
+ SELECT 
+  COUNT(*) 
+FROM
+  tt_invoice i 
+WHERE 
+    i.`INVOICE_CODE`= #{invoiceCode,jdbcType=VARCHAR}
+    AND 
+    i.`INVOICE_NO`=#{invoiceNo,jdbcType=VARCHAR}
+ </select>
+ 
+ <select id="structId" parameterType="String" resultType="String">
+ SELECT 
+  t.`STRUCT_ID` 
+FROM
+  tt_iteminfo t 
+WHERE t.`ITEM_ID` = #{itemId,jdbcType=VARCHAR}
+ </select>
+  
+ <update id="upInvioce" parameterType="pd">
+ UPDATE 
+  tt_invoice i 
+SET
+  i.`IS_IDENTIFY` = 1 
+  <if test="a == 1">
+  , i.`IN_INVOICE_ID` = #{inInvoiceId,jdbcType=VARCHAR} 
+  </if>
+WHERE  
+	i.`INVOICE_CODE`= #{invoiceCode,jdbcType=VARCHAR}
+    AND 
+    i.`INVOICE_NO`=#{invoiceNo,jdbcType=VARCHAR}
+ </update>
+ 
+  <update id="upInInvioce" parameterType="pd">
+ UPDATE 
+  tt_in_invoice i SET
+ i.`RZ_DATE`=#{createDate,jdbcType=VARCHAR}
+WHERE  
+	i.`INVOICE_CODE`= #{invoiceCode,jdbcType=VARCHAR}
+    AND 
+    i.`INVOICE_NO`=#{invoiceNo,jdbcType=VARCHAR}
+ </update>
+ 
+ <select id="toUpDate" parameterType="pd" resultType="pd">
+SELECT 
+  * 
+FROM
+  tt_invoice t 
+WHERE t.`INVOICE_CODE` = #{invoiceCode,jdbcType=VARCHAR} 
+  AND t.`INVOICE_NO` = #{invoiceNo,jdbcType=VARCHAR} 
+ </select>
+ 
+ 
+ <select id="toInvioce" parameterType="pd" resultType="Integer">
+ SELECT 
+  COUNT(*) 
+FROM
+  tt_invoice ti 
+WHERE ti.`INVOICE_CODE` = #{invoiceCode,jdbcType=VARCHAR} 
+  AND ti.`INVOICE_NO` = #{invoiceNo,jdbcType=VARCHAR} 
+  AND ti.`INVOICE_MONEY` = #{taxNoIncluded,jdbcType=DECIMAL} 
+  AND TAX_MONEY = #{taxMoney,jdbcType=DECIMAL} 
+  AND TAX_DATE = #{taxDate,jdbcType=TIMESTAMP} 
+ </select>
+ 
+  
+ <select id="checkFinNo" parameterType="pd" resultType="Integer">
+  SELECT 
+  COUNT(1) 
+FROM
+  tt_in_invoice o 
+WHERE o.`FINANCE_NO` = #{financeNo,jdbcType=VARCHAR}
+AND IS_DEL = 0 
+ <if test="inInvoiceId != null and inInvoiceId != ''">
+  AND o.`IN_INVOICE_ID` != #{inInvoiceId,jdbcType=VARCHAR} 
+  </if>
+  </select>  
+  
+
+  <select id="listPageAll" parameterType="page" resultType="pd">
+  SELECT 
+  sa.* 
+FROM
+  (SELECT 
+    i.*,
+    (SELECT 
+      NAME 
+    FROM
+      sys_user u 
+    WHERE u.USER_ID = i.`CREATE_BY`) AS CREATE_NAME 
+  FROM
+    tt_in_invoice i 
+  WHERE i.FOREIGN_KEY = #{pd.itemPaymentId,jdbcType=VARCHAR} 
+    AND i.`SOURCE` = 0
+    AND i.IS_DEL = 0
+  ORDER BY i.`CREATE_DATE` DESC) AS sa 
+  WHERE 1 = 1 
+  <if test="pd.ITEMCOLLECTNAME != null and pd.ITEMCOLLECTNAME != ''">
+  and (
+  sa.`CREATE_NAME` LIKE #{pd.ITEMCOLLECTNAME2} 
+  OR sa.`FINANCE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.INVOICE_CODE LIKE #{pd.ITEMCOLLECTNAME2}
+  OR sa.`INVOICE_NO` LIKE #{pd.ITEMCOLLECTNAME2}
+  )
+  </if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(
+  (sa.`TAX_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND sa.`TAX_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  )
+  </if>
+</if>  
+  </select>
+  
+  <select id="selectByPrimaryKey" resultType="pd" parameterType="pd" >
+    select 
+    *
+    from tt_in_invoice
+    where IN_INVOICE_ID = #{inInvoiceId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="pd" >
+UPDATE 
+  tt_in_invoice 
+SET
+  IS_DEL = 1 
+    where IN_INVOICE_ID = #{inInvoiceId,jdbcType=VARCHAR}
+  </delete>
+
+  
+</mapper>

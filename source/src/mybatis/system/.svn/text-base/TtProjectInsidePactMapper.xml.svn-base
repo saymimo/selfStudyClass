@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtProjectInsidePactMapper" >
+  <resultMap id="BaseResultMap" type="pd" >
+    <id column="tt_project_inside_pact_ID" property="ttProjectInsidePactId" jdbcType="VARCHAR" />
+    <result column="PROJECT_PACT_ID" property="projectPactId" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="RECORD_NUMBER" property="recordNumber" jdbcType="VARCHAR" />
+    <result column="PROJECT_NAME" property="projectName" jdbcType="VARCHAR" />
+    <result column="BUILD_UNIT" property="buildUnit" jdbcType="VARCHAR" />
+    <result column="PROJECT_MANAGER" property="projectManager" jdbcType="VARCHAR" />
+    <result column="ACTUAL_DUTY" property="actualDuty" jdbcType="VARCHAR" />
+    <result column="MONEY" property="money" jdbcType="DECIMAL" />
+    <result column="AREA" property="area" jdbcType="VARCHAR" />
+    <result column="STRUCTURE" property="structure" jdbcType="DECIMAL" />
+    <result column="PROJECT_TYPE" property="projectType" jdbcType="VARCHAR" />
+    <result column="SCHEDULE" property="schedule" jdbcType="VARCHAR" />
+    <result column="MAKE_DATE" property="makeDate" jdbcType="TIMESTAMP" />
+    <result column="START_DATE" property="startDate" jdbcType="TIMESTAMP" />
+    <result column="END_DATE" property="endDate" jdbcType="TIMESTAMP" />
+    <result column="ACTUAL_START_DATE" property="actualStartDate" jdbcType="TIMESTAMP" />
+    <result column="ACTUAL_END_DATE" property="actualEndDate" jdbcType="TIMESTAMP" />
+    <result column="NOTIFY_DATE" property="notifyDate" jdbcType="TIMESTAMP" />
+    <result column="CHECK_DATE" property="checkDate" jdbcType="TIMESTAMP" />
+    <result column="PRIZE_REMARK" property="prizeRemark" jdbcType="VARCHAR" />
+    <result column="BID_DATE" property="bidDate" jdbcType="TIMESTAMP" />
+    <result column="BID_MONEY" property="bidMoney" jdbcType="DECIMAL" />
+    <result column="PACT_NUM" property="pactNum" jdbcType="VARCHAR" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="STATE" property="state" jdbcType="INTEGER" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="PROVINCE" property="province" jdbcType="VARCHAR" />
+    <result column="CITY" property="city" jdbcType="VARCHAR" />
+    <result column="ADDRESS" property="address" jdbcType="VARCHAR" />
+    <result column="IS_HISTORY" property="isHistory" jdbcType="INTEGER" />
+    <result column="PACT_NATURE" property="pactNature" jdbcType="VARCHAR" />
+    <result column="STRUCTURE_TYPE" property="structureType" jdbcType="VARCHAR"/>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    tt_project_inside_pact_ID, PROJECT_PACT_ID, USER_ID, RECORD_NUMBER, PROJECT_NAME, 
+    BUILD_UNIT, PROJECT_MANAGER, ACTUAL_DUTY, MONEY, AREA, STRUCTURE, PROJECT_TYPE, SCHEDULE, 
+    MAKE_DATE, START_DATE, END_DATE, ACTUAL_START_DATE, ACTUAL_END_DATE, NOTIFY_DATE, 
+    CHECK_DATE, PRIZE_REMARK, BID_DATE, BID_MONEY, PACT_NUM, REMARK, STATE, IS_DEL, CREATE_DATE, 
+    CREATE_BY, UPDATE_DATE, UPDATE_BY, PROVINCE, CITY, ADDRESS, IS_HISTORY, PACT_NATURE,STRUCTURE_TYPE
+  </sql>
+  <select id="selectByPrimaryKey" resultType="pd" parameterType="pd" >
+    select 
+     *
+    from tt_project_inside_pact
+    where PROJECT_PACT_ID = #{projectPactId,jdbcType=VARCHAR} and IS_DEL = 0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_project_inside_pact
+    where tt_project_inside_pact_ID = #{ttProjectInsidePactId,jdbcType=VARCHAR}
+  </delete>
+ 
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_project_inside_pact
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="ttProjectInsidePactId != null" >
+        tt_project_inside_pact_ID,
+      </if>
+      <if test="projectPactId != null" >
+        PROJECT_PACT_ID,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="recordNumber != null" >
+        RECORD_NUMBER,
+      </if>
+      <if test="projectName != null" >
+        PROJECT_NAME,
+      </if>
+      <if test="buildUnit != null" >
+        BUILD_UNIT,
+      </if>
+      <if test="projectManager != null" >
+        PROJECT_MANAGER,
+      </if>
+      <if test="actualDuty != null" >
+        ACTUAL_DUTY,
+      </if>
+      <if test="money != null" >
+        MONEY,
+      </if>
+      <if test="area != null" >
+        AREA,
+      </if>
+      <if test="structure != null" >
+        STRUCTURE,
+      </if>
+      <if test="projectType != null" >
+        PROJECT_TYPE,
+      </if>
+      <if test="schedule != null" >
+        SCHEDULE,
+      </if>
+      <if test="makeDate != null" >
+        MAKE_DATE,
+      </if>
+      <if test="startDate != null" >
+        START_DATE,
+      </if>
+      <if test="endDate != null" >
+        END_DATE,
+      </if>
+      <if test="actualStartDate != null" >
+        ACTUAL_START_DATE,
+      </if>
+      <if test="actualEndDate != null" >
+        ACTUAL_END_DATE,
+      </if>
+      <if test="notifyDate != null" >
+        NOTIFY_DATE,
+      </if>
+      <if test="checkDate != null" >
+        CHECK_DATE,
+      </if>
+      <if test="prizeRemark != null" >
+        PRIZE_REMARK,
+      </if>
+      <if test="bidDate != null" >
+        BID_DATE,
+      </if>
+      <if test="bidMoney != null" >
+        BID_MONEY,
+      </if>
+      <if test="pactNum != null" >
+        PACT_NUM,
+      </if>
+      <if test="remark != null" >
+        REMARK,
+      </if>
+      <if test="state != null" >
+        STATE,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="province != null" >
+        PROVINCE,
+      </if>
+      <if test="city != null" >
+        CITY,
+      </if>
+      <if test="address != null" >
+        ADDRESS,
+      </if>
+      <if test="isHistory != null" >
+        IS_HISTORY,
+      </if>
+      <if test="pactNature != null" >
+        PACT_NATURE,
+      </if>
+      <if test="overground != null" >
+        OVERGROUND,
+      </if>
+      <if test="underground != null" >
+        UNDERGROUND,
+      </if>
+      <if test="structureType !=null">
+        STRUCTURE_TYPE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="ttProjectInsidePactId != null" >
+        #{ttProjectInsidePactId,jdbcType=VARCHAR},
+      </if>
+      <if test="projectPactId != null" >
+        #{projectPactId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="recordNumber != null" >
+        #{recordNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="projectName != null" >
+        #{projectName,jdbcType=VARCHAR},
+      </if>
+      <if test="buildUnit != null" >
+        #{buildUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="projectManager != null" >
+        #{projectManager,jdbcType=VARCHAR},
+      </if>
+      <if test="actualDuty != null" >
+        #{actualDuty,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        #{money,jdbcType=DECIMAL},
+      </if>
+      <if test="area != null" >
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="structure != null" >
+        #{structure,jdbcType=DECIMAL},
+      </if>
+      <if test="projectType != null" >
+        #{projectType,jdbcType=VARCHAR},
+      </if>
+      <if test="schedule != null" >
+        #{schedule,jdbcType=VARCHAR},
+      </if>
+      <if test="makeDate != null" >
+        #{makeDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="startDate != null" >
+        #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endDate != null" >
+        #{endDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="actualStartDate != null" >
+        #{actualStartDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="actualEndDate != null" >
+        #{actualEndDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="notifyDate != null" >
+        #{notifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkDate != null" >
+        #{checkDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="prizeRemark != null" >
+        #{prizeRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="bidDate != null" >
+        #{bidDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="bidMoney != null" >
+        #{bidMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="pactNum != null" >
+        #{pactNum,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null" >
+        #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="isHistory != null" >
+        #{isHistory,jdbcType=INTEGER},
+      </if>
+      <if test="pactNature != null" >
+        #{pactNature,jdbcType=VARCHAR},
+      </if>
+      
+       <if test="overground != null" >
+         #{overground,jdbcType=VARCHAR},
+      </if>
+      <if test="underground != null" >
+       #{underground,jdbcType=VARCHAR},
+      </if>
+      <if test="structureType !=null">
+        #{structureType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_project_inside_pact
+    <set >
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="recordNumber != null" >
+        RECORD_NUMBER = #{recordNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="projectName != null" >
+        PROJECT_NAME = #{projectName,jdbcType=VARCHAR},
+      </if>
+      <if test="buildUnit != null" >
+        BUILD_UNIT = #{buildUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="projectManager != null" >
+        PROJECT_MANAGER = #{projectManager,jdbcType=VARCHAR},
+      </if>
+      <if test="actualDuty != null" >
+        ACTUAL_DUTY = #{actualDuty,jdbcType=VARCHAR},
+      </if>
+      <if test="money != null" >
+        MONEY = #{money,jdbcType=DECIMAL},
+      </if>
+      <if test="area != null" >
+        AREA = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="structure != null" >
+        STRUCTURE = #{structure,jdbcType=DECIMAL},
+      </if>
+      <if test="projectType != null" >
+        PROJECT_TYPE = #{projectType,jdbcType=VARCHAR},
+      </if>
+      <if test="schedule != null" >
+        SCHEDULE = #{schedule,jdbcType=VARCHAR},
+      </if>
+      <if test="makeDate != null" >
+        MAKE_DATE = #{makeDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="startDate != null" >
+        START_DATE = #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endDate != null" >
+        END_DATE = #{endDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="actualStartDate != null" >
+        ACTUAL_START_DATE = #{actualStartDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="actualEndDate != null" >
+        ACTUAL_END_DATE = #{actualEndDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="notifyDate != null" >
+        NOTIFY_DATE = #{notifyDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="checkDate != null" >
+        CHECK_DATE = #{checkDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="prizeRemark != null" >
+        PRIZE_REMARK = #{prizeRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="bidDate != null" >
+        BID_DATE = #{bidDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="bidMoney != null" >
+        BID_MONEY = #{bidMoney,jdbcType=DECIMAL},
+      </if>
+      <if test="pactNum != null" >
+        PACT_NUM = #{pactNum,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        REMARK = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        STATE = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null" >
+        PROVINCE = #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        CITY = #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        ADDRESS = #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="isHistory != null" >
+        IS_HISTORY = #{isHistory,jdbcType=INTEGER},
+      </if>
+      <if test="pactNature != null" >
+        PACT_NATURE = #{pactNature,jdbcType=VARCHAR},
+      </if>
+       <if test="overground !=null">
+       OVERGROUND =  #{overground,jdbcType=VARCHAR},
+      </if>
+      <if test="underground !=null">
+       UNDERGROUND = #{underground,jdbcType=VARCHAR},
+      </if>
+      <if test="structureType !=null">
+        STRUCTURE_TYPE = #{structureType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where PROJECT_PACT_ID = #{projectPactId,jdbcType=VARCHAR}
+  </update>
+ 
+</mapper>

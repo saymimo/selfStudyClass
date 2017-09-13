@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtTaskSecurityMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtTaskSecurity" >
+    <id column="TASK_SECURITY_ID" property="taskSecurityId" jdbcType="VARCHAR" />
+    <result column="TASK_ID" property="taskId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="SECURITY_TITLE" property="securityTitle" jdbcType="VARCHAR" />
+    <result column="SECURITY_CONTENT" property="securityContent" jdbcType="VARCHAR" />
+    <result column="SECURITY_STATE" property="securityState" jdbcType="INTEGER" />
+    <result column="RESULT" property="result" jdbcType="INTEGER" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="TASK_NAME" property="TASK_NAME" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    TASK_SECURITY_ID, TASK_ID, ITEM_ID, SECURITY_TITLE, SECURITY_CONTENT, SECURITY_STATE, 
+    RESULT, IS_DEL, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    TASK_SECURITY_ID, ITEM_ID, SECURITY_TITLE, SECURITY_CONTENT, SECURITY_STATE, 
+    RESULT, IS_DEL, CREATE_DATE,(SELECT s.`NAME` FROM `sys_user`  s WHERE s.`USER_ID`=t.CREATE_BY) as CREATE_BY,
+     UPDATE_DATE, UPDATE_BY,IFNULL((SELECT taskName(t.TASK_ID) ),'') AS TASK_NAME,TASK_ID
+    from tt_task_security t
+    where TASK_SECURITY_ID = #{taskSecurityId,jdbcType=VARCHAR}
+  </select>
+  
+   <select id="selectByPrimaryKeyTask" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    TASK_SECURITY_ID, ITEM_ID, SECURITY_TITLE, SECURITY_CONTENT, SECURITY_STATE, 
+    RESULT, IS_DEL, CREATE_DATE,(SELECT s.`NAME` FROM `sys_user`  s WHERE s.`USER_ID`=t.CREATE_BY) as CREATE_BY,
+     UPDATE_DATE, UPDATE_BY,TASK_ID
+    from tt_task_security t
+    where TASK_SECURITY_ID = #{taskSecurityId,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <select id="findCreateBy" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    SELECT i.`CREATE_BY` FROM `tt_task_security` i WHERE  i.`TASK_SECURITY_ID` = #{taskSecurityId,jdbcType=VARCHAR}
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_task_security
+    where TASK_SECURITY_ID = #{taskSecurityId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="pd" >
+    insert into tt_task_security (TASK_SECURITY_ID, TASK_ID, ITEM_ID, 
+      SECURITY_TITLE, SECURITY_CONTENT, SECURITY_STATE, 
+      RESULT, IS_DEL, CREATE_DATE, 
+      CREATE_BY, UPDATE_DATE, UPDATE_BY
+      )
+    values (#{taskSecurityId,jdbcType=VARCHAR}, #{taskId,jdbcType=VARCHAR}, #{itemId,jdbcType=VARCHAR}, 
+      #{securityTitle,jdbcType=VARCHAR}, #{securityContent,jdbcType=VARCHAR}, #{securityState,jdbcType=INTEGER}, 
+      #{result,jdbcType=INTEGER}, #{isDel,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, 
+      #{createBy,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_task_security
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="taskSecurityId != null" >
+        TASK_SECURITY_ID,
+      </if>
+      <if test="taskId != null" >
+        TASK_ID,
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="securityTitle != null" >
+        SECURITY_TITLE,
+      </if>
+      <if test="securityContent != null" >
+        SECURITY_CONTENT,
+      </if>
+      <if test="securityState != null" >
+        SECURITY_STATE,
+      </if>
+      <if test="result != null" >
+        RESULT,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+       <if test="finDate != null" >
+        FIN_DATE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="taskSecurityId != null" >
+        #{taskSecurityId,jdbcType=VARCHAR},
+      </if>
+      <if test="taskId != null" >
+        #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="securityTitle != null" >
+        #{securityTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="securityContent != null" >
+        #{securityContent,jdbcType=VARCHAR},
+      </if>
+      <if test="securityState != null" >
+        #{securityState,jdbcType=INTEGER},
+      </if>
+      <if test="result != null" >
+        #{result,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+       <if test="type != null" >
+        #{type},
+      </if>
+       <if test="finDate != null" >
+        #{finDate},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPKSelective" parameterType="pd" >
+    update tt_task_security
+    <set >
+      <if test="taskId != null" >
+        TASK_ID = #{taskId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="securityTitle != null" >
+        SECURITY_TITLE = #{securityTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="securityContent != null" >
+        SECURITY_CONTENT = #{securityContent,jdbcType=VARCHAR},
+      </if>
+      <if test="securityState != null" >
+        SECURITY_STATE = #{securityState,jdbcType=INTEGER},
+      </if>
+      <if test="result != null" >
+        RESULT = #{result,jdbcType=INTEGER},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where TASK_SECURITY_ID = #{taskSecurityId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtTaskSecurity" >
+    update tt_task_security
+    set TASK_ID = #{taskId,jdbcType=VARCHAR},
+      ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      SECURITY_TITLE = #{securityTitle,jdbcType=VARCHAR},
+      SECURITY_CONTENT = #{securityContent,jdbcType=VARCHAR},
+      SECURITY_STATE = #{securityState,jdbcType=INTEGER},
+      RESULT = #{result,jdbcType=INTEGER},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where TASK_SECURITY_ID = #{taskSecurityId,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 主页面查询       sf-->
+   <select id="listPagefind" resultType="pd" parameterType="page" >
+   		SELECT
+   		  TASK_SECURITY_ID,TASK_ID, ITEM_ID
+   		  ,SECURITY_TITLE,SECURITY_CONTENT,SECURITY_STATE,RESULT,IS_DEL,CREATE_DATE,
+   		  IFNULL((SELECT taskName(t.TASK_ID) ),'') AS TASK_NAME,
+   		(SELECT s.`NAME` FROM `sys_user`  s WHERE s.`USER_ID`=t.CREATE_BY) 
+   		AS CREATE_NAME,CREATE_BY, UPDATE_DATE, UPDATE_BY,(SELECT s.`NAME` FROM `sys_user`  s WHERE s.`USER_ID`=t.UPDATE_BY) 
+   		AS UPDATE_NAME ,(SELECT GROUP_CONCAT(su.`NAME`) FROM sys_user su WHERE su.`USER_ID` in (SELECT USER_ID FROM `tt_check_user` i WHERE i.SECURITY_QUALITY_ID=t.`TASK_SECURITY_ID`))AS NAME
+   		FROM tt_task_security t
+   		WHERE t.`IS_DEL`=0 AND t.`TASK_ID`=#{pd.TASK_ID,jdbcType=VARCHAR} 
+   		AND t.`ITEM_ID` IN(SELECT ta.`PROJECTUID` FROM tt_taskinfo ta WHERE ta.`UID`=#{pd.TASK_ID,jdbcType=VARCHAR} GROUP BY ta.`PROJECTUID`)  
+   		
+   		
+   		 <if test="pd.ITEMCOLLECTNAME!=null and pd.ITEMCOLLECTNAME != '' ">
+		 	and (SECURITY_CONTENT LIKE #{pd.ITEMCOLLECTNAME2})
+		</if>
+		<if test="pd.ITEMCOLLECTTYPE!=null and pd.ITEMCOLLECTTYPE != ''   and pd.ITEMCOLLECTTYPE !=3">
+		 	and (SECURITY_STATE = #{pd.ITEMCOLLECTTYPE})
+		</if>
+		
+		<if test="pd.ITEMCOLLECTPAGE!=null and pd.ITEMCOLLECTPAGE != ''  and pd.ITEMCOLLECTPAGE !=3">
+		 	and (RESULT = #{pd.ITEMCOLLECTPAGE})
+		</if>
+		
+       <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 		AND CREATE_DATE  &gt;=#{pd.LASTLOGINSTART1} AND CREATE_DATE &lt;=#{pd.LASTLOGINSTART2} 
+		 		</if>
+		</if>
+	ORDER BY  CREATE_DATE DESC
+
+   </select>
+  
+  <!-- 主页面查询 -->
+   <select id="listPageAllTaskSecurityStructid" resultType="pd" parameterType="page" >
+ SELECT 
+  TASK_SECURITY_ID,
+  (SELECT 
+    tt.`NAME` 
+  FROM
+    `tt_taskinfo` tt 
+  WHERE tt.`UID` = t.TASK_ID) AS TASK_ID,
+  ITEM_ID,
+  SECURITY_TITLE,
+  SECURITY_CONTENT,
+  SECURITY_STATE,
+  RESULT,
+  IS_DEL,
+  CREATE_DATE,
+  IFNULL(
+    (SELECT 
+      taskName (t.TASK_ID)),
+    '') AS TASK_NAME,
+  (SELECT 
+    s.`NAME` 
+  FROM
+    `sys_user` s 
+  WHERE s.`USER_ID` = t.CREATE_BY) AS CREATE_NAME,
+  CREATE_BY,
+  UPDATE_DATE,
+  UPDATE_BY ,
+  (SELECT GROUP_CONCAT(su.`NAME`) FROM sys_user su WHERE su.`USER_ID` in (SELECT USER_ID FROM `tt_check_user` i WHERE i.SECURITY_QUALITY_ID=t.`TASK_SECURITY_ID`))AS NAME
+FROM
+  tt_task_security t 
+WHERE IS_DEL = 0 
+  AND ITEM_ID = #{pd.ITEM_ID,jdbcType=VARCHAR} 
+   		 <if test="pd.ITEMCOLLECTNAME!=null and pd.ITEMCOLLECTNAME != '' ">
+		 	and (SECURITY_CONTENT LIKE #{pd.ITEMCOLLECTNAME2})
+		</if>
+		<if test="pd.ITEMCOLLECTTYPE!=null and pd.ITEMCOLLECTTYPE != ''   and pd.ITEMCOLLECTTYPE !=3">
+		 	and (SECURITY_STATE = #{pd.ITEMCOLLECTTYPE})
+		</if>
+		
+		<if test="pd.ITEMCOLLECTPAGE!=null and pd.ITEMCOLLECTPAGE != ''  and pd.ITEMCOLLECTPAGE !=3">
+		 	and (RESULT = #{pd.ITEMCOLLECTPAGE})
+		</if>
+		
+       <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 		AND CREATE_DATE  &gt;=#{pd.LASTLOGINSTART1} AND CREATE_DATE &lt;=#{pd.LASTLOGINSTART2} 
+		 		</if>
+		</if>
+	ORDER BY  CREATE_DATE DESC
+
+   </select>
+   
+    <!-- 微信安全检查不分页 参考listPageAllTaskSecurityStructid shenwei 2016/06/07 -->
+   <select id="findSecurity" resultType="pd" parameterType="pd" >
+   		SELECT 
+  TASK_SECURITY_ID,
+  (SELECT 
+    tt.`NAME` 
+  FROM
+    `tt_taskinfo` tt 
+  WHERE tt.`UID` = t.TASK_ID) AS TASK_ID,
+  ITEM_ID,
+  SECURITY_TITLE,
+  SECURITY_CONTENT,
+  SECURITY_STATE,
+  RESULT,
+  IS_DEL,
+  CREATE_DATE,
+  IFNULL(
+    (SELECT 
+      taskName (t.TASK_ID)),
+    '') AS TASK_NAME,
+  (SELECT 
+    s.`NAME` 
+  FROM
+    `sys_user` s 
+  WHERE s.`USER_ID` = t.CREATE_BY) AS CREATE_NAME,
+  CREATE_BY,
+  UPDATE_DATE,
+  UPDATE_BY 
+FROM
+  tt_task_security t 
+WHERE IS_DEL = 0 
+  AND ITEM_ID = #{ITEM_ID,jdbcType=VARCHAR} 
+  AND CREATE_BY=#{userId,jdbcType=VARCHAR}
+  OR  t.`TASK_SECURITY_ID` IN (SELECT i.`SECURITY_QUALITY_ID` FROM `tt_check_user` i WHERE i.`USER_ID`=#{userId,jdbcType=VARCHAR})
+	ORDER BY  CREATE_DATE DESC
+   </select>
+   
+   <!-- 分页面查询 -->
+   <select id="listAllTaskSecurityStructid" resultType="pd" parameterType="page" >
+   		SELECT 
+  TASK_SECURITY_ID,
+  (SELECT 
+    tt.`NAME` 
+  FROM
+    `tt_taskinfo` tt 
+  WHERE tt.`UID` = t.TASK_ID) AS TASK_ID,
+  ITEM_ID,
+  SECURITY_TITLE,
+  SECURITY_CONTENT,
+  SECURITY_STATE,
+  RESULT,
+  IS_DEL,
+  CREATE_DATE,
+  IFNULL(
+    (SELECT 
+      taskName (t.TASK_ID)),
+    '') AS TASK_NAME,
+  (SELECT 
+    s.`NAME` 
+  FROM
+    `sys_user` s 
+  WHERE s.`USER_ID` = t.CREATE_BY) AS CREATE_NAME,
+  CREATE_BY,
+  UPDATE_DATE,
+  UPDATE_BY 
+FROM
+  tt_task_security t 
+WHERE IS_DEL = 0 
+  AND ITEM_ID = #{pd.ITEM_ID,jdbcType=VARCHAR} 
+	ORDER BY  CREATE_DATE DESC
+
+
+   </select>
+  
+  <!-- 删除 -->
+	  <update id="deleteTaskSecurity" parameterType="pd" >
+  		 update tt_task_security   set   IS_DEL = 1 where TASK_SECURITY_ID=#{TaskSecurityId}
+	  </update>
+	  <!-- 批量删除 -->
+	<delete id="deleteAllTaskSecurity" parameterType="String" flushCache="false">
+		update tt_task_security
+		 set
+			IS_DEL =1 where TASK_SECURITY_ID in 
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+ </delete>
+		
+<select id="selectCCId"  parameterType="pd" resultType="java.lang.String">
+  SELECT GROUP_CONCAT(t.`USER_ID`) FROM `tt_check_user` t WHERE t.`SECURITY_QUALITY_ID`=#{taskSecurityId,jdbcType=VARCHAR}
+  </select>
+
+</mapper>
