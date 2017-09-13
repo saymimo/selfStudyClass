@@ -1,4 +1,5 @@
 
+
 -- 新建用户表
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE sys_user(
@@ -33,7 +34,8 @@ CREATE TABLE `sys_article` (
   `IS_DEL` INT(1) DEFAULT 0 COMMENT '是否有效 0有效 1无效',
   PRIMARY KEY (`ARTICLE_ID`)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
-    --2017-09-09 新建消息表  
+
+-- 2017-09-09 新建消息表  
 DROP TABLE IF EXISTS `sys_message`;
 CREATE TABLE `sys_message` (
   `message_id` VARCHAR(50) PRIMARY KEY COMMENT '消息id',
@@ -70,6 +72,7 @@ ALTER TABLE sys_article ADD `IS_PUBLISH` INT(1) DEFAULT 0 COMMENT '是否发布 
 alter table sys_user add avatar varchar(100) default null comment '头像地址';
 
 -- 2017-09-12 新建表
+DROP TABLE IF EXISTS `user_action`;
 CREATE TABLE user_action(
   user_action_id VARCHAR(50) PRIMARY KEY COMMENT"主键",
   obj_id VARCHAR(50) DEFAULT NULL COMMENT "作用对象id",
@@ -81,3 +84,27 @@ CREATE TABLE user_action(
 ALTER TABLE sys_user ADD `introduction` VARCHAR(50) DEFAULT NULL COMMENT '一句话自我介绍';
 --20117-09-13 用户操作表新增字段
 ALTER TABLE user_action ADD `obj_belong` VARCHAR(50) DEFAULT NULL COMMENT '作用对象的拥有人';
+
+-- 2017-09-13 新建表
+DROP TABLE IF EXISTS `sys_content`;
+CREATE TABLE `sys_content` (
+  `content_id` VARCHAR(50) NOT NULL COMMENT '主键',
+  `parent_id` VARCHAR(50) DEFAULT NULL COMMENT '上级id',
+  `create_by` VARCHAR(50) DEFAULT NULL COMMENT '创建人',
+  `create_time` DATETIME DEFAULT NULL COMMENT '创建时间',
+  `update_time` DATETIME DEFAULT NULL COMMENT '更新时间',
+  `title` VARCHAR(50) DEFAULT NULL COMMENT '标题',
+  `content` VARCHAR(2000) DEFAULT NULL COMMENT '正文内容',
+  `state` INT(1) DEFAULT 1 COMMENT '状态 1正常 2加精 3置顶 4加精并置顶',
+  `type` INT(1) DEFAULT 1 COMMENT '类型 1文章 2问题',
+  `is_del` INT(1) DEFAULT 0 COMMENT '是否有效 0有效 1有效',
+  `is_publish` INT(1) DEFAULT 0 COMMENT '是否发布 0未发布 1已发布',
+  PRIMARY KEY (`content_id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+-- 2017-09-13 更改操作表
+ALTER TABLE user_action MODIFY COLUMN action_type  INT(1) DEFAULT 1 COMMENT '操作类型 1关注 2收藏 3赞同 4反对 5阅读',
+ADD COLUMN `creat_time` DATETIME DEFAULT NULL COMMENT '操作时间';
+-- 2017-09-13 内容表新增字段
+ALTER TABLE sys_content ADD `publish_type` INT(1) DEFAULT 1 COMMENT '发布类型 1真名 2昵称 3匿名';
+ALTER TABLE sys_content ADD `anthology_id` VARCHAR(50) DEFAULT NULL COMMENT '文集ID';
+
