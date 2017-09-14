@@ -1,93 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="ArticleMapper">
-	  <insert id="saveArticle" parameterType="pd">
-	  	INSERT INTO `sys_article`
+<mapper namespace="ContentMapper">
+	  <insert id="saveContent" parameterType="pd">
+	  	INSERT INTO `sys_content`
 	  	<trim prefix="(" suffix=")" suffixOverrides=",">
-		  	<if test="ARTICLE_ID!=null">ARTICLE_ID,</if>
-		  	<if test="ANTHOLOGY_ID!=null">ANTHOLOGY_ID,</if>
-		  	<if test="ARTICLE_CONTENT!=null">ARTICLE_CONTENT,</if>
-		  	<if test="CREATE_DATE!=null">CREATE_DATE,</if>
-		  	<if test="CREATE_BY!=null">CREATE_BY,</if>
-		  	<if test="UPDATE_DATE!=null">UPDATE_DATE,</if>
-		  	<if test="UPDATE_BY!=null">UPDATE_BY,</if>
-		  	<if test="ARTICLE_TITLE!=null">ARTICLE_TITLE,</if>
-		  	<if test="READING_NUMBER!=null">READING_NUMBER,</if>
-		  	<if test="IS_TOP!=null">IS_TOP,</if>
-		  	<if test="TYPE!=null">TYPE,</if>
-		  	<if test="IS_DEL!=null">IS_DEL,</if>
-		  	<if test="IS_PUBLISH!=null">IS_PUBLISH,</if>
+		  	<if test="content_id!=null">content_id,</if>
+		  	<if test="parent_id!=null">parent_id,</if>
+		  	<if test="create_by!=null">create_by,</if>
+		  	<if test="create_time!=null">create_time,</if>
+		  	<if test="update_time!=null">update_time,</if>
+		  	<if test="title!=null">title,</if>
+		  	<if test="content!=null">content,</if>
+		  	<if test="state!=null">state,</if>
+		  	<if test="type!=null">type,</if>
+		  	<if test="is_del!=null">is_del,</if>
+		  	<if test="is_publish!=null">is_publish,</if>
 	  	</trim>
 	  	<trim prefix="values(" suffix=")" suffixOverrides=",">
-	  		<if test="ARTICLE_ID!=null">#{ARTICLE_ID},</if>
-		  	<if test="ANTHOLOGY_ID!=null">#{ANTHOLOGY_ID},</if>
-		  	<if test="ARTICLE_CONTENT!=null">#{ARTICLE_CONTENT},</if>
-		  	<if test="CREATE_DATE!=null">#{CREATE_DATE},</if>
-		  	<if test="CREATE_BY!=null">#{CREATE_BY},</if>
-		  	<if test="UPDATE_DATE!=null">#{UPDATE_DATE},</if>
-		  	<if test="UPDATE_BY!=null">#{UPDATE_BY},</if>
-		  	<if test="ARTICLE_TITLE!=null">#{ARTICLE_TITLE},</if>
-		  	<if test="READING_NUMBER!=null">#{READING_NUMBER},</if>
-		  	<if test="IS_TOP!=null">#{IS_TOP},</if>
-		  	<if test="TYPE!=null">#{TYPE},</if>
-		  	<if test="IS_DEL!=null">#{IS_DEL},</if>
-		  	<if test="IS_PUBLISH!=null">#{IS_PUBLISH},</if>
+	  		<if test="content_id!=null">#{content_id},</if>
+		  	<if test="parent_id!=null">#{parent_id},</if>
+		  	<if test="create_by!=null">#{create_by},</if>
+		  	<if test="create_time!=null">#{create_time},</if>
+		  	<if test="update_time!=null">#{update_time},</if>
+		  	<if test="title!=null">#{title},</if>
+		  	<if test="content!=null">#{content},</if>
+		  	<if test="state!=null">#{state},</if>
+		  	<if test="type!=null">#{type},</if>
+		  	<if test="is_del!=null">#{is_del},</if>
+		  	<if test="is_publish!=null">#{is_publish},</if>
 	  	</trim>
 	  </insert>
 	  
-	  <update id="update" parameterType="pd">
+	  <update id="updateByid" parameterType="pd">
 	  		UPDATE sys_article
 	  		<set>
-	  			<if test="ARTICLE_CONTENT!=null">
-	  				ARTICLE_CONTENT = #{ARTICLE_CONTENT},
+	  			<if test="parent_id!=null">
+	  				parent_id = #{parent_id},
 	  			</if>
-	  			<if test="UPDATE_DATE!=null">
-	  				UPDATE_DATE = #{UPDATE_DATE},
+	  			<if test="update_time!=null">
+	  				update_time = #{update_time},
 	  			</if>
-	  			<if test="UPDATE_BY!=null">
-	  				UPDATE_BY = #{UPDATE_BY},
+	  			<if test="title!=null">
+	  				title = #{title},
 	  			</if>
-	  			<if test="ARTICLE_CONTENT!=null">
-	  				ARTICLE_CONTENT = #{ARTICLE_CONTENT},
+	  			<if test="content!=null">
+	  				content = #{content},
 	  			</if>
-	  			<if test="ARTICLE_TITLE!=null">
-	  				ARTICLE_TITLE = #{ARTICLE_TITLE},
+	  			<if test="state!=null">
+	  				state = #{state},
 	  			</if>
-	  			<if test="READING_NUMBER!=null">
-	  				READING_NUMBER = #{READING_NUMBER},
+	  			<if test="type!=null">
+	  				type = #{type},
 	  			</if>
-	  			<if test="IS_TOP!=null">
-	  				IS_TOP = #{IS_TOP},
+	  			<if test="is_del!=null">
+	  				is_del = #{is_del},
 	  			</if>
-	  			<if test="TYPE!=null">
-	  				TYPE = #{TYPE},
-	  			</if>
-	  			<if test="IS_DEL!=null">
-	  				IS_DEL = #{IS_DEL},
-	  			</if>
-	  			<if test="IS_PUBLISH!=null">
-	  				IS_PUBLISH = #{IS_PUBLISH},
+	  			<if test="is_publish!=null">
+	  				is_publish = #{is_publish},
 	  			</if>
 	  		</set>
-	  		WHERE ARTICLE_ID=#{ARTICLE_ID}
+	  		WHERE content_id=#{content_id}
 	  </update>
 	  
-	  <select id="findArticle" parameterType="pd" resultType="pd">
+	  <select id="findContentList" parameterType="pd" resultType="pd">
 			SELECT 
-			a.content_id,
+			a.content_id 'id',
 			u.user_id,
 			u.avatar,
 			u.name,
 			u.nickname,
 			u.unit,
-			a.publish_type,
+			a.publish_type 'publishType',
 			a.type,
 			an.anthology_id,
-			an.title anthologyTitle,
-			a.create_time createTime,
-			a.update_time updateTime,
-			a.is_publish status,
+			an.title 'anthologyTitle',
+			a.create_time 'createTime',
+			a.update_time 'updateTime',
+			a.is_publish 'status',
 			a.title,
 			a.content,
 			(select count(1) from user_action where obj_id = a.content_id and action_type=1) as attentionNum,
@@ -106,6 +96,34 @@
 			<if test="type!=null">
 				and a.type =#{type}
 			</if>
+			order by a.create_time
 			limit #{offset},#{limit}
+	  </select>
+	  
+	  <select id="findContent" parameterType="pd" resultType="pd">
+	  	SELECT 
+			a.content_id 'id',
+			u.user_id,
+			u.avatar,
+			u.name,
+			u.nickname,
+			u.unit,
+			a.publish_type 'publishType',
+			a.type,
+			an.anthology_id,
+			an.title 'anthologyTitle',
+			a.create_time 'createTime',
+			a.update_time 'updateTime',
+			a.is_publish 'status',
+			a.title,
+			a.content,
+			(select count(1) from user_action where obj_id = a.content_id and action_type=1) as attentionNum,
+			(select count(1) from user_action where obj_id = a.content_id and action_type=2) as collectNum,
+			(select count(1) from user_action where obj_id = a.content_id and action_type=3) as praiseNum
+			from sys_content a left join sys_user u
+			on a.create_by = u.user_id
+			left join  sys_anthology an
+			on a.anthology_id = an.anthology_id
+			where a.content_id=#{contentId}
 	  </select>
 </mapper>

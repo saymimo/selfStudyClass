@@ -1,5 +1,3 @@
-
-
 -- 新建用户表
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE sys_user(
@@ -22,7 +20,7 @@ DROP TABLE IF EXISTS `sys_article`;
 CREATE TABLE `sys_article` (
   `ARTICLE_ID` VARCHAR(50) NOT NULL COMMENT '主键',
   `ANTHOLOGY_ID` VARCHAR(50) DEFAULT NULL COMMENT '文集id',
-  `ARTICLE_CONTENT` VARCHAR(20000) DEFAULT NULL COMMENT '内容',
+  `ARTICLE_CONTENT` TEXT DEFAULT NULL COMMENT '内容',
   `CREATE_DATE` DATETIME DEFAULT NULL COMMENT '创建日期',
   `CREATE_BY` VARCHAR(50) DEFAULT NULL COMMENT '创建人',
   `UPDATE_DATE` DATETIME DEFAULT NULL COMMENT '修改日期',
@@ -44,7 +42,7 @@ CREATE TABLE `sys_message` (
   `title` VARCHAR(50) DEFAULT NULL COMMENT '消息标题',
   `content` VARCHAR(2000) DEFAULT NULL COMMENT '消息内容'
 );
---2017-09-09 新建文集表
+-- 2017-09-09 新建文集表
 DROP TABLE IF EXISTS `sys_anthology`;
 CREATE TABLE `sys_anthology` (
   `anthology_id` VARCHAR(50) PRIMARY KEY COMMENT '文集id',
@@ -61,14 +59,14 @@ CREATE TABLE `sys_comment` (
   `create_by` VARCHAR(50) DEFAULT NULL COMMENT '创建人',
   `create_time` DATETIME DEFAULT NULL COMMENT '创建时间',
   `update_time` DATETIME DEFAULT NULL COMMENT '更新时间',
-  `content` VARCHAR(30000) DEFAULT NULL COMMENT '内容',
+  `content` TEXT DEFAULT NULL COMMENT '内容',
   `collect_num` INT(4) DEFAULT 0 COMMENT '收藏数',
   `praise_num` INT(4) DEFAULT 0 COMMENT '赞数',
    `comment_type` INT(1) DEFAULT 0 COMMENT '类型 0问题回答 1文章评论 2讨论'
 ) COMMENT '回复表';
 -- 2017-09-11 文章表添加字段
 ALTER TABLE sys_article ADD `IS_PUBLISH` INT(1) DEFAULT 0 COMMENT '是否发布 0未发布 1已发布';
---2017-09-12 用户表添加头像字段
+-- 2017-09-12 用户表添加头像字段
 alter table sys_user add avatar varchar(100) default null comment '头像地址';
 
 -- 2017-09-12 新建表
@@ -80,9 +78,9 @@ CREATE TABLE user_action(
   action_type INT(1) DEFAULT 0 COMMENT "操作类型 0关注 1收藏 2赞同 3反对"
 ) COMMENT "用户操作表";
 
---20117-09-13 用户表新增字段
+-- 20117-09-13 用户表新增字段
 ALTER TABLE sys_user ADD `introduction` VARCHAR(50) DEFAULT NULL COMMENT '一句话自我介绍';
---20117-09-13 用户操作表新增字段
+-- 20117-09-13 用户操作表新增字段
 ALTER TABLE user_action ADD `obj_belong` VARCHAR(50) DEFAULT NULL COMMENT '作用对象的拥有人';
 
 -- 2017-09-13 新建表
@@ -94,7 +92,7 @@ CREATE TABLE `sys_content` (
   `create_time` DATETIME DEFAULT NULL COMMENT '创建时间',
   `update_time` DATETIME DEFAULT NULL COMMENT '更新时间',
   `title` VARCHAR(50) DEFAULT NULL COMMENT '标题',
-  `content` VARCHAR(2000) DEFAULT NULL COMMENT '正文内容',
+  `content` TEXT DEFAULT NULL COMMENT '正文内容',
   `state` INT(1) DEFAULT 1 COMMENT '状态 1正常 2加精 3置顶 4加精并置顶',
   `type` INT(1) DEFAULT 1 COMMENT '类型 1文章 2问题',
   `is_del` INT(1) DEFAULT 0 COMMENT '是否有效 0有效 1有效',
