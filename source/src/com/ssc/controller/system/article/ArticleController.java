@@ -2,6 +2,7 @@ package com.ssc.controller.system.article;
 
 import com.ssc.controller.base.BaseController;
 import com.ssc.service.system.article.ArticleService;
+import com.ssc.service.system.content.ContentService;
 import com.ssc.util.Logger;
 import com.ssc.util.PageData;
 
@@ -20,6 +21,9 @@ public class ArticleController
   extends BaseController{
   @Resource(name="articleService")
   private ArticleService articleService;
+  
+  @Resource(name="contentService")
+  private ContentService contentService;
   
   /**
    * 新建文章
@@ -77,20 +81,21 @@ public class ArticleController
    */
   @RequestMapping(value="/publish",method=RequestMethod.POST)
   public Object publish(@RequestBody String req){
-	  JSONObject reqJson = JSONObject.fromObject(req);
 	  JSONObject respJson = new JSONObject();
-      PageData pd = new PageData();
+	  PageData pd = new PageData();
+	  pd = getPdFromJson(req);
       int code = 200;
       String message = "ok";
-	  
-      pd.put("ARTICLE_ID", reqJson.getString("id"));
-      pd.put("IS_PUBLISH", 1);
+      Date date = new Date();
+      pd.put("content_id", pd.getString("id"));
+      pd.put("is_publish", 1);
+      pd.put("update_time", date);
       try {
-		articleService.update(pd);
+    	  contentService.updateByid(pd);
 	} catch (Exception e) {
 		logger.error(e.toString(), e);
 		code = 500;
-		message = "articleService update error";
+		message = "contentService update error";
 	}
 	  respJson.put("code", code);
 	  respJson.put("message", message);

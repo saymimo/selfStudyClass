@@ -13,6 +13,15 @@ public class ContentService{
   private DaoSupport dao;
   
   /**
+   * 根据content_id更新内容
+   * 2017-9-14 zxk_senNy
+   * @param pd
+ * @throws Exception 
+   */
+  public void updateByid(PageData pd) throws Exception{
+	  dao.update("ContentMapper.updateByid", pd);
+  }
+  /**
    * 根据日期批量查询前xx条内容
    * 2017-9-14 zxk_senNy
    * @return

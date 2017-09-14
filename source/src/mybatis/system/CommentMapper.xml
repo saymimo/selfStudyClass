@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="CommentMapper">
+	  <insert id="saveArticle" parameterType="pd">
+	  	INSERT INTO `sys_article`
+	  	<trim prefix="(" suffix=")" suffixOverrides=",">
+		  	<if test="ARTICLE_ID!=null">ARTICLE_ID,</if>
+	  	</trim>
+	  	<trim prefix="values(" suffix=")" suffixOverrides=",">
+	  		<if test="ARTICLE_ID!=null">#{ARTICLE_ID},</if>
+	  	</trim>
+	  </insert>
+	  
+	  <update id="update" parameterType="pd">
+	  		UPDATE sys_article
+	  		<set>
+	  			<if test="ARTICLE_CONTENT!=null">
+	  				ARTICLE_CONTENT = #{ARTICLE_CONTENT},
+	  			</if>
+	  		</set>
+	  		WHERE ARTICLE_ID=#{ARTICLE_ID}
+	  </update>
+	  
+	  <select id="findCommentList" parameterType="pd" resultType="pd">
+			SELECT 
+			c.comment_id 'id',
+			c.publish_type 'publishType',
+			c.comment_type 'type',
+			c.content,
+			u.user_id,
+			u.avatar,
+			u.name,
+			u.nickname,
+			u.unit,			
+			UNIX_TIMESTAMP(c.create_time) 'createTime',
+			(select count(1) from user_action where obj_id = a.content_id and action_type=3) as praiseNum
+			from sys_comment c 
+			left join sys_user u
+			on c.create_by = u.user_id
+			where c.parent_id=#{contentId}
+	  </select>
+</mapper>

@@ -2,19 +2,15 @@ package com.ssc.controller.system.content;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.Resource;
-
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
 import com.ssc.controller.base.BaseController;
-import com.ssc.entity.Page;
+import com.ssc.service.system.comment.CommentService;
 import com.ssc.service.system.content.ContentService;
 import com.ssc.util.PageData;
 
@@ -23,6 +19,9 @@ import com.ssc.util.PageData;
 public class ContentController extends BaseController {
 	@Resource(name="contentService")
 	private ContentService contentService;
+	
+	@Resource(name="commentService")
+	private CommentService commentService;
 	
 	/**
 	 * 根据日期批量查询内容
@@ -121,9 +120,93 @@ public class ContentController extends BaseController {
 	@RequestMapping(value="/findContent",method=RequestMethod.GET)
 	public Object findContent(@RequestBody  String req){
 		JSONObject respJson = new JSONObject();
+		JSONObject author = new JSONObject();
+		JSONObject anthology = new JSONObject();
+		List<PageData> commentList = new ArrayList<PageData>();
+		List<PageData> commentList2 = new ArrayList<PageData>();
 		PageData pd = new PageData();
+		PageData content = new PageData();
 		pd = getPdFromJson(req);
-		
-		return null;
+		String message = "ok";
+		int code = 200;
+		try {
+			content = contentService.findContent(pd);
+			if ((Integer)content.get("publishType")==1) {//真名发布
+				author.put("id", content.getString("user_id"));
+				author.put("avator", content.getString("avator"));
+				author.put("name", content.getString("name"));
+				author.put("unit", content.getString("unit"));
+			}
+			if ((Integer)content.get("publishType")==2) {//昵称
+				author.put("id", content.getString("user_id"));
+				author.put("avator", content.getString("avator"));
+				author.put("nickname", content.getString("nickname"));
+			}
+			if ((Integer)content.get("publishType")==3) {//匿名
+				author.put("id", -1);
+			}
+			//===============文集======================
+			if ((Integer)content.get("type")==1) {//若文章，放入文集，去掉关注数
+				anthology.put("id", content.getString("anthology_id"));
+				anthology.put("title", content.getString("anthologyTitle"));
+				content.put("anthology", anthology);
+				content.remove("attentionNum");
+			}
+			//===============文集======================
+			
+			//===============问题======================
+			if ((Integer)content.get("type")==2) {//若问题，去掉收藏数和赞数
+				content.remove("collectNum");
+				content.remove("praiseNum");
+			}
+			//===============问题======================
+
+			commentList = commentService.findCommentList(pd);//评论或者回答
+			if (commentList!=null&&!commentList.isEmpty()) {
+				for (int i = 0; i < commentList.size(); i++) {
+					PageData comment = new PageData();
+					JSONObject c_author = new JSONObject();//评论回答的作者
+					comment = commentList.get(i);
+					
+					if ((Integer)comment.get("publishType")==1) {
+						c_author.put("id", comment.getString("user_id"));
+						c_author.put("avatar", comment.getString("avatar"));
+						c_author.put("name", comment.getString("name"));
+						c_author.put("unit", comment.getString("unit"));
+					}
+					if ((Integer)comment.get("publishType")==2) {
+						c_author.put("id", comment.getString("user_id"));
+						c_author.put("avatar", comment.getString("avatar"));
+						c_author.put("nickname", comment.getString("nickname"));
+					}
+					if ((Integer)comment.get("publishType")==3) {
+						c_author.put("id",-1);
+					}
+					comment.put("author", c_author);
+					comment.remove("user_id");
+					comment.remove("avatar");
+					comment.remove("name");
+					comment.remove("unit");
+					commentList2.add(comment);
+				}
+			}
+			content.put("comment", JSONArray.fromObject(commentList2));
+			
+			content.remove("user_id");
+			content.remove("avator");
+			content.remove("name");
+			content.remove("nickname");
+			content.remove("unit");
+			content.remove("anthology_id");
+			content.remove("anthologyTitle");
+		} catch (Exception e) {
+			logger.error(e.toString(), e);
+			code = 500;
+			message = "error";
+		}
+		respJson.put("code", code);
+		respJson.put("message", message);
+		respJson.put("data", JSONObject.fromObject(content));
+		return respJson;
 	}
 }
