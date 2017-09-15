@@ -1,6 +1,6 @@
 package com.ssc.controller.system.content;
-
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
 import net.sf.json.JSONArray;
@@ -9,9 +9,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.ssc.controller.base.BaseController;
+import com.ssc.service.system.anthology.AnthologyService;
 import com.ssc.service.system.comment.CommentService;
 import com.ssc.service.system.content.ContentService;
+import com.ssc.service.system.user.UserService;
 import com.ssc.util.PageData;
 
 @Controller
@@ -22,6 +26,12 @@ public class ContentController extends BaseController {
 	
 	@Resource(name="commentService")
 	private CommentService commentService;
+	
+	@Resource(name="userService")
+	private UserService userService;
+	
+	@Resource(name="anthologyService")
+	private AnthologyService anthologyService;
 	
 	/**
 	 * 根据日期批量查询内容
@@ -130,6 +140,7 @@ public class ContentController extends BaseController {
 		String message = "ok";
 		int code = 200;
 		try {
+			pd.put("content_id", pd.getString("contentId"));
 			content = contentService.findContent(pd);
 			if ((Integer)content.get("publishType")==1) {//真名发布
 				author.put("id", content.getString("user_id"));
@@ -151,13 +162,15 @@ public class ContentController extends BaseController {
 				anthology.put("title", content.getString("anthologyTitle"));
 				content.put("anthology", anthology);
 				content.remove("attentionNum");
+				content.remove("answers_praiseNum");
+				content.remove("answerNum");
 			}
 			//===============文集======================
 			
 			//===============问题======================
-			if ((Integer)content.get("type")==2) {//若问题，去掉收藏数和赞数
+			if ((Integer)content.get("type")==2) {//若问题，去掉收藏数
 				content.remove("collectNum");
-				content.remove("praiseNum");
+				content.put("praiseNum", (Integer)content.get("answers_praiseNum"));//这里的赞数是指该问题下所有回答赞数的总和
 			}
 			//===============问题======================
 
@@ -191,7 +204,8 @@ public class ContentController extends BaseController {
 				}
 			}
 			content.put("comment", JSONArray.fromObject(commentList2));
-			
+			//是否发布 1已发布
+			content.put("isPublish", (Integer)content.get("is_publish")==0?false:true);
 			content.remove("user_id");
 			content.remove("avator");
 			content.remove("name");
@@ -199,6 +213,7 @@ public class ContentController extends BaseController {
 			content.remove("unit");
 			content.remove("anthology_id");
 			content.remove("anthologyTitle");
+			content.remove("is_publish");
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 			code = 500;
@@ -209,4 +224,8 @@ public class ContentController extends BaseController {
 		respJson.put("data", JSONObject.fromObject(content));
 		return respJson;
 	}
+	
+	
+	  
+	  
 }

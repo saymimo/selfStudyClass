@@ -6,7 +6,6 @@ import com.ssc.util.PageData;
 import com.ssc.util.UuidUtil;
 import java.io.PrintStream;
 import java.util.Date;
-import java.util.Map;
 import java.util.Random;
 import javax.servlet.http.HttpServletRequest;
 
@@ -26,8 +25,7 @@ public class BaseController
   }
   
   public PageData getPdFromJson(String req){
-	  Map<String, Object> map = JSONObject.fromObject(req);
-	  return new PageData(map);
+	  return new PageData(req);
   }
   
   public ModelAndView getModelAndView()

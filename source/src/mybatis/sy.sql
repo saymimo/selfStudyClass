@@ -106,6 +106,13 @@ ADD COLUMN `creat_time` DATETIME DEFAULT NULL COMMENT '操作时间';
 ALTER TABLE sys_content ADD `publish_type` INT(1) DEFAULT 1 COMMENT '发布类型 1真名 2昵称 3匿名';
 ALTER TABLE sys_content ADD `anthology_id` VARCHAR(50) DEFAULT NULL COMMENT '文集ID';
 
--- 2017-09-14 评论表更改
+-- 2017-09-14 评论表更改、新增字段
 ALTER TABLE sys_comment ADD COLUMN `publish_type` INT(1) DEFAULT NULL COMMENT '发布类型 1真名 2昵称 3匿名',
 MODIFY COLUMN comment_type INT(1) DEFAULT 1 COMMENT '回复类型 1文章评论 2问题回答 3讨论';
+
+-- 2017-09-15 内容表新增字段
+ALTER TABLE sys_content ADD COLUMN `publish_time` DATETIME DEFAULT NULL COMMENT'发布时间';
+-- 2017-09-15 用户操作表新增字段
+ALTER TABLE user_action ADD COLUMN `obj_parentid` VARCHAR(50) DEFAULT '' COMMENT'作用对象的上级id';
+-- 2017-09-15 回复表新增字段
+ALTER TABLE sys_comment ADD COLUMN `publish_time` DATETIME DEFAULT NULL COMMENT'发表时间';

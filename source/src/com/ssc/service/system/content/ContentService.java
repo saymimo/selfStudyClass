@@ -40,5 +40,13 @@ public class ContentService{
   public PageData findContent(PageData pd) throws Exception{
 	  return (PageData)dao.findForList("ContentMapper.findContent", pd);
   } 
- 
+  /**
+   * 新增内容
+   * 2017-9-15 zxk_senNy
+   * @param pd
+   * @throws Exception
+   */
+  public void saveContent(PageData pd) throws Exception{
+	  dao.save("ContentMapper.saveContent", pd);
+  }
 }

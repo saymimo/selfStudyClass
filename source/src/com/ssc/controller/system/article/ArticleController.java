@@ -1,8 +1,10 @@
 package com.ssc.controller.system.article;
 
 import com.ssc.controller.base.BaseController;
+import com.ssc.service.system.anthology.AnthologyService;
 import com.ssc.service.system.article.ArticleService;
 import com.ssc.service.system.content.ContentService;
+import com.ssc.service.system.user.UserService;
 import com.ssc.util.Logger;
 import com.ssc.util.PageData;
 
@@ -17,14 +19,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping({"/api/v1/article"})
-public class ArticleController
-  extends BaseController{
-  @Resource(name="articleService")
-  private ArticleService articleService;
+public class ArticleController extends BaseController{
   
   @Resource(name="contentService")
   private ContentService contentService;
   
+  @Resource(name="userService")
+  private UserService userService;
+	
+  @Resource(name="anthologyService")
+  private AnthologyService anthologyService;
   /**
    * 新建文章
    * 2017-9-11 zxk_senNy
@@ -34,39 +38,44 @@ public class ArticleController
   @RequestMapping(value="/addArticle",method=RequestMethod.POST)
   @ResponseBody
   public Object addArticle(@RequestBody String req){
-    JSONObject reqJson = JSONObject.fromObject(req);
+	JSONObject respJson = new JSONObject();
+	JSONObject data = new JSONObject();
+	PageData author = new PageData();
+	PageData anthology = new PageData();
     PageData pd = new PageData();
+    pd = getPdFromJson(req);
     int code = 200;
     String message = "ok";
-    String ARTICLE_ID = get32UUID();
+    String content_id = get32UUID();
     Date date = new Date();
-    pd.put("ARTICLE_ID", ARTICLE_ID);
-    pd.put("ANTHOLOGY_ID", reqJson.getString("anthologyId"));
-    pd.put("ARTICLE_CONTENT", reqJson.getString("content"));
-    pd.put("CREATE_DATE", date);
-    pd.put("UPDATE_DATE", date);
-    pd.put("CREATE_BY", reqJson.getString("authorId"));
-    pd.put("ARTICLE_TITLE", reqJson.getString("title"));
+    pd.put("content_id", content_id);
+    pd.put("create_by", pd.getString("authorId"));
+    pd.put("create_time", date);
+    pd.put("update_time", "");
+    pd.put("anthology_id", pd.getString("anthologyId"));
     try{
-      articleService.saveArticle(pd);
+    	contentService.saveContent(pd);
+    	pd.put("user_id", pd.getString("authorId"));
+    	author = userService.findUserByUid(pd);
+    	anthology = anthologyService.findAnthologyById(pd);
     }catch (Exception e){
       logger.error(e.toString(), e);
       code = 500;
       message = "saveArticle error!";
     }
-    JSONObject respJson = new JSONObject();
-    JSONObject data = new JSONObject();
-    
-    data.put("id", ARTICLE_ID);
-    data.put("author", reqJson.getString("authorId"));
-    data.put("type", 0);
-    data.put("anthology", reqJson.getString("anthologyId"));
-    data.put("createTime", date);
-    data.put("updateTime", date);
-    data.put("title", reqJson.getString("title"));
-    data.put("content", reqJson.getString("content"));
+    data.put("id", content_id);
+    data.put("isPublish", false);
+    data.put("publishType", 0);//还没发布，没有发布类型
+    data.put("type", 1);
+    data.put("createTime", date.getTime()/1000);
+    data.put("updateTime", "");
+    data.put("status", 1);
+    data.put("title", pd.getString("title"));
+    data.put("content", pd.getString("content"));
     data.put("collectNum", 0);
     data.put("praiseNum", 0);
+    data.put("anthology", JSONObject.fromObject(anthology));
+    data.put("author", JSONObject.fromObject(author));
     
     respJson.put("code", Integer.valueOf(code));
     respJson.put("message", message);
@@ -82,23 +91,53 @@ public class ArticleController
   @RequestMapping(value="/publish",method=RequestMethod.POST)
   public Object publish(@RequestBody String req){
 	  JSONObject respJson = new JSONObject();
+	  JSONObject data = new JSONObject();
+	  JSONObject author = new JSONObject();
+	  JSONObject anthology = new JSONObject();
 	  PageData pd = new PageData();
+	  PageData article = new PageData();
 	  pd = getPdFromJson(req);
       int code = 200;
       String message = "ok";
       Date date = new Date();
       pd.put("content_id", pd.getString("id"));
       pd.put("is_publish", 1);
-      pd.put("update_time", date);
+      pd.put("publish_time", date);
+      pd.put("publish_type", (Integer)pd.get("publishType"));
       try {
     	  contentService.updateByid(pd);
-	} catch (Exception e) {
+    	  article = contentService.findContent(pd);
+      } catch (Exception e) {
 		logger.error(e.toString(), e);
 		code = 500;
 		message = "contentService update error";
-	}
+      }
+      author.put("id", article.getString("user_id"));
+      author.put("avator", article.getString("avator"));
+      author.put("name", article.getString("name"));
+      author.put("nickname", article.getString("nickname"));
+      author.put("unit", article.getString("unit"));
+      
+      anthology.put("id", article.getString("anthology_id"));
+      anthology.put("title", article.getString("anthologyTitle"));
+      
+	  data.put("id", pd.getString("id"));
+	  data.put("isPublish", true);
+	  data.put("publishType", (Integer)pd.get("publishType"));
+	  data.put("type",1);
+	  data.put("createTime",date.getTime()/100);
+	  data.put("updateTime","");
+	  data.put("status",1);
+	  data.put("title",article.getString("title"));
+	  data.put("content",article.getString("content"));
+	  data.put("collectNum",0);
+	  data.put("praiseNum",0);
+	  data.put("author", author);
+	  data.put("anthology", anthology);
+	  
 	  respJson.put("code", code);
 	  respJson.put("message", message);
+	  respJson.put("data", data);
 	  return respJson;
   }
   /**
@@ -108,44 +147,52 @@ public class ArticleController
    */
   @RequestMapping(value="/update",method=RequestMethod.PUT)
   public Object update(@RequestBody String req){
-	  JSONObject reqJson = JSONObject.fromObject(req);
 	  JSONObject respJson = new JSONObject();
+	  JSONObject data = new JSONObject();
+	  JSONObject author = new JSONObject();
+	  JSONObject anthology = new JSONObject();
+	  PageData article = new PageData();
       PageData pd = new PageData();
+      pd = getPdFromJson(req);
       Date date = new Date();
       int code = 200;
       String message = "ok";
-      pd.put("ARTICLE_ID", reqJson.getString("id"));
-      pd.put("ARTICLE_TITLE", reqJson.getString("title"));
-      pd.put("ARTICLE_CONTENT", reqJson.getString("content"));
-      pd.put("UPDATE_DATE", date);
+      pd.put("content_id", pd.getString("id"));
+      pd.put("update_time", date);
       try {
-		articleService.update(pd);
-	} catch (Exception e) {
+		contentService.updateByid(pd);
+		article = contentService.findContent(pd);
+      } catch (Exception e) {
 		logger.error(e.toString(),e);
 		code = 500;
 		message = "update error";
-	}
-	reqJson.remove("title");
-	reqJson.remove("content");
-	reqJson.put("updateTime", date);
-     return reqJson;
-  }
-  /**
-   * 查找文章
-   * 2017-9-12 zxk_senNy
-   * @return
-   */
-  @RequestMapping(value="/find",method=RequestMethod.GET)
-  public Object find(){
-	  PageData pd = new PageData();
-	  pd = this.getPageData();
-	  JSONObject respJson = new JSONObject();
-	  try {
-		articleService.findArticle(pd);
-	} catch (Exception e) {
-		logger.error(e.toString(), e);
-	}
-	  
-	  return respJson;
+      }
+      author.put("id", article.getString("user_id"));
+      author.put("avator", article.getString("avator"));
+      author.put("name", article.getString("name"));
+      author.put("nickname", article.getString("nickname"));
+      author.put("unit", article.getString("unit"));
+      
+      anthology.put("id", article.getString("anthology_id"));
+      anthology.put("title", article.getString("anthologyTitle"));
+      
+      data.put("id", pd.getString("id"));
+      data.put("isPublish", (Integer)article.get("is_publish")==1?true:false);
+      data.put("publishType", (Integer)article.get("publishType"));
+      data.put("type", (Integer)article.get("type"));
+      data.put("createTime",article.getString("createTime"));
+      data.put("updateTime",article.getString("updateTime"));
+      data.put("status",(Integer)article.get("status"));
+      data.put("title", article.getString("title"));
+      data.put("content",article.getString("content"));
+      data.put("collectNum",article.getString("collectNum"));
+      data.put("praiseNum", article.getString("praiseNum"));
+      data.put("author", author);
+      data.put("anthology", anthology);
+      
+      respJson.put("code", code);
+      respJson.put("message", message);
+      respJson.put("data", data);
+      return respJson;
   }
 }

@@ -10,6 +10,9 @@ public class UserService{
   @Resource(name="daoSupport")
   private DaoSupport dao;
   
+  public PageData findUserByUid(PageData pd)throws Exception{
+	  return (PageData)this.dao.findForObject("UserMapper.findUserByUid", pd);
+  }
   public PageData findByUPhone(PageData pd)throws Exception{
     return (PageData)this.dao.findForObject("UserMapper.findByUPhone", pd);
   }

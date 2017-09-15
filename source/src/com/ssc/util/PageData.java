@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
+import net.sf.json.JSONObject;
+
 public class PageData extends HashMap implements Map{
   private static final long serialVersionUID = 1L;
   Map map = null;
@@ -42,7 +44,8 @@ public class PageData extends HashMap implements Map{
     this.map = returnMap;
   }
   
-  public PageData(Map map){
+  public PageData(String req){
+	  Map<String, Object> map = JSONObject.fromObject(req);
 	  this.map = map;
   }
   

@@ -14,6 +14,15 @@
 			#{verificationCode}	
 		)
 	</insert>
+	<select id="findUserByUid" parameterType="pd" resultType="pd">
+	select 
+	user_id 'id',
+	avator,
+	`name`,
+	`unit`,
+	nickname
+	 from sys_user where user_id = #{user_id}
+	</select>
 	<!-- 通过手机获取数据 -->
 	<select id="findByUPhone" parameterType="pd" resultType="pd" useCache="false">
 		SELECT u.user_id 'id',

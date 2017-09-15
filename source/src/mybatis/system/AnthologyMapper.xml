@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AnthologyMapper">
+	
+    <cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>  
+    <select id="findAnthologyById" parameterType="pd" resultType="pd">
+    	select anthology_id,
+	    	title,
+	    	create_by,
+	    	create_time
+    	from sys_anthology 
+    	where anthology_id = #{anthology_id}
+    </select>
+</mapper>
