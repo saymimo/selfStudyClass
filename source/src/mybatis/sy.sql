@@ -116,3 +116,13 @@ ALTER TABLE sys_content ADD COLUMN `publish_time` DATETIME DEFAULT NULL COMMENT'
 ALTER TABLE user_action ADD COLUMN `obj_parentid` VARCHAR(50) DEFAULT '' COMMENT'作用对象的上级id';
 -- 2017-09-15 回复表新增字段
 ALTER TABLE sys_comment ADD COLUMN `publish_time` DATETIME DEFAULT NULL COMMENT'发表时间';
+
+-- 2017-09-17 内容表改动
+ALTER TABLE sys_content MODIFY COLUMN `is_publish` INT(1) DEFAULT 0 COMMENT '是否发布 0未发布 1已发布';
+
+-- 2017-09-17 回复表改动
+ALTER TABLE sys_comment MODIFY COLUMN `publish_type` INT(1) DEFAULT 1 COMMENT'发布类型 1真名 2昵称 3匿名';
+
+-- 2017-09-17 回复表新增
+ALTER TABLE sys_comment ADD COLUMN `is_del` INT(1) DEFAULT 0 COMMENT'是否删除 0未删 1已删',
+ADD COLUMN `is_publish` INT(1) DEFAULT 0 COMMENT'是否发布 0未发布 1已发布';

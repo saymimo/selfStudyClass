@@ -133,7 +133,7 @@ public class ContentController extends BaseController {
 		JSONObject author = new JSONObject();
 		JSONObject anthology = new JSONObject();
 		List<PageData> commentList = new ArrayList<PageData>();
-		List<PageData> commentList2 = new ArrayList<PageData>();
+		List<JSONObject> commentList2 = new ArrayList<JSONObject>();
 		PageData pd = new PageData();
 		PageData content = new PageData();
 		pd = getPdFromJson(req);
@@ -200,12 +200,12 @@ public class ContentController extends BaseController {
 					comment.remove("avatar");
 					comment.remove("name");
 					comment.remove("unit");
-					commentList2.add(comment);
+					commentList2.add(JSONObject.fromObject(comment));
 				}
 			}
 			content.put("comment", JSONArray.fromObject(commentList2));
 			//是否发布 1已发布
-			content.put("isPublish", (Integer)content.get("is_publish")==0?false:true);
+			content.put("isPublish", (Integer)content.get("is_publish")==1?true:false);
 			content.remove("user_id");
 			content.remove("avator");
 			content.remove("name");

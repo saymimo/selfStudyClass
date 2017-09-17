@@ -27,8 +27,8 @@
 	<select id="findByUPhone" parameterType="pd" resultType="pd" useCache="false">
 		SELECT u.user_id 'id',
 		u.email,u.phone,u.name,u.unit,u.nickname,
-		UNIX_TIMESTAMP(u.join_time) as 'joinTime',
-		UNIX_TIMESTAMP(u.update_time) as 'updateTime',
+		IFNULL(UNIX_TIMESTAMP(u.join_time),'') as 'joinTime',
+		IFNULL(UNIX_TIMESTAMP(u.update_time),'') as 'updateTime',
 		u.type,u.avatar,u.introduction,u.has_msg 'hasMessage',
 		(select count(1) from user_action where user_id = u.user_id and type=0) as 'starNum',
 		(select count(1) from user_action where obj_id = u.user_id and type=0) as 'funsNum',

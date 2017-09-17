@@ -17,4 +17,14 @@ public class CommentService {
 	public List<PageData> findCommentList(PageData pd) throws Exception{
 		return (List<PageData>)dao.findForList("CommentMapper.findCommentList", pd);
 	}
+	public PageData findComment(PageData pd) throws Exception{
+		return (PageData)dao.findForObject("CommentMapper.findComment", pd);
+	}
+	
+	public void updateByid(PageData pd) throws Exception{
+		dao.update("CommentMapper.updateByid", pd);
+	}
+	public void saveComment(PageData pd) throws Exception{
+		dao.save("CommentMapper.saveComment", pd);
+	}
 }

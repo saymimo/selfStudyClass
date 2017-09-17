@@ -51,7 +51,6 @@ public class ArticleController extends BaseController{
     pd.put("content_id", content_id);
     pd.put("create_by", pd.getString("authorId"));
     pd.put("create_time", date);
-    pd.put("update_time", "");
     pd.put("anthology_id", pd.getString("anthologyId"));
     try{
     	contentService.saveContent(pd);
@@ -126,7 +125,7 @@ public class ArticleController extends BaseController{
 	  data.put("publishType", (Integer)pd.get("publishType"));
 	  data.put("type",1);
 	  data.put("createTime",date.getTime()/100);
-	  data.put("updateTime","");
+	  data.put("updateTime",article.getString("updateTime"));
 	  data.put("status",1);
 	  data.put("title",article.getString("title"));
 	  data.put("content",article.getString("content"));
@@ -195,4 +194,26 @@ public class ArticleController extends BaseController{
       respJson.put("data", data);
       return respJson;
   }
+  
+  @RequestMapping(value="/delete",method=RequestMethod.DELETE)
+	public Object deleteArticle(@RequestBody String req){
+		JSONObject respJson = new JSONObject();
+		PageData pd = new PageData();
+		pd = getPdFromJson(req);
+		String message = "ok";
+		int code = 200;
+		pd.put("content_id", pd.getString("id"));
+		pd.put("is_del", 1);
+		try {
+			contentService.updateByid(pd);
+		} catch (Exception e) {
+			logger.error(e.toString(), e);
+			code = 500;
+			message = "error";
+		}
+		respJson.put("code", code);
+		respJson.put("message", message);
+		return respJson;
+	}
+  
 }
