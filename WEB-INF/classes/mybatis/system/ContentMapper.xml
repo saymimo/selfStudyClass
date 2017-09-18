@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="ContentMapper">
+	  <insert id="saveContent" parameterType="pd">
+	  	INSERT INTO `sys_content`
+	  	<trim prefix="(" suffix=")" suffixOverrides=",">
+		  	<if test="content_id!=null">content_id,</if>
+		  	<if test="parent_id!=null">parent_id,</if>
+		  	<if test="create_by!=null">create_by,</if>
+		  	<if test="create_time!=null">create_time,</if>
+		  	<if test="update_time!=null">update_time,</if>
+		  	<if test="title!=null">title,</if>
+		  	<if test="content!=null">content,</if>
+		  	<if test="state!=null">state,</if>
+		  	<if test="type!=null">type,</if>
+		  	<if test="is_del!=null">is_del,</if>
+		  	<if test="is_publish!=null">is_publish,</if>
+		  	<if test="publish_type!=null">publish_type,</if>
+		  	<if test="anthology_id!=null">anthology_id,</if>
+		  	<if test="publish_time!=null">publish_time,</if>
+	  	</trim>
+	  	<trim prefix="values(" suffix=")" suffixOverrides=",">
+	  		<if test="content_id!=null">#{content_id},</if>
+		  	<if test="parent_id!=null">#{parent_id},</if>
+		  	<if test="create_by!=null">#{create_by},</if>
+		  	<if test="create_time!=null">#{create_time},</if>
+		  	<if test="update_time!=null">#{update_time},</if>
+		  	<if test="title!=null">#{title},</if>
+		  	<if test="content!=null">#{content},</if>
+		  	<if test="state!=null">#{state},</if>
+		  	<if test="type!=null">#{type},</if>
+		  	<if test="is_del!=null">#{is_del},</if>
+		  	<if test="is_publish!=null">#{is_publish},</if>
+		  	<if test="publish_type!=null">#{publish_type},</if>
+		  	<if test="anthology_id!=null">#{anthology_id},</if>
+		  	<if test="publish_time!=null">#{publish_time},</if>
+	  	</trim>
+	  </insert>
+	  
+	  <update id="updateByid" parameterType="pd">
+	  		UPDATE sys_content
+	  		<set>
+	  			<if test="parent_id!=null">
+	  				parent_id = #{parent_id},
+	  			</if>
+	  			<if test="update_time!=null">
+	  				update_time = #{update_time},
+	  			</if>
+	  			<if test="title!=null">
+	  				title = #{title},
+	  			</if>
+	  			<if test="content!=null">
+	  				content = #{content},
+	  			</if>
+	  			<if test="state!=null">
+	  				state = #{state},
+	  			</if>
+	  			<if test="type!=null">
+	  				type = #{type},
+	  			</if>
+	  			<if test="is_del!=null">
+	  				is_del = #{is_del},
+	  			</if>
+	  			<if test="is_publish!=null">
+	  				is_publish = #{is_publish},
+	  			</if>
+	  			<if test="publish_type!=null">
+	  				publish_type = #{publish_type},
+	  			</if>
+	  			<if test="anthology_id!=null">
+	  				anthology_id = #{anthology_id},
+	  			</if>
+	  			<if test="publish_time!=null">
+	  				publish_time = #{publish_time},
+	  			</if>
+	  		</set>
+	  		WHERE content_id=#{content_id}
+	  </update>
+	  
+	  <select id="findContentList" parameterType="pd" resultType="pd">
+			SELECT 
+			a.content_id 'id',
+			u.user_id,
+			u.avatar,
+			u.name,
+			u.nickname,
+			u.unit,
+			a.publish_type 'publishType',
+			a.type,
+			an.anthology_id,
+			an.title 'anthologyTitle',
+			IFNULL(UNIX_TIMESTAMP(a.publish_time),'') 'createTime',
+			IFNULL(UNIX_TIMESTAMP(a.update_time),'') 'updateTime',
+			a.is_publish 'status',
+			a.title,
+			a.content,
+			(select count(1) from user_action where obj_id = a.content_id and action_type=1) as attentionNum,
+			(select count(1) from user_action where obj_id = a.content_id and action_type=2) as collectNum,
+			(select count(1) from user_action where obj_id = a.content_id and action_type=3) as praiseNum
+			from sys_content a left join sys_user u
+			on a.create_by = u.user_id
+			left join  sys_anthology an
+			on a.anthology_id = an.anthology_id
+			where a.is_publish = 1
+			and a.is_del = 0
+			<if test="searchText!=null">
+			 and (a.title like concat('%',#{searchText},'%')
+			 or a.content like concat('%',#{searchText},'%')
+			 )
+			</if>
+			<if test="type!=null">
+				and a.type =#{type}
+			</if>
+			order by a.publish_time
+			limit #{offset},#{limit}
+	  </select>
+	  
+	  <select id="findContent" parameterType="pd" resultType="pd">
+	  	SELECT 
+			a.content_id 'id',
+			u.user_id,
+			u.avatar,
+			u.name,
+			u.nickname,
+			u.unit,
+			a.is_publish,
+			a.publish_type 'publishType',
+			a.type,
+			an.anthology_id,
+			an.title 'anthologyTitle',
+			IFNULL(UNIX_TIMESTAMP(a.create_time),'') 'createTime',
+			IFNULL(UNIX_TIMESTAMP(a.update_time),'') 'updateTime',
+			a.state 'status',
+			a.title,
+			a.content,
+			(select count(1) from user_action where obj_id = a.content_id and action_type=1) as 'attentionNum',
+			(select count(1) from user_action where obj_id = a.content_id and action_type=2) as 'collectNum',
+			(select count(1) from user_action where obj_id = a.content_id and action_type=3) as 'praiseNum',
+			(SELECT COUNT(1) FROM user_action a WHERE `obj_parentid`=a.content_id AND action_type=3) 'answers_praiseNum',
+			(SELECT COUNT(1) FROM sys_comment WHERE parent_id = a.content_id AND comment_type=2) 'answerNum'
+			from sys_content a left join sys_user u
+			on a.create_by = u.user_id
+			left join  sys_anthology an
+			on a.anthology_id = an.anthology_id
+			where a.content_id=#{content_id}
+	  </select>
+</mapper>

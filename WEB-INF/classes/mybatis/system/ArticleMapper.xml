@@ -83,7 +83,7 @@
 			u.unit,
 			a.IS_PUBLISH publishType,
 			a.TYPE type,
-			an.title anthology,
+			an.title parentName,
 			a.CREATE_DATE createTime,
 			a.ARTICLE_ID updateTime,
 			a.IS_TOP status,
@@ -91,8 +91,11 @@
 			a.ARTICLE_CONTENT content,
 			(select count(1) from user_action where obj_id = a.ARTICLE_ID and action_type=1) as collectNum,
 			(select count(1) from user_action where obj_id = a.ARTICLE_ID and action_type=2) as praiseNum
-			from sys_article a left join sys_user u
+			from sys_content a 
+			left join sys_user u
+			left join sys_anthology
 			on a.CREATE_BY = u.user_id
+			
 			limit #{offset},#{limit}
 	  </select>
 </mapper>

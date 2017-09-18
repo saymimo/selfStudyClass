@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AnthologyMapper">
+	
+    <cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>  
+    <select id="findAnthologyById" parameterType="pd" resultType="pd">
+    	select a.anthology_id 'id',
+	    	a.title
+    	from sys_anthology a 
+    	where anthology_id = #{anthology_id}
+    </select>
+    <select id="findAnthologyAndAuthorById" parameterType="pd" resultType="pd">
+    	select a.anthology_id 'id',
+	    	a.title,
+	    	a.create_by,
+	    	u.name,
+	    	u.nickname
+    	from sys_anthology a left join sys_user u
+    	on a.create_by = u.user_id
+    	where anthology_id = #{anthology_id}
+    </select>
+    <select id="findArticlesByAnthologyId" parameterType="pd" resultType="pd">
+    	select 
+	    	c.content_id 'id',
+	    	c.title
+    	from  sys_content c
+    	where c.anthology_id = #{anthology_id}
+    </select>
+    <select id="findAnthologyListByUid" parameterType="pd" resultType="pd">
+    	select anthology_id 'id',
+	    		title,
+	    		u.user_id,
+	    		u.name,
+	    		u.nickname
+    	from sys_anthology a left join sys_user u
+    	on a.create_by = u.user_id
+    	where a.create_by = #{user_id}
+    </select>
+    
+    
+    <insert id="saveAnthology" parameterType="pd">
+    	insert into sys_anthology 
+    	values(#{anthology_id},#{create_by},#{create_time},#{title},#{is_del})
+    </insert>
+    
+    <update id="updateAnthologyById">
+    	update sys_anthology 
+    	<set>
+    		<if test="title!=null">
+    			title =#{title},
+    		</if>
+    		<if test="is_del!=null">
+    			is_del =#{is_del},
+    		</if>
+    	</set>
+    	where anthology_id = #{anthology_id}
+    </update>
+</mapper>
