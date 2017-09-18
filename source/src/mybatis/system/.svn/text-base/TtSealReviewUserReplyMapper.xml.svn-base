@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtSealReviewUserReplyMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtSealReviewUserReply" >
+    <id column="SEAL_REVIEW_USER_REPLY_ID" property="sealReviewUserReplyId" jdbcType="VARCHAR" />
+    <result column="SEAL_REVIEW_ID" property="sealReviewId" jdbcType="VARCHAR" />
+    <result column="USER_ID" property="userId" jdbcType="VARCHAR" />
+    <result column="STATE" property="state" jdbcType="INTEGER" />
+    <result column="CONTENT" property="content" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    SEAL_REVIEW_USER_REPLY_ID, SEAL_REVIEW_ID, USER_ID, STATE, CONTENT, CREATE_DATE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+SELECT 
+  TRIBUNE_USER_REPLY_ID,
+  TRIBUNE_ID,
+  (SELECT 
+    s.`NAME` 
+  FROM
+    `sys_user` s 
+  WHERE s.`USER_ID` = t.USER_ID) AS USER_ID,
+  STATE,
+  CONTENT,
+  CREATE_DATE 
+FROM
+  `tt_tribune_user_reply` t 
+WHERE TRIBUNE_ID = #{sealReviewId,jdbcType=VARCHAR} 
+ORDER BY t.`CREATE_DATE` DESC  
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_seal_review_user_reply
+    where SEAL_REVIEW_USER_REPLY_ID = #{sealReviewUserReplyId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtSealReviewUserReply" >
+    insert into tt_seal_review_user_reply (SEAL_REVIEW_USER_REPLY_ID, SEAL_REVIEW_ID, 
+      USER_ID, STATE, CONTENT, 
+      CREATE_DATE)
+    values (#{sealReviewUserReplyId,jdbcType=VARCHAR}, #{sealReviewId,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER}, #{content,jdbcType=VARCHAR}, 
+      #{createDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_seal_review_user_reply
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="sealReviewUserReplyId != null" >
+        SEAL_REVIEW_USER_REPLY_ID,
+      </if>
+      <if test="sealReviewId != null" >
+        SEAL_REVIEW_ID,
+      </if>
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="state != null" >
+        STATE,
+      </if>
+      <if test="content != null" >
+        CONTENT,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="sealReviewUserReplyId != null" >
+        #{sealReviewUserReplyId,jdbcType=VARCHAR},
+      </if>
+      <if test="sealReviewId != null" >
+        #{sealReviewId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="content != null" >
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtSealReviewUserReply" >
+    update tt_seal_review_user_reply
+    <set >
+      <if test="sealReviewId != null" >
+        SEAL_REVIEW_ID = #{sealReviewId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null" >
+        USER_ID = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        STATE = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="content != null" >
+        CONTENT = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where SEAL_REVIEW_USER_REPLY_ID = #{sealReviewUserReplyId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtSealReviewUserReply" >
+    update tt_seal_review_user_reply
+    set SEAL_REVIEW_ID = #{sealReviewId,jdbcType=VARCHAR},
+      USER_ID = #{userId,jdbcType=VARCHAR},
+      STATE = #{state,jdbcType=INTEGER},
+      CONTENT = #{content,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP}
+    where SEAL_REVIEW_USER_REPLY_ID = #{sealReviewUserReplyId,jdbcType=VARCHAR}
+  </update>
+</mapper>

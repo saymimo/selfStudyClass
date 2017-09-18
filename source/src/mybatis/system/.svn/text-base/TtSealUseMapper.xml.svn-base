@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtSealUseMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtSealUse" >
+    <id column="SEAL_USE_ID" property="sealUseId" jdbcType="VARCHAR" />
+    <result column="SEAL_ID" property="sealId" jdbcType="VARCHAR" />
+    <result column="ISSUED" property="issued" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="USE_REMARK" property="useRemark" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="PACT_NAME" property="pactName" jdbcType="VARCHAR" />
+    <result column="PARTY" property="party" jdbcType="VARCHAR" />
+    <result column="PACT_PRICE" property="pactPrice" jdbcType="VARCHAR" />
+    <result column="MAKE_COPIES" property="makeCopies" jdbcType="INTEGER" />
+    <result column="AGENT" property="agent" jdbcType="VARCHAR" />
+    <result column="REVIEW" property="review" jdbcType="VARCHAR" />
+    <result column="SEAL_REVIEW_TIME" property="sealReviewTime" jdbcType="DATE" />
+    <result column="TAKE_BACK_TIME" property="takeBackTime" jdbcType="DATE" />
+    <result column="TAKE_BACK_COPIES" property="takeBackCopies" jdbcType="INTEGER" />
+    <result column="WINNING_NOTICE" property="winningNotice" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+     SEAL_USE_ID, SEAL_ID, ISSUED, IS_DEL, USE_REMARK, CREATE_DATE, CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY, PACT_NAME, PARTY, PACT_PRICE, MAKE_COPIES, AGENT, REVIEW, SEAL_REVIEW_TIME, 
+    TAKE_BACK_TIME, TAKE_BACK_COPIES, WINNING_NOTICE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_seal_use
+    where SEAL_USE_ID = #{sealUseId,jdbcType=VARCHAR} and IS_DEL=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_seal_use
+    where SEAL_USE_ID = #{sealUseId,jdbcType=VARCHAR} 
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtSealUse" >
+    insert into tt_seal_use (SEAL_USE_ID, SEAL_ID, ISSUED, 
+      USE_REMARK, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY)
+    values (#{sealUseId,jdbcType=VARCHAR}, #{sealId,jdbcType=VARCHAR}, #{issued,jdbcType=VARCHAR}, 
+      #{useRemark,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_seal_use
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="sealUseId != null" >
+        SEAL_USE_ID,
+      </if>
+      <if test="sealId != null and sealId!=''" >
+        SEAL_ID,
+      </if>
+      <if test="issued != null and issued!='' " >
+        ISSUED,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="useRemark != null" >
+        USE_REMARK,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="pactName != null and pactName!=''" >
+        PACT_NAME,
+      </if>
+      <if test="party != null and party!=''" >
+        PARTY,
+      </if>
+      <if test="pactPrice != null and pactPrice!=''" >
+        PACT_PRICE,
+      </if>
+      <if test="makeCopies != null and makeCopies!=''" >
+        MAKE_COPIES,
+      </if>
+      <if test="agent != null and agent!=''" >
+        AGENT,
+      </if>
+      <if test="review != null and review!=''" >
+        REVIEW,
+      </if>
+      <if test="sealReviewTime != null and sealReviewTime!=''" >
+        SEAL_REVIEW_TIME,
+      </if>
+      <if test="takeBackTime != null and takeBackTime!=''" >
+        TAKE_BACK_TIME,
+      </if>
+      <if test="takeBackCopies != null and takeBackCopies!=''" >
+        TAKE_BACK_COPIES,
+      </if>
+      <if test="winningNotice != null and winningNotice!=''" >
+        WINNING_NOTICE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="sealUseId != null" >
+        #{sealUseId,jdbcType=VARCHAR},
+      </if>
+      <if test="sealId != null" >
+        #{sealId,jdbcType=VARCHAR},
+      </if>
+      <if test="issued != null and issued!=''" >
+        #{issued,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="useRemark != null" >
+        #{useRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="pactName != null and pactName!=''" >
+        #{pactName,jdbcType=VARCHAR},
+      </if>
+      <if test="party != null and party!=''" >
+        #{party,jdbcType=VARCHAR},
+      </if>
+      <if test="pactPrice != null and pactPrice!=''" >
+        #{pactPrice},
+      </if>
+      <if test="makeCopies != null and makeCopies!=''" >
+        #{makeCopies,jdbcType=INTEGER},
+      </if>
+      <if test="agent != null and agent!=''" >
+        #{agent,jdbcType=VARCHAR},
+      </if>
+      <if test="review != null and review!=''" >
+        #{review,jdbcType=VARCHAR},
+      </if>
+      <if test="sealReviewTime != null and sealReviewTime!=''" >
+        #{sealReviewTime,jdbcType=DATE},
+      </if>
+      <if test="takeBackTime != null and takeBackTime!=''" >
+        #{takeBackTime,jdbcType=DATE},
+      </if>
+      <if test="takeBackCopies != null and takeBackCopies!=''" >
+        #{takeBackCopies,jdbcType=INTEGER},
+      </if>
+      <if test="winningNotice != null and winningNotice!=''" >
+        #{winningNotice,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_seal_use
+    <set >
+      <if test="sealId != null" >
+        SEAL_ID = #{sealId,jdbcType=VARCHAR},
+      </if>
+      <if test="issued != null" >
+        ISSUED = #{issued,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="useRemark != null" >
+        USE_REMARK = #{useRemark,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="pactName != null  and pactName!=''" >
+        PACT_NAME = #{pactName,jdbcType=VARCHAR},
+      </if>
+      <if test="party != null  and party!=''" >
+        PARTY = #{party,jdbcType=VARCHAR},
+      </if>
+      <if test="pactPrice != null  and pactPrice!=''" >
+        PACT_PRICE = #{pactPrice},
+      </if>
+      <if test="makeCopies != null  and makeCopies!=''" >
+        MAKE_COPIES = #{makeCopies,jdbcType=INTEGER},
+      </if>
+      <if test="agent != null  and agent!=''" >
+        AGENT = #{agent,jdbcType=VARCHAR},
+      </if>
+      <if test="review != null  and review!=''" >
+        REVIEW = #{review,jdbcType=VARCHAR},
+      </if>
+      <if test="sealReviewTime != null  and sealReviewTime!=''" >
+        SEAL_REVIEW_TIME = #{sealReviewTime,jdbcType=DATE},
+      </if>
+      <if test="takeBackTime != null  and takeBackTime!=''" >
+        TAKE_BACK_TIME = #{takeBackTime,jdbcType=DATE},
+      </if>
+      <if test="takeBackCopies != null  and takeBackCopies!=''" >
+        TAKE_BACK_COPIES = #{takeBackCopies,jdbcType=INTEGER},
+      </if>
+      <if test="winningNotice != null  and winningNotice!=''" >
+        WINNING_NOTICE = #{winningNotice,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where SEAL_USE_ID = #{sealUseId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtSealUse" >
+    update tt_seal_use
+    set SEAL_ID = #{sealId,jdbcType=VARCHAR},
+      ISSUED = #{issued,jdbcType=VARCHAR},
+      USE_REMARK = #{useRemark,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+    where SEAL_USE_ID = #{sealUseId,jdbcType=VARCHAR}
+  </update>
+  
+  
+   <!-- 通过struct_id获取公告通知列表 -->
+	<select id="listPageAllSealUseBySealId" parameterType="page" resultMap="BaseResultMap"  useCache="false">
+		 select 
+		  SEAL_USE_ID, SEAL_ID, IS_DEL, USE_REMARK, CREATE_DATE,(SELECT s.NAME FROM sys_user s WHERE s.USER_ID=t.CREATE_BY) as   CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY, PACT_NAME, PARTY, PACT_PRICE, MAKE_COPIES, AGENT, REVIEW, SEAL_REVIEW_TIME, 
+    TAKE_BACK_TIME, TAKE_BACK_COPIES, WINNING_NOTICE,(SELECT  s.`STRUCT_NAME` FROM  `sys_structinfo` s WHERE s.`STRUCT_ID`=ISSUED) as ISSUED
+		  
+	    from tt_seal_use t
+	    where
+	SEAL_ID = #{pd.sealId,jdbcType=VARCHAR} <!-- and  CREATE_BY=#{pd.UserId} --> and IS_DEL=0
+		 <if test="pd.NAME != null and pd.NAME != ''">
+			and
+				(
+					 PACT_NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					
+				)
+		</if> <!-- 关键词检索 -->
+		 <if test="pd.STRUCT_ID != null and pd.STRUCT_ID != ''">
+			and
+				(
+					 ISSUED=#{pd.STRUCT_ID}
+					
+				)
+		</if> <!-- 关键词检索 -->
+		ORDER BY t.`SEAL_REVIEW_TIME` DESC
+	</select>
+	<!-- 查询全部-->
+	<select id="listPageAllSealUse" parameterType="page" resultMap="BaseResultMap"  useCache="false">
+		 select 
+		     SEAL_USE_ID, SEAL_ID, IS_DEL, USE_REMARK, CREATE_DATE,(SELECT s.NAME FROM sys_user s WHERE s.USER_ID=t.CREATE_BY) as   CREATE_BY, UPDATE_DATE, 
+    UPDATE_BY, PACT_NAME, PARTY, PACT_PRICE, MAKE_COPIES, AGENT, REVIEW, SEAL_REVIEW_TIME, 
+    TAKE_BACK_TIME, TAKE_BACK_COPIES, WINNING_NOTICE,(SELECT  s.`STRUCT_NAME` FROM  `sys_structinfo` s WHERE s.`STRUCT_ID`=ISSUED) as ISSUED
+	    from tt_seal_use t
+	    where
+	SEAL_ID = #{pd.sealId,jdbcType=VARCHAR}  and IS_DEL=0
+	<if test="pd.NAME != null and pd.NAME != ''">
+			and
+				(
+					 PACT_NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+					
+				)
+		</if> <!-- 关键词检索 -->
+		 <if test="pd.STRUCT_ID != null and pd.STRUCT_ID != ''">
+			and
+				(
+					 ISSUED=#{pd.STRUCT_ID}
+					
+				)
+		</if> <!-- 关键词检索 -->
+	</select>
+  
+  
+  <!-- 删除 -->
+	  <update id="updateByIsDel" parameterType="pd">
+	     update  tt_seal_use  set   IS_DEL = 1
+   	 where SEAL_USE_ID = #{sealUseId,jdbcType=VARCHAR}
+	  </update>
+	  <!-- 批量删除 -->
+	<delete id="deleteAllSealUse" parameterType="String" flushCache="false">
+		update  tt_seal_use
+		set
+			IS_DEL =1
+		  where SEAL_USE_ID in 
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+  
+  
+  
+</mapper>

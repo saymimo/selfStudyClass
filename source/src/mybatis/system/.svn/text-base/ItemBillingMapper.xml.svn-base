@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="ItemBillingMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.ItemBilling" >
+    <id column="ITEM_BILLING_ID" property="itemBillingId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="BILLING_DATE" property="billingDate" jdbcType="DATE" />
+    <result column="BILLING_NO" property="billingNo" jdbcType="VARCHAR" />
+    <result column="BILLING_MONEY" property="billingMoney" jdbcType="DECIMAL" />
+    <result column="BILLING_CONTENT" property="billingContent" jdbcType="VARCHAR" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ITEM_BILLING_ID, ITEM_ID, BILLING_DATE, BILLING_NO, BILLING_MONEY, BILLING_CONTENT, IS_DEL, 
+    CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="pd" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_item_billing
+    where ITEM_BILLING_ID = #{ITEMBILLINGID,jdbcType=VARCHAR}
+  </select>
+  
+  <select id="listPageByItemid" resultType="pd" parameterType="page" >
+    select 
+    ITEM_BILLING_ID, ITEM_ID, BILLING_DATE, BILLING_NO, BILLING_MONEY, BILLING_CONTENT, IS_DEL, 
+    CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY ,(SELECT NAME FROM `sys_user` WHERE sys_user.`USER_ID`= tt_item_billing.CREATE_BY) AS CREATE_NAME 
+    from tt_item_billing
+    where item_id = #{pd.ITEM_ID,jdbcType=VARCHAR} and IS_DEL=0
+    
+    	<if test="pd.ITEMCOLLECTNAME!=null and pd.ITEMCOLLECTNAME != '' ">
+		 	and (BILLING_CONTENT LIKE #{pd.ITEMCOLLECTNAME2} or BILLING_NO LIKE #{pd.ITEMCOLLECTNAME2}) 
+		</if>
+		
+       <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 		AND BILLING_DATE  &gt;=#{pd.LASTLOGINSTART1} AND BILLING_DATE &lt;=#{pd.LASTLOGINSTART2} 
+		 		</if>
+		</if>
+		
+	 ORDER BY BILLING_DATE DESC
+  </select>
+  
+  <!-- 微信 项目结算 不分页2016/06/06 shenwei -->
+  <select id="findByItemid" resultType="pd" parameterType="pd" >
+    select 
+    ITEM_BILLING_ID, ITEM_ID, BILLING_DATE, BILLING_NO, BILLING_MONEY, BILLING_CONTENT, IS_DEL, 
+    CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY ,(SELECT NAME FROM `sys_user` WHERE sys_user.`USER_ID`= tt_item_billing.CREATE_BY) AS CREATE_NAME 
+    from tt_item_billing
+    where item_id = #{ITEM_ID,jdbcType=VARCHAR} and IS_DEL=0
+	 ORDER BY BILLING_DATE DESC
+  </select>
+  
+  <select id="listByItemid" resultType="pd" parameterType="page" >
+    select 
+    ITEM_BILLING_ID, ITEM_ID, BILLING_DATE, BILLING_NO, BILLING_MONEY, BILLING_CONTENT, IS_DEL, 
+    CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY ,(SELECT NAME FROM `sys_user` WHERE sys_user.`USER_ID`= tt_item_billing.CREATE_BY) AS CREATE_NAME 
+    from tt_item_billing
+    where item_id = #{pd.ITEM_ID,jdbcType=VARCHAR} and IS_DEL=0
+    
+    	<if test="pd.ITEMCOLLECTNAME!=null and pd.ITEMCOLLECTNAME != '' ">
+		 	and (BILLING_CONTENT LIKE #{pd.ITEMCOLLECTNAME2} or BILLING_NO LIKE #{pd.ITEMCOLLECTNAME2}) 
+		</if>
+		
+       <if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+		 		<if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+		 		AND BILLING_DATE  &gt;=#{pd.LASTLOGINSTART1} AND BILLING_DATE &lt;=#{pd.LASTLOGINSTART2} 
+		 		</if>
+		</if>
+		
+	 ORDER BY BILLING_DATE DESC
+  </select>
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_item_billing
+    where ITEM_BILLING_ID = #{billingId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.ItemBilling" >
+    insert into tt_item_billing (ITEM_BILLING_ID, ITEM_ID, BILLING_DATE, 
+      BILLING_NO, BILLING_MONEY, BILLING_CONTENT, 
+      IS_DEL, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY)
+    values (#{billingId,jdbcType=VARCHAR}, #{itemId,jdbcType=VARCHAR}, #{billingDate,jdbcType=DATE}, 
+      #{billingNo,jdbcType=VARCHAR}, #{billingMoney,jdbcType=DECIMAL}, #{billingContent,jdbcType=VARCHAR}, 
+      #{isDel,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_item_billing
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="ITEM_BILLING_ID != null" >
+        ITEM_BILLING_ID,
+      </if>
+      <if test="ITEM_ID != null" >
+        ITEM_ID,
+      </if>
+      <if test="BILLING_DATE != null" >
+        BILLING_DATE,
+      </if>
+      <if test="BILLING_NO != null" >
+        BILLING_NO,
+      </if>
+      <if test="BILLING_MONEY != null" >
+        BILLING_MONEY,
+      </if>
+      <if test="BILLING_CONTENT != null" >
+        BILLING_CONTENT,
+      </if>
+      <if test="IS_DEL != null" >
+        IS_DEL,
+      </if>
+      <if test="CREATE_DATE != null" >
+        CREATE_DATE,
+      </if>
+      <if test="CREATE_BY != null" >
+        CREATE_BY,
+      </if>
+      <if test="UPDATE_DATE != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="UPDATE_BY != null" >
+        UPDATE_BY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="ITEM_BILLING_ID != null" >
+        #{ITEM_BILLING_ID,jdbcType=VARCHAR},
+      </if>
+      <if test="ITEM_ID != null" >
+        #{ITEM_ID,jdbcType=VARCHAR},
+      </if>
+      <if test="BILLING_DATE != null" >
+        #{BILLING_DATE,jdbcType=DATE},
+      </if>
+      <if test="BILLING_NO != null" >
+        #{BILLING_NO,jdbcType=VARCHAR},
+      </if>
+      <if test="BILLING_MONEY != null" >
+        #{BILLING_MONEY,jdbcType=DECIMAL},
+      </if>
+      <if test="BILLING_CONTENT != null" >
+        #{BILLING_CONTENT,jdbcType=VARCHAR},
+      </if>
+      <if test="IS_DEL != null" >
+        #{IS_DEL,jdbcType=INTEGER},
+      </if>
+      <if test="CREATE_DATE != null" >
+        #{CREATE_DATE,jdbcType=TIMESTAMP},
+      </if>
+      <if test="CREATE_BY != null" >
+        #{CREATE_BY,jdbcType=VARCHAR},
+      </if>
+      <if test="UPDATE_DATE != null" >
+        #{UPDATE_DATE,jdbcType=TIMESTAMP},
+      </if>
+      <if test="UPDATE_BY != null" >
+        #{UPDATE_BY,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_item_billing
+    <set >
+      <if test="ITEM_ID != null" >
+        ITEM_ID = #{ITEM_ID,jdbcType=VARCHAR},
+      </if>
+      <if test="BILLING_DATE != null" >
+        BILLING_DATE = #{BILLING_DATE,jdbcType=DATE},
+      </if>
+      <if test="BILLING_NO != null" >
+        BILLING_NO = #{BILLING_NO,jdbcType=VARCHAR},
+      </if>
+      <if test="BILLING_MONEY != null" >
+        BILLING_MONEY = #{BILLING_MONEY,jdbcType=DECIMAL},
+      </if>
+      <if test="BILLING_CONTENT != null" >
+        BILLING_CONTENT = #{BILLING_CONTENT,jdbcType=VARCHAR},
+      </if>
+      <if test="IS_DEL != null" >
+        IS_DEL = #{IS_DEL,jdbcType=INTEGER},
+      </if>
+      <if test="CREATE_DATE != null" >
+        CREATE_DATE = #{CREATE_DATE,jdbcType=TIMESTAMP},
+      </if>
+      <if test="CREATE_BY != null" >
+        CREATE_BY = #{CREATE_BY,jdbcType=VARCHAR},
+      </if>
+      <if test="UPDATE_DATE != null" >
+        UPDATE_DATE = #{UPDATE_DATE,jdbcType=TIMESTAMP},
+      </if>
+      <if test="UPDATE_BY != null" >
+        UPDATE_BY = #{UPDATE_BY,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ITEM_BILLING_ID = #{ITEM_BILLING_ID,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.ItemBilling" >
+    update tt_item_billing
+    set ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      BILLING_DATE = #{billingDate,jdbcType=DATE},
+      BILLING_NO = #{billingNo,jdbcType=VARCHAR},
+      BILLING_MONEY = #{billingMoney,jdbcType=DECIMAL},
+      BILLING_CONTENT = #{billingContent,jdbcType=VARCHAR},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where ITEM_BILLING_ID = #{billingId,jdbcType=VARCHAR}
+  </update>
+  
+  <update id="deleteItemBillingByid" parameterType="pd" >
+    update tt_item_billing
+    set IS_DEL = 1
+    where ITEM_BILLING_ID = #{ITEM_BILLING_ID,jdbcType=VARCHAR}
+  </update>
+  
+  <!-- 批量删除用户 -->
+	<delete id="deleteAllM" parameterType="String" flushCache="false">
+	 update tt_item_billing set   IS_DEL = 1
+		where 
+			ITEM_BILLING_ID in
+  			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                  #{item}
+             </foreach>
+	</delete>
+	
+	 <select id="checkItemBilling" resultType="String" parameterType="pd" >
+    SELECT COUNT(*) FROM `tt_item_billing` WHERE item_id = #{ITEM_ID}
+     AND BILLING_NO =  #{BILLING_NO} and is_del=0
+  </select>
+  
+</mapper>

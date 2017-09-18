@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtItemStorageMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtItemStorage" >
+    <id column="ITEM_STORAGE_ID" property="itemStorageId" jdbcType="VARCHAR" />
+    <result column="ITEM_ID" property="itemId" jdbcType="VARCHAR" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="SPECIFICATION" property="specification" jdbcType="VARCHAR" />
+    <result column="UNIT" property="unit" jdbcType="VARCHAR" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+    <result column="PRICE" property="price" jdbcType="DECIMAL" />
+    <result column="NUM" property="num" jdbcType="DECIMAL" />
+    <result column="AMOUNT" property="amount" jdbcType="DECIMAL" />
+    <result column="IS_DEL" property="isDel" jdbcType="INTEGER" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ITEM_STORAGE_ID, ITEM_ID, NAME, SPECIFICATION, UNIT, TYPE, PRICE, NUM, AMOUNT, IS_DEL, 
+    CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY
+  </sql>
+  <select id="findPurchaseByName" resultType="pd" parameterType="pd" >
+    select 
+   NAME
+    from tt_item_storage
+    where ITEM_ID = #{ITEM_ID,jdbcType=VARCHAR} and IS_DEL=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_item_storage
+    where ITEM_STORAGE_ID = #{itemStorageId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtItemStorage" >
+    insert into tt_item_storage (ITEM_STORAGE_ID, ITEM_ID, NAME, 
+      SPECIFICATION, UNIT, TYPE, 
+      PRICE, NUM, AMOUNT, 
+      IS_DEL, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY)
+    values (#{itemStorageId,jdbcType=VARCHAR}, #{itemId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{specification,jdbcType=VARCHAR}, #{unit,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, 
+      #{price,jdbcType=DECIMAL}, #{num,jdbcType=DECIMAL}, #{amount,jdbcType=DECIMAL}, 
+      #{isDel,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_item_storage
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="itemStorageId != null" >
+        ITEM_STORAGE_ID,
+      </if>
+      <if test="itemId != null" >
+        ITEM_ID,
+      </if>
+      <if test="name != null" >
+        NAME,
+      </if>
+      <if test="specification != null" >
+        SPECIFICATION,
+      </if>
+      <if test="unit != null" >
+        UNIT,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+      <if test="price != null" >
+        PRICE,
+      </if>
+      <if test="num != null" >
+        NUM,
+      </if>
+      <if test="amount != null" >
+        AMOUNT,
+      </if>
+      <if test="isDel != null" >
+        IS_DEL,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="itemStorageId != null" >
+        #{itemStorageId,jdbcType=VARCHAR},
+      </if>
+      <if test="itemId != null" >
+        #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="specification != null" >
+        #{specification,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="price != null" >
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="num != null" >
+        #{num,jdbcType=DECIMAL},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="isDel != null" >
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtItemStorage" >
+    update tt_item_storage
+    <set >
+      <if test="itemId != null" >
+        ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        NAME = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="specification != null" >
+        SPECIFICATION = #{specification,jdbcType=VARCHAR},
+      </if>
+      <if test="unit != null" >
+        UNIT = #{unit,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        TYPE = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="price != null" >
+        PRICE = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="num != null" >
+        NUM = #{num,jdbcType=DECIMAL},
+      </if>
+      <if test="amount != null" >
+        AMOUNT = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="isDel != null" >
+        IS_DEL = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ITEM_STORAGE_ID = #{itemStorageId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtItemStorage" >
+    update tt_item_storage
+    set ITEM_ID = #{itemId,jdbcType=VARCHAR},
+      NAME = #{name,jdbcType=VARCHAR},
+      SPECIFICATION = #{specification,jdbcType=VARCHAR},
+      UNIT = #{unit,jdbcType=VARCHAR},
+      TYPE = #{type,jdbcType=INTEGER},
+      PRICE = #{price,jdbcType=DECIMAL},
+      NUM = #{num,jdbcType=DECIMAL},
+      AMOUNT = #{amount,jdbcType=DECIMAL},
+      IS_DEL = #{isDel,jdbcType=INTEGER},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where ITEM_STORAGE_ID = #{itemStorageId,jdbcType=VARCHAR}
+  </update>
+  
+  
+   <select id="findItemStorage" resultType="int" parameterType="pd">
+	select 
+   	count(1)
+    from tt_item_storage t
+    where   t.`NAME`=#{name}  AND t.`SPECIFICATION`=#{specification}  AND t.`UNIT`=  #{unit}  and IS_DEL=0	and ITEM_ID=#{itemId}
+	</select>
+	
+<select id="listPageItemStorageByItemId" resultType="pd" parameterType="page">
+SELECT 
+  s.ITEM_STORAGE_ID AS itemStorageId,
+  s.ITEM_ID AS itemId,
+  s.NAME AS NAME,
+  s.SPECIFICATION AS specification,
+  s.UNIT AS unit,
+  s.TYPE AS TYPE,
+  s.PRICE AS price,
+  s.NUM AS num,
+  s.AMOUNT AS amount,
+  s.IS_DEL AS isDel,
+  s.CREATE_DATE AS createDate,
+  s.CREATE_BY AS createBy,
+  s.UPDATE_DATE AS updateDate,
+  s.UPDATE_BY AS updateBy,
+  (SELECT 
+    (
+      (SELECT 
+        IFNULL(SUM(i.`AMOUNT`), 0) 
+      FROM
+        `tt_in_storage` i 
+      WHERE i.`ITEM_STORAGE_ID` = s.`ITEM_STORAGE_ID`) - 
+      (SELECT 
+        IFNULL(SUM(tot.`AMOUNT`), 0) 
+      FROM
+        tt_out_task tot 
+      WHERE tot.`OUT_STORAGE_ID` IN 
+        (SELECT 
+          tos.OUT_STORAGE_ID 
+        FROM
+          tt_out_storage tos 
+        WHERE tos.`ITEM_STORAGE_ID` = s.ITEM_STORAGE_ID))
+    ) + 
+    IFNULL((SELECT 
+      SUM(ts.`AMOUNT`)
+    FROM
+      `tt_temp_storage` ts 
+    WHERE ts.`NAME` = s.`NAME` 
+      AND ts.`UNIT` = s.`UNIT` 
+      AND ts.`SPECIFICATION` = s.`SPECIFICATION` 
+      AND ts.IS_STORAGE = 1 
+    GROUP BY ts.`NAME`,
+      ts.`UNIT`,
+      ts.`SPECIFICATION`), 0) ) AS kucunMoney,
+  (SELECT 
+    (
+      (SELECT 
+        IFNULL(SUM(i.NUM), 0) 
+      FROM
+        `tt_in_storage` i 
+      WHERE i.`ITEM_STORAGE_ID` = s.`ITEM_STORAGE_ID`) - 
+      (SELECT 
+        IFNULL(SUM(tot.`NUM`), 0) 
+      FROM
+        tt_out_task tot 
+      WHERE tot.`OUT_STORAGE_ID` IN 
+        (SELECT 
+          tos.OUT_STORAGE_ID 
+        FROM
+          tt_out_storage tos 
+        WHERE tos.`ITEM_STORAGE_ID` = s.ITEM_STORAGE_ID))
+    ) + 
+    IFNULL((SELECT 
+      SUM(ts.NUM) 
+    FROM
+      `tt_temp_storage` ts 
+    WHERE ts.`NAME` = s.`NAME` 
+      AND ts.`UNIT` = s.`UNIT` 
+      AND ts.`SPECIFICATION` = s.`SPECIFICATION` 
+      AND ts.IS_STORAGE = 1 
+    GROUP BY ts.`NAME`,
+      ts.`UNIT`,
+      ts.`SPECIFICATION`), 0)) AS kucunNum,
+  IFNULL(
+    FORMAT(
+      (
+        (SELECT 
+          (
+            (SELECT 
+              IFNULL(SUM(i.`AMOUNT`), 0) 
+            FROM
+              `tt_in_storage` i 
+            WHERE i.`ITEM_STORAGE_ID` = s.`ITEM_STORAGE_ID`) - 
+            (SELECT 
+              IFNULL(SUM(tot.`AMOUNT`), 0) 
+            FROM
+              tt_out_task tot 
+            WHERE tot.`OUT_STORAGE_ID` IN 
+              (SELECT 
+                tos.OUT_STORAGE_ID 
+              FROM
+                tt_out_storage tos 
+              WHERE tos.`ITEM_STORAGE_ID` = s.ITEM_STORAGE_ID))
+          ) + 
+          IFNULL((SELECT 
+            SUM(ts.`AMOUNT`)
+          FROM
+            `tt_temp_storage` ts 
+          WHERE ts.`NAME` = s.`NAME` 
+            AND ts.`UNIT` = s.`UNIT` 
+            AND ts.`SPECIFICATION` = s.`SPECIFICATION` 
+            AND ts.IS_STORAGE = 1 
+          GROUP BY ts.`NAME`,
+            ts.`UNIT`,
+            ts.`SPECIFICATION`), 0) ) / 
+        (SELECT 
+          (
+            (SELECT 
+              IFNULL(SUM(i.NUM), 0) 
+            FROM
+              `tt_in_storage` i 
+            WHERE i.`ITEM_STORAGE_ID` = s.`ITEM_STORAGE_ID`) - 
+            (SELECT 
+              IFNULL(SUM(tot.`NUM`), 0) 
+            FROM
+              tt_out_task tot 
+            WHERE tot.`OUT_STORAGE_ID` IN 
+              (SELECT 
+                tos.OUT_STORAGE_ID 
+              FROM
+                tt_out_storage tos 
+              WHERE tos.`ITEM_STORAGE_ID` = s.ITEM_STORAGE_ID))
+          ) + 
+          IFNULL((SELECT 
+            SUM(ts.NUM) 
+          FROM
+            `tt_temp_storage` ts 
+          WHERE ts.`NAME` = s.`NAME` 
+            AND ts.`UNIT` = s.`UNIT` 
+            AND ts.`SPECIFICATION` = s.`SPECIFICATION` 
+            AND ts.IS_STORAGE = 1 
+          GROUP BY ts.`NAME`,
+            ts.`UNIT`,
+            ts.`SPECIFICATION`), 0))
+      ),
+      2
+    ),
+    0
+  ) AS kucunPrice 
+FROM
+  tt_item_storage s 
+where s.ITEM_ID = #{pd.ITEM_ID,jdbcType=VARCHAR} and s.IS_DEL=0
+<if test="pd.NAME != null and pd.NAME != ''">
+AND (
+SELECT COUNT(1) FROM (
+SELECT tt.`QUOTA_NAME`,tt.`QUOTA_SPECIFICATION`,tt.`QUOTA_UNIT`  
+  FROM tt_task_quota_detail tt
+WHERE tt.`IS_DEL`=0 AND tt.`IS_DECLARE`=1
+AND tt.`GROUP_ID` IN 
+(
+SELECT 
+  tqd.`GROUP_ID`
+  FROM tt_task_quota_detail tqd 
+WHERE tqd.`IS_DEL`=0 AND tqd.`IS_DECLARE`=1  
+     AND (
+     (SELECT COUNT(1) FROM tt_task_cost_quota tcq WHERE tcq.`IS_DEL`=0 AND tcq.`TASK_COST_QUOTA_ID` = tqd.`TASK_COST_QUOTA_ID` AND 
+        (SELECT COUNT(1) FROM tt_taskinfo ta WHERE ta.`UID` = tcq.`TASK_ID` AND ta.PROJECTUID =#{pd.ITEM_ID,jdbcType=VARCHAR})>0
+      )>0
+      OR(SELECT COUNT(1) FROM tt_material_group tmg WHERE tmg.`IS_DEL`=0 AND tmg.`TASK_QUOTA_DETAIL_ID` = tqd.`TASK_QUOTA_DETAIL_ID` AND tmg.`ITEM_ID`=#{pd.ITEM_ID,jdbcType=VARCHAR})>0
+     )
+    AND (
+       tqd.`QUOTA_NAME` LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+       OR tqd.`QUOTA_UNIT` LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+       OR tqd.`QUOTA_SPECIFICATION` LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+    )
+GROUP BY tqd.`GROUP_ID`
+) GROUP BY tt.`QUOTA_NAME`,tt.`QUOTA_SPECIFICATION`,tt.`QUOTA_UNIT`
+)sa WHERE sa.QUOTA_NAME = s.`NAME` AND sa.QUOTA_SPECIFICATION = s.`SPECIFICATION` AND sa.QUOTA_UNIT =s.`UNIT`)>0
+</if>
+
+</select>
+<!-- 执行情况 购销合同 入库 -->
+<select id="listPageItemStorageByItemID" resultType="pd" parameterType="page">
+SELECT  tis.NAME,
+ tis.SPECIFICATION,
+ tis.`UNIT`,
+	t.`PRICE`,
+	  t.ACTUAL_PRICE,
+ t.`NUM`,
+	t.`AMOUNT`,
+	(SELECT 
+  su.`NAME` 
+FROM
+  sys_user su 
+WHERE su.`USER_ID` = PURCHASE_USER) CONFIRM_USER
+	FROM `tt_in_storage` t ,tt_item_storage tis 
+	WHERE t.`ITEM_STORAGE_ID`=tis.`ITEM_STORAGE_ID`
+	 AND t.`PACT_ID`=#{pd.PACT_ID,jdbcType=VARCHAR}
+<if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+	and
+	(
+	 tis.NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+	 or 
+	 tis.SPECIFICATION LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+	)
+</if>
+</select>	
+	
+<!-- 执行情况查询  分包合同 出库-->
+<select id="listPageOutStorage" resultType="pd" parameterType="page">
+SELECT 
+
+  tis.NAME,
+  tis.SPECIFICATION,
+  tis.`UNIT`,
+  tot.`PRICE`,
+  tot.`NUM`,
+  tot.`AMOUNT`,
+  tot.OUT_STORAGE_ID,
+  tot.CONFIRM_STATE,
+  (SELECT 
+  su.`NAME` 
+FROM
+  sys_user su 
+WHERE su.`USER_ID` = tot.CONFIRM_USER ) CONFIRM_USER,
+	tot.OUT_STORAGE_OBJ
+FROM
+  `tt_in_storage` t,
+  tt_item_storage tis,
+  tt_out_storage tos,
+  tt_out_task tot 
+WHERE t.`ITEM_STORAGE_ID` = tis.`ITEM_STORAGE_ID` 
+  AND tis.`ITEM_STORAGE_ID` = tos.`ITEM_STORAGE_ID` 
+  AND tos.`OUT_STORAGE_ID` = tot.`OUT_STORAGE_ID` 
+  AND tot.`OUT_STORAGE_OBJ` = #{pd.PACT_ID,jdbcType=VARCHAR}
+<if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+and
+(
+	 tis.NAME LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%')
+	 or 
+	 tis.SPECIFICATION LIKE CONCAT(CONCAT('%', #{pd.NAME}),'%') 
+)
+</if>
+<if test="pd.LASTLOGINSTART1 !=null and pd.LASTLOGINSTART1 != '' ">
+  <if test="pd.LASTLOGINSTART2 !=null and pd.LASTLOGINSTART2 != '' ">
+  AND(tot.`CREATE_DATE`  &gt;=#{pd.LASTLOGINSTART1} AND tot.`CREATE_DATE` &lt;=#{pd.LASTLOGINSTART2})
+  </if>
+</if>
+</select>
+</mapper>

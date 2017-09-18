@@ -5,7 +5,10 @@ import com.ssc.service.system.user.UserService;
 import com.ssc.util.HttpUtils;
 import com.ssc.util.Logger;
 import com.ssc.util.PageData;
+import com.sun.star.util.DateTime;
+
 import java.io.PrintStream;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,6 +89,7 @@ public class UserController
     }
     String user_id = get32UUID();
     pd.put("verification_code", verCode);
+    System.out.println(userPd.size());
     if ((userPd != null) && (userPd.size() > 0)){//如果用户已经存在，则更新其最新验证码
       try{
     	 pd.put("user_id", userPd.getString("id"));
@@ -129,6 +133,7 @@ public class UserController
     pd = getPdFromJson(req);
     String message = "err";
     Date date = new Date();
+    Timestamp timestamp = new Timestamp(date.getTime());
     String code = "200";
     
     PageData userPd = new PageData();
@@ -136,10 +141,10 @@ public class UserController
       userPd = userService.findByUPhone(pd);
       if (userPd.getString("verification_code").equals(pd.getString("verificationCode"))){//验证通过
         message = "ok";
-        if (userPd.getString("state").equals("0")){//状态为未激活
+        if ((Integer)userPd.get("state")==0){//状态为未激活
           pd.put("state", 1);
-          pd.put("join_time", date);
-          pd.put("user_id", userPd.getString("user_id"));
+          pd.put("join_time", timestamp.toString());
+          pd.put("user_id", userPd.getString("id"));
           userService.updateUserByUid(pd);
         }
       }

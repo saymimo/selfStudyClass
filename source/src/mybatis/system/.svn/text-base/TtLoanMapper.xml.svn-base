@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtLoanMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtLoan" >
+    <id column="LOAN_ID" property="loanId" jdbcType="VARCHAR" />
+    <result column="OUT_STRUCT_ID" property="outStructId" jdbcType="VARCHAR" />
+    <result column="IN_STRUCT_ID" property="inStructId" jdbcType="VARCHAR" />
+    <result column="CITY_ID" property="cityId" jdbcType="VARCHAR" />
+    <result column="BORROW_TITLE" property="borrowTitle" jdbcType="VARCHAR" />
+    <result column="RETURN_DATE" property="returnDate" jdbcType="DATE" />
+    <result column="CONFIM_DATE" property="confimDate" jdbcType="DATE" />
+    <result column="TAKE_DATE" property="takeDate" jdbcType="DATE" />
+    <result column="STATE" property="state" jdbcType="INTEGER" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+     <result column="TYPE" property="type" jdbcType="INTEGER" />
+     <result column="DUTY_PHONE" property="dutyPhone" jdbcType="VARCHAR" />
+     <result column="DUTY_USER" property="dutyUser" jdbcType="VARCHAR" />
+     
+  </resultMap>
+  <sql id="Base_Column_List" >
+    LOAN_ID, OUT_STRUCT_ID, IN_STRUCT_ID, CITY_ID, BORROW_TITLE, RETURN_DATE, CONFIM_DATE, 
+    TAKE_DATE, STATE, CREATE_BY, CREATE_DATE, UPDATE_BY, UPDATE_DATE,dutyPhone,dutyUser
+  </sql>
+  
+    <update id="updateLoanByState" parameterType="pd">
+   update tt_loan   set   STATE = #{state} where CITY_ID=#{cityId} and STATE=2
+  </update>
+  
+  
+  
+  <select id="findMessagePactLoan" resultType="pd" parameterType="page" >
+  SELECT 
+  LOAN_ID,
+  (SELECT 
+    s.`STRUCT_NAME` 
+  FROM
+    `sys_structinfo` s 
+  WHERE s.`STRUCT_ID` = t.`OUT_STRUCT_ID`) AS outStructId,
+  (SELECT 
+    s.`STRUCT_NAME` 
+  FROM
+    `sys_structinfo` s 
+  WHERE s.`STRUCT_ID` = t.`IN_STRUCT_ID`) AS IN_STRUCT_ID,
+  CITY_ID,
+  BORROW_TITLE as borrowTitle,
+  RETURN_DATE as returnDate,
+  CONFIM_DATE,
+  TAKE_DATE,
+  STATE as state,
+  CREATE_BY,
+  CREATE_DATE,
+  UPDATE_BY,
+  UPDATE_DATE,
+  DUTY_USER as dutyUser,
+  DUTY_PHONE as dutyPhone
+FROM
+  tt_loan t  WHERE t.`CITY_ID`=#{pd.PROJECT_PACT_ID}
+   </select>
+  
+  <select id="findLoanlistPage" resultMap="BaseResultMap" parameterType="page" >
+    select 
+     LOAN_ID,
+  (SELECT s.`STRUCT_NAME` FROM `sys_structinfo` s WHERE s.`STRUCT_ID`=t.`OUT_STRUCT_ID`) AS OUT_STRUCT_ID,
+   (SELECT s.`STRUCT_NAME` FROM `sys_structinfo` s WHERE s.`STRUCT_ID`=t.`IN_STRUCT_ID`) AS IN_STRUCT_ID,
+  CITY_ID,
+  BORROW_TITLE,
+  RETURN_DATE,
+  CONFIM_DATE,
+  TAKE_DATE,
+  STATE,
+  CREATE_BY,
+  CREATE_DATE,
+  UPDATE_BY,
+  UPDATE_DATE, DUTY_USER,DUTY_PHONE ,TYPE
+    from tt_loan t
+    where IN_STRUCT_ID = #{pd.STRUCT_ID,jdbcType=VARCHAR}
+  </select>
+  
+  <update id="updateLoanConfim" parameterType="pd">
+  	update tt_loan  set STATE=#{state} where LOAN_ID=#{loanId}
+  </update>
+  <!-- 证书详情 -->
+  <select id="findLoanBycityId" parameterType="pd" resultMap="BaseResultMap">
+    select 
+     LOAN_ID,
+  (SELECT s.`STRUCT_NAME` FROM `sys_structinfo` s WHERE s.`STRUCT_ID`=t.`OUT_STRUCT_ID`) AS OUT_STRUCT_ID,
+   (SELECT s.`STRUCT_NAME` FROM `sys_structinfo` s WHERE s.`STRUCT_ID`=t.`IN_STRUCT_ID`) AS IN_STRUCT_ID,
+  CITY_ID,
+  BORROW_TITLE,
+  RETURN_DATE,
+  CONFIM_DATE,
+  TAKE_DATE,
+  STATE,
+  (SELECT u.`NAME` FROM `sys_user`  u WHERE u.`USER_ID`=t.CREATE_BY) as CREATE_BY,
+  CREATE_DATE,
+  UPDATE_BY,
+  UPDATE_DATE, DUTY_USER,DUTY_PHONE
+    from tt_loan t
+    where t.CITY_ID=#{cityId}
+  
+  </select>
+  
+    <!-- 参与项目 -->
+  <select id="findLoanBycityIdAndItem" parameterType="pd" resultType="pd">
+ SELECT 
+  i.`ITEM_ID`,
+  ti.`ITEM_NAME`,
+  ti.START_DATE,
+  ti.END_DATE,
+  ti.LOGIN_MANAGER,
+  (SELECT s.`STRUCT_NAME` FROM `sys_structinfo`  s WHERE s.`STRUCT_ID`=  ti.STRUCT_ID ) AS structName
+FROM
+  tt_item_user i 
+  LEFT JOIN tt_iteminfo ti 
+    ON i.`ITEM_ID` = ti.`ITEM_ID` 
+WHERE i.`CERTIFICATE_ID` = #{cityId}
+  </select>
+  
+  
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_loan
+    where LOAN_ID = #{loanId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtLoan" >
+    insert into tt_loan (LOAN_ID, OUT_STRUCT_ID, IN_STRUCT_ID, 
+      CITY_ID, BORROW_TITLE, RETURN_DATE, 
+      CONFIM_DATE, TAKE_DATE, STATE, 
+      CREATE_BY, CREATE_DATE, UPDATE_BY, 
+      UPDATE_DATE)
+    values (#{loanId,jdbcType=VARCHAR}, #{outStructId,jdbcType=VARCHAR}, #{inStructId,jdbcType=VARCHAR}, 
+      #{cityId,jdbcType=VARCHAR}, #{borrowTitle,jdbcType=VARCHAR}, #{returnDate,jdbcType=DATE}, 
+      #{confimDate,jdbcType=DATE}, #{takeDate,jdbcType=DATE}, #{state,jdbcType=INTEGER}, 
+      #{createBy,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="pd" >
+    insert into tt_loan
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="loanId != null" >
+        LOAN_ID,
+      </if>
+      <if test="outStructId != null" >
+        OUT_STRUCT_ID,
+      </if>
+      <if test="inStructId != null" >
+        IN_STRUCT_ID,
+      </if>
+      <if test="cityId != null" >
+        CITY_ID,
+      </if>
+      <if test="borrowTitle != null" >
+        BORROW_TITLE,
+      </if>
+      <if test="returnDate != null and returnDate != ''" >
+        RETURN_DATE,
+      </if>
+      <if test="confimDate != null" >
+        CONFIM_DATE,
+      </if>
+      <if test="takeDate != null" >
+        TAKE_DATE,
+      </if>
+      <if test="state != null" >
+        STATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      
+       <if test="dutyUser != null" >
+        DUTY_USER,
+      </if>
+       <if test="dutyPhone != null" >
+        DUTY_PHONE,
+      </if>
+        <if test="type != null" >
+        TYPE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="loanId != null" >
+        #{loanId,jdbcType=VARCHAR},
+      </if>
+      <if test="outStructId != null" >
+        #{outStructId,jdbcType=VARCHAR},
+      </if>
+      <if test="inStructId != null" >
+        #{inStructId,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null" >
+        #{cityId,jdbcType=VARCHAR},
+      </if>
+      <if test="borrowTitle != null" >
+        #{borrowTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="returnDate != null  and returnDate != ''" >
+        #{returnDate,jdbcType=DATE},
+      </if>
+      <if test="confimDate != null" >
+        #{confimDate,jdbcType=DATE},
+      </if>
+      <if test="takeDate != null" >
+        #{takeDate,jdbcType=DATE},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+         <if test="dutyUser != null" >
+        #{dutyUser},
+      </if>
+       <if test="dutyPhone != null" >
+       #{dutyPhone},
+      </if>
+       <if test="type != null" >
+        #{type},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="pd" >
+    update tt_loan
+    <set >
+      <if test="outStructId != null" >
+        OUT_STRUCT_ID = #{outStructId,jdbcType=VARCHAR},
+      </if>
+      <if test="inStructId != null" >
+        IN_STRUCT_ID = #{inStructId,jdbcType=VARCHAR},
+      </if>
+      <if test="cityId != null" >
+        CITY_ID = #{cityId,jdbcType=VARCHAR},
+      </if>
+      <if test="borrowTitle != null" >
+        BORROW_TITLE = #{borrowTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="returnDate != null  and returnDate != ''" >
+        RETURN_DATE = #{returnDate,jdbcType=DATE},
+      </if>
+      <if test="confimDate != null" >
+        CONFIM_DATE = #{confimDate,jdbcType=DATE},
+      </if>
+      <if test="takeDate != null" >
+        TAKE_DATE = #{takeDate,jdbcType=DATE},
+      </if>
+      <if test="state != null" >
+        STATE = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+        <if test="dutyUser != null" >
+        DUTY_USER = #{dutyUser,jdbcType=VARCHAR},
+      </if>
+       <if test="dutyPhone != null" >
+      DUTY_PHONE = #{dutyPhone,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where LOAN_ID = #{loanId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtLoan" >
+    update tt_loan
+    set OUT_STRUCT_ID = #{outStructId,jdbcType=VARCHAR},
+      IN_STRUCT_ID = #{inStructId,jdbcType=VARCHAR},
+      CITY_ID = #{cityId,jdbcType=VARCHAR},
+      BORROW_TITLE = #{borrowTitle,jdbcType=VARCHAR},
+      RETURN_DATE = #{returnDate,jdbcType=DATE},
+      CONFIM_DATE = #{confimDate,jdbcType=DATE},
+      TAKE_DATE = #{takeDate,jdbcType=DATE},
+      STATE = #{state,jdbcType=INTEGER},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP}
+    where LOAN_ID = #{loanId,jdbcType=VARCHAR}
+  </update>
+</mapper>

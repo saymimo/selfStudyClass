@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="TtEntrustMapper" >
+  <resultMap id="BaseResultMap" type="com.ssc.entity.system.TtEntrust" >
+    <id column="ENTRUST_ID" property="entrustId" jdbcType="VARCHAR" />
+    <result column="STRUCT_ID" property="structId" jdbcType="VARCHAR" />
+    <result column="TYPE" property="type" jdbcType="INTEGER" />
+    <result column="ENTRUST_NO" property="entrustNo" jdbcType="VARCHAR" />
+    <result column="ENTRUST_USER" property="entrustUser" jdbcType="VARCHAR" />
+    <result column="BE_ENTRUSTED_USER" property="beEntrustedUser" jdbcType="VARCHAR" />
+    <result column="ENTRUST_AUTHORITY" property="entrustAuthority" jdbcType="VARCHAR" />
+    <result column="ENTRUST_VALIDITY_TIME" property="entrustValidityTime" jdbcType="TIMESTAMP" />
+    <result column="ENTRUST_OPEN_TIME" property="entrustOpenTime" jdbcType="TIMESTAMP" />
+    <result column="ENTRUST_DESCRIBE" property="entrustDescribe" jdbcType="VARCHAR" />
+    <result column="ENTRUST_UNIT" property="entrustUnit" jdbcType="VARCHAR" />
+    <result column="STATE" property="state" jdbcType="INTEGER" />
+    <result column="REVIEW_TYPE" property="reviewType" jdbcType="CHAR" />
+    <result column="CREATE_DATE" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="CREATE_BY" property="createBy" jdbcType="VARCHAR" />
+    <result column="UPDATE_DATE" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="UPDATE_BY" property="updateBy" jdbcType="VARCHAR" />
+    <result column="FLOW_STATE" property="flowState" jdbcType="INTEGER" />
+    <result column="ENTRUST_CONTENT" property="entrustContent" jdbcType="VARCHAR" />
+    
+  </resultMap>
+  <sql id="Base_Column_List" >
+    ENTRUST_ID, STRUCT_ID,TYPE, ENTRUST_NO, ENTRUST_USER, BE_ENTRUSTED_USER, ENTRUST_AUTHORITY, 
+    ENTRUST_VALIDITY_TIME, ENTRUST_OPEN_TIME, ENTRUST_DESCRIBE, ENTRUST_UNIT, STATE, 
+    REVIEW_TYPE, CREATE_DATE, CREATE_BY, UPDATE_DATE, UPDATE_BY,FLOW_STATE
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select 
+    <include refid="Base_Column_List" />
+    from tt_entrust
+    where ENTRUST_ID = #{entrustId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+    delete from tt_entrust
+    where ENTRUST_ID = #{entrustId,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.ssc.entity.system.TtEntrust" >
+    insert into tt_entrust (ENTRUST_ID, STRUCT_ID, ENTRUST_NO, 
+      ENTRUST_USER, BE_ENTRUSTED_USER, ENTRUST_AUTHORITY, 
+      ENTRUST_VALIDITY_TIME, ENTRUST_OPEN_TIME, 
+      ENTRUST_DESCRIBE, ENTRUST_UNIT, STATE, 
+      REVIEW_TYPE, CREATE_DATE, CREATE_BY, 
+      UPDATE_DATE, UPDATE_BY)
+    values (#{entrustId,jdbcType=VARCHAR}, #{structId,jdbcType=VARCHAR}, #{entrustNo,jdbcType=VARCHAR}, 
+      #{entrustUser,jdbcType=VARCHAR}, #{beEntrustedUser,jdbcType=VARCHAR}, #{entrustAuthority,jdbcType=VARCHAR}, 
+      #{entrustValidityTime,jdbcType=TIMESTAMP}, #{entrustOpenTime,jdbcType=TIMESTAMP}, 
+      #{entrustDescribe,jdbcType=VARCHAR}, #{entrustUnit,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER}, 
+      #{reviewType,jdbcType=CHAR}, #{createDate,jdbcType=TIMESTAMP}, #{createBy,jdbcType=VARCHAR}, 
+      #{updateDate,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ssc.entity.system.TtEntrust" >
+    insert into tt_entrust
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="entrustId != null" >
+        ENTRUST_ID,
+      </if>
+      <if test="structId != null" >
+        STRUCT_ID,
+      </if>
+      <if test="type != null" >
+        TYPE,
+      </if>
+      <if test="entrustNo != null" >
+        ENTRUST_NO,
+      </if>
+      <if test="entrustUser != null" >
+        ENTRUST_USER,
+      </if>
+      <if test="beEntrustedUser != null" >
+        BE_ENTRUSTED_USER,
+      </if>
+      <if test="entrustAuthority != null" >
+        ENTRUST_AUTHORITY,
+      </if>
+      <if test="entrustValidityTime != null and entrustValidityTime != ''" >
+        ENTRUST_VALIDITY_TIME,
+      </if>
+      <if test="entrustOpenTime != null and entrustOpenTime != ''" >
+        ENTRUST_OPEN_TIME,
+      </if>
+      <if test="entrustDescribe != null" >
+        ENTRUST_DESCRIBE,
+      </if>
+      <if test="entrustUnit != null" >
+        ENTRUST_UNIT,
+      </if>
+      <if test="state != null" >
+        STATE,
+      </if>
+      <if test="reviewType != null" >
+        REVIEW_TYPE,
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE,
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY,
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE,
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY,
+      </if>
+      <if test="flowState != null" >
+        FLOW_STATE,
+      </if>
+           <if test="entrustContent != null" >
+        ENTRUST_CONTENT,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="entrustId != null" >
+        #{entrustId,jdbcType=VARCHAR},
+      </if>
+      <if test="structId != null" >
+        #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="entrustNo != null" >
+        #{entrustNo,jdbcType=VARCHAR},
+      </if>
+      <if test="entrustUser != null" >
+        #{entrustUser,jdbcType=VARCHAR},
+      </if>
+      <if test="beEntrustedUser != null" >
+        #{beEntrustedUser,jdbcType=VARCHAR},
+      </if>
+      <if test="entrustAuthority != null" >
+        #{entrustAuthority,jdbcType=VARCHAR},
+      </if>
+      <if test="entrustValidityTime != null and entrustValidityTime != ''" >
+        #{entrustValidityTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="entrustOpenTime != null and entrustOpenTime != ''" >
+        #{entrustOpenTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="entrustDescribe != null" >
+        #{entrustDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="entrustUnit != null" >
+        #{entrustUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        #{state,jdbcType=INTEGER},
+      </if>
+      <if test="reviewType != null" >
+        #{reviewType,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="flowState != null" >
+        #{flowState,jdbcType=VARCHAR},
+      </if>
+       <if test="entrustContent != null" >
+         #{entrustContent,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.ssc.entity.system.TtEntrust" >
+    update tt_entrust
+    <set >
+      <if test="structId != null" >
+        STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      </if>
+      <if test="entrustNo != null" >
+        ENTRUST_NO = #{entrustNo,jdbcType=VARCHAR},
+      </if>
+      <if test="entrustUser != null" >
+        ENTRUST_USER = #{entrustUser,jdbcType=VARCHAR},
+      </if>
+      <if test="beEntrustedUser != null" >
+        BE_ENTRUSTED_USER = #{beEntrustedUser,jdbcType=VARCHAR},
+      </if>
+      <if test="entrustAuthority != null" >
+        ENTRUST_AUTHORITY = #{entrustAuthority,jdbcType=VARCHAR},
+      </if>
+      <if test="entrustValidityTime != null and entrustValidityTime != ''" >
+        ENTRUST_VALIDITY_TIME = #{entrustValidityTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="entrustOpenTime != null and entrustOpenTime != ''" >
+        ENTRUST_OPEN_TIME = #{entrustOpenTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="entrustDescribe != null" >
+        ENTRUST_DESCRIBE = #{entrustDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="entrustUnit != null" >
+        ENTRUST_UNIT = #{entrustUnit,jdbcType=VARCHAR},
+      </if>
+      <if test="state != null" >
+        STATE = #{state,jdbcType=INTEGER},
+      </if>
+      <if test="reviewType != null" >
+        REVIEW_TYPE = #{reviewType,jdbcType=CHAR},
+      </if>
+      <if test="createDate != null" >
+        CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createBy != null" >
+        CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        UPDATE_BY = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="flowState != null" >
+        FLOW_STATE = #{flowState,jdbcType=VARCHAR},
+      </if>
+       <if test="entrustContent != null" >
+         ENTRUST_CONTENT=#{entrustContent,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ENTRUST_ID = #{entrustId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ssc.entity.system.TtEntrust" >
+    update tt_entrust
+    set STRUCT_ID = #{structId,jdbcType=VARCHAR},
+      TYPE = #{type,jdbcType=INTEGER},
+      ENTRUST_NO = #{entrustNo,jdbcType=VARCHAR},
+      ENTRUST_USER = #{entrustUser,jdbcType=VARCHAR},
+      BE_ENTRUSTED_USER = #{beEntrustedUser,jdbcType=VARCHAR},
+      ENTRUST_AUTHORITY = #{entrustAuthority,jdbcType=VARCHAR},
+      ENTRUST_VALIDITY_TIME = #{entrustValidityTime,jdbcType=TIMESTAMP},
+      ENTRUST_OPEN_TIME = #{entrustOpenTime,jdbcType=TIMESTAMP},
+      ENTRUST_DESCRIBE = #{entrustDescribe,jdbcType=VARCHAR},
+      ENTRUST_UNIT = #{entrustUnit,jdbcType=VARCHAR},
+      STATE = #{state,jdbcType=INTEGER},
+      REVIEW_TYPE = #{reviewType,jdbcType=CHAR},
+      CREATE_DATE = #{createDate,jdbcType=TIMESTAMP},
+      CREATE_BY = #{createBy,jdbcType=VARCHAR},
+      UPDATE_DATE = #{updateDate,jdbcType=TIMESTAMP},
+      UPDATE_BY = #{updateBy,jdbcType=VARCHAR}
+    where ENTRUST_ID = #{entrustId,jdbcType=VARCHAR}
+  </update>
+  
+     <!-- 委托申请主页查询 -->
+  <select id="listPageEntrust" parameterType="page" resultMap="BaseResultMap"  useCache="false">
+  SELECT 
+  t.`ENTRUST_ID`,
+  t.`STRUCT_ID`,
+  t.TYPE,
+  t.`ENTRUST_NO`,
+  t.`BE_ENTRUSTED_USER`,
+  t.`ENTRUST_AUTHORITY`,
+  t.`ENTRUST_VALIDITY_TIME`,
+  t.`ENTRUST_OPEN_TIME`,
+  t.`ENTRUST_DESCRIBE`,
+  t.`ENTRUST_UNIT`,
+  t.`CREATE_DATE`,
+  (SELECT STATE FROM `tt_tribune` i WHERE i.REVIEW_OBJ_ID=t.`ENTRUST_ID`)AS STATE,
+  (SELECT TRIBUNE_ID FROM `tt_tribune` i WHERE i.REVIEW_OBJ_ID=t.`ENTRUST_ID`)AS UPDATE_BY,
+  
+   (SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`=t.`CREATE_BY`) as ENTRUST_USER,<!--创建人显示姓名-->
+   t.CREATE_BY
+   
+FROM
+  `tt_entrust` t 
+WHERE t.`CREATE_BY`=#{pd.userId}
+OR ((SELECT TRIBUNE_ID FROM `tt_tribune` i WHERE i.REVIEW_OBJ_ID=t.`ENTRUST_ID`) IN (SELECT i.`TRIBUNE_ID` 
+FROM `tt_tribune_user` i WHERE i.USER_ID=#{pd.userId}
+ AND i.`TRIBUNE_ID`=(SELECT TRIBUNE_ID FROM `tt_tribune` i WHERE i.REVIEW_OBJ_ID=t.`ENTRUST_ID`)))
+ <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+	 and		(ENTRUST_DESCRIBE LIKE #{pd.NAME2})
+		</if>
+ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  
+        <!-- 委托申请主页查询 全部-->
+  <select id="listPageEntrustAll" parameterType="page" resultMap="BaseResultMap"  useCache="false">
+  SELECT 
+  t.`ENTRUST_ID`,
+  t.`STRUCT_ID`,
+  t.TYPE,
+  t.`ENTRUST_NO`,
+  t.`BE_ENTRUSTED_USER`,
+  t.`ENTRUST_AUTHORITY`,
+  t.`ENTRUST_VALIDITY_TIME`,
+  t.`ENTRUST_OPEN_TIME`,
+  t.`ENTRUST_DESCRIBE`,
+  t.`ENTRUST_UNIT`,
+  t.`CREATE_DATE`,
+  (SELECT STATE FROM `tt_tribune` i WHERE i.REVIEW_OBJ_ID=t.`ENTRUST_ID`)AS STATE,
+  (SELECT TRIBUNE_ID FROM `tt_tribune` i WHERE i.REVIEW_OBJ_ID=t.`ENTRUST_ID`)AS UPDATE_BY,
+  
+   (SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`=t.`CREATE_BY`) as ENTRUST_USER,<!--创建人显示姓名-->
+   t.CREATE_BY
+   
+FROM
+  `tt_entrust` t 
+ <if test="pd.NAME != null and pd.NAME != ''"><!-- 关键词检索 -->
+	 WHERE		ENTRUST_DESCRIBE LIKE #{pd.NAME2}
+		</if>
+ORDER BY  CREATE_DATE DESC
+  </select>
+  
+  
+  <select id="selectById" parameterType="pd" resultType="pd">
+SELECT t.`ENTRUST_ID`,t.`ENTRUST_NO`, t.`ENTRUST_USER`,t.`BE_ENTRUSTED_USER`,t.`ENTRUST_AUTHORITY`,
+t.`ENTRUST_VALIDITY_TIME`,t.`ENTRUST_OPEN_TIME`,t.`ENTRUST_DESCRIBE`,t.`ENTRUST_UNIT`,t.TYPE,
+(SELECT TRIBUNE_ID FROM `tt_tribune` i WHERE i.REVIEW_OBJ_ID=t.`ENTRUST_ID`)AS TRIBUNE_ID,
+t.ENTRUST_CONTENT
+ FROM `tt_entrust` t WHERE t.`ENTRUST_ID`=#{entrustId,jdbcType=VARCHAR}
+  </select>
+  
+  
+  
+  <!--打印预览-->
+    <select id="findEntrustPrint" parameterType="pd" resultType="pd">
+SELECT 
+  t.`ENTRUST_ID`,
+  t.`ENTRUST_NO`,
+  t.`ENTRUST_USER`,
+  t.`BE_ENTRUSTED_USER`,
+  t.`ENTRUST_AUTHORITY`,
+  t.`ENTRUST_VALIDITY_TIME`,
+  t.`ENTRUST_OPEN_TIME`,
+  t.`ENTRUST_DESCRIBE`,
+  t.`ENTRUST_UNIT`,
+  (SELECT 
+    NAME 
+  FROM
+    sys_user u 
+  WHERE u.user_id = t.`CREATE_BY`) AS CREATE_BY,
+  (SELECT 
+    s.`STRUCT_NAME` 
+  FROM
+    `sys_structinfo` s 
+  WHERE s.`STRUCT_ID` = t.`STRUCT_ID`) AS STRUCT_ID,
+  t.`CREATE_DATE`,
+  t.TYPE,
+  t.`STATE`,
+  DATE_FORMAT(t.`ENTRUST_OPEN_TIME`, '%Y') AS nian,
+  DATE_FORMAT(t.`ENTRUST_OPEN_TIME`, '%m') AS yue,
+  DATE_FORMAT(t.`ENTRUST_OPEN_TIME`, '%d') AS ri,
+  u.`SEX`,
+  u.`NAME`,
+  u.`PHONE`,
+  u.`IDENTITYCODE`,
+  t.ENTRUST_CONTENT 
+FROM
+  `tt_entrust` t 
+  LEFT JOIN `sys_user` u 
+    ON t.`ENTRUST_USER` = u.`USER_ID` 
+WHERE t.`ENTRUST_ID`=#{entrustId,jdbcType=VARCHAR}
+  </select>
+  
+  
+  <select id="findEntructAndEntructNoByStructId" parameterType="pd" resultType="pd">
+  SELECT 
+  CONCAT(
+    SUBSTRING_INDEX(MAX(str.`ENTRUST_NO`), '_', 1),
+    '_',
+    CASE WHEN LENGTH(CONCAT(SUBSTRING_INDEX(MAX(str.`ENTRUST_NO`), '_', - 1) + 1 ))=1 
+	THEN CONCAT('00',SUBSTRING_INDEX(MAX(str.`ENTRUST_NO`), '_', - 1) + 1 )
+	WHEN LENGTH(CONCAT(SUBSTRING_INDEX(MAX(str.`ENTRUST_NO`), '_', - 1) + 1 ))=2 
+	THEN CONCAT('0',SUBSTRING_INDEX(MAX(str.`ENTRUST_NO`), '_', - 1) + 1 )
+	WHEN LENGTH(CONCAT(SUBSTRING_INDEX(MAX(str.`ENTRUST_NO`), '_', - 1) + 1 ))>=3
+	THEN CONCAT(SUBSTRING_INDEX(MAX(str.`ENTRUST_NO`), '_', - 1) + 1 )
+	END
+  ) AS entrust_No
+  
+FROM
+  `tt_entrust` str  WHERE str.`STRUCT_ID`=#{STRUCT_ID}
+  <if test="entrustType != null and  entrustType !=''" >
+  		 <if test="entrustType==1" >
+      		 and  TYPE=1
+     	 </if>
+       <if test="entrustType==2 or entrustType==3" >
+      		 and  (TYPE=2 or TYPE=3)
+     	 </if>
+      </if>
+  
+    </select>
+  
+  <!-- 审批内容查询 -->
+  <select id="selectByIdSP" parameterType="pd" resultType="pd">
+ SELECT t.`ENTRUST_ID`,t.`ENTRUST_NO`,(SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`=t.`ENTRUST_USER`) ENTRUST_USER,t.`BE_ENTRUSTED_USER`,t.`ENTRUST_AUTHORITY`,
+t.`ENTRUST_VALIDITY_TIME`,t.`ENTRUST_OPEN_TIME`,t.`ENTRUST_DESCRIBE`,t.`ENTRUST_UNIT`,(SELECT NAME
+ FROM sys_user u WHERE u.user_id=t.`CREATE_BY`) AS CREATE_BY,t.`CREATE_DATE`,t.TYPE,
+  (SELECT tr.`STATE` FROM `tt_tribune` tr WHERE tr.`REVIEW_OBJ_ID`=t.`ENTRUST_ID`) AS entrustState
+ FROM `tt_entrust` t WHERE t.`ENTRUST_ID`=#{entrustId,jdbcType=VARCHAR}
+  </select>
+  
+   <delete id="deleteAllByid" parameterType="pd" >
+    delete from tt_tribune_user
+    where TRIBUNE_ID = #{tribuneId,jdbcType=VARCHAR}
+  </delete>
+  
+   <update id="updateState" parameterType="pd">
+UPDATE 
+  tt_tribune_user u 
+SET
+  u.`STATE` = 0 
+WHERE u.`TRIBUNE_ID` = #{entrustId,jdbcType=VARCHAR} 
+  </update>
+  
+   <!-- 删除 -->
+ <delete id="deleteById" parameterType="pd" >
+		 DELETE FROM `tt_entrust` WHERE ENTRUST_ID=#{entrustId,jdbcType=VARCHAR}
+ </delete>
+   <!-- 发送 -->
+ <update id="sentById" parameterType="pd" >
+		 UPDATE  `tt_tribune` SET STATE=1 WHERE TRIBUNE_ID=#{entrustId,jdbcType=VARCHAR}
+ </update>
+ <delete id="deleteUserById" parameterType="pd" >
+		 DELETE FROM `tt_tribune_user` WHERE TRIBUNE_ID=#{entrustId,jdbcType=VARCHAR}
+ </delete>
+ 
+  <!-- 批量删除 -->
+<delete id="deleteAll" parameterType="String" flushCache="false">
+	 DELETE FROM `tt_entrust`
+	 where ENTRUST_ID in 
+ 			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+            </foreach>
+</delete>
+<delete id="deleteAllUser" parameterType="String" flushCache="false">
+	 DELETE FROM `tt_tribune_user` WHERE TRIBUNE_ID in 
+ 			 <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                 #{item}
+            </foreach>
+</delete>
+
+<update id="updateByState" parameterType="pd">
+  		 update tt_entrust   set   STATE = #{STATE,jdbcType=INTEGER} where ENTRUST_ID=#{entrustId}
+	  </update>
+	  
+	  <select id="findEntrustOne" resultType="pd" parameterType="pd" >
+    SELECT t.`ENTRUST_ID`,t.`ENTRUST_NO`, (SELECT u.`NAME` FROM `sys_user` u WHERE u.`USER_ID`=t.`ENTRUST_USER`) ENTRUST_USER,t.`BE_ENTRUSTED_USER`,t.`ENTRUST_AUTHORITY`,
+t.`ENTRUST_VALIDITY_TIME`,t.`ENTRUST_OPEN_TIME`,t.`ENTRUST_DESCRIBE`,t.`ENTRUST_UNIT`,(SELECT NAME
+ FROM sys_user u WHERE u.user_id=t.`CREATE_BY`) AS CREATE_BY,t.`CREATE_DATE`,t.`REVIEW_TYPE`
+ FROM `tt_entrust` t WHERE t.`ENTRUST_ID`=#{entrustId,jdbcType=VARCHAR}
+  </select>
+  
+  <update id="updateByReviewType" parameterType="pd">
+  		 update tt_entrust   set   REVIEW_TYPE = #{REVIEW_TYPE,jdbcType=INTEGER} where ENTRUST_ID=#{entrustId}
+	  </update>
+</mapper>

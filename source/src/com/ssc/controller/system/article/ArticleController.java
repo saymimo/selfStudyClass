@@ -2,10 +2,8 @@ package com.ssc.controller.system.article;
 
 import com.ssc.controller.base.BaseController;
 import com.ssc.service.system.anthology.AnthologyService;
-import com.ssc.service.system.article.ArticleService;
 import com.ssc.service.system.content.ContentService;
 import com.ssc.service.system.user.UserService;
-import com.ssc.util.Logger;
 import com.ssc.util.PageData;
 
 import java.util.Date;
