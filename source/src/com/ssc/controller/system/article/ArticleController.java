@@ -33,7 +33,7 @@ public class ArticleController extends BaseController{
    * @param req
    * @return
    */
-  @RequestMapping(value="/add",method=RequestMethod.POST)
+  @RequestMapping(value="/addArticle",method=RequestMethod.POST)
   @ResponseBody
   public Object addArticle(@RequestBody String req){
 	JSONObject respJson = new JSONObject();
