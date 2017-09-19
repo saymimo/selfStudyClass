@@ -45,8 +45,16 @@ public class PageData extends HashMap implements Map{
   }
   
   public PageData(String req){
-	  Map<String, Object> map = JSONObject.fromObject(req);
-	  this.map = map;
+	  Map returnMap = new HashMap();
+	  JSONObject json = JSONObject.fromObject(req);
+	  Iterator iterator = json.keys();
+	  while (iterator.hasNext()) {
+		  String key = String.valueOf(iterator.next());  
+          String value = (String) json.get(key);  
+          returnMap.put(key, value); 
+		
+	}
+	  this.map = returnMap;
   }
   
   public PageData(){
