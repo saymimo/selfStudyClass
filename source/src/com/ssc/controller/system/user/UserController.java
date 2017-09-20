@@ -143,6 +143,7 @@ public class UserController
           pd.put("join_time", date);
           pd.put("user_id", userPd.getString("id"));
           userService.updateUserByUid(pd);
+          userPd = userService.findByUPhone(pd);
         }
       }
       
