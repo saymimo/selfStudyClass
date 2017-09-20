@@ -35,7 +35,7 @@ public class IssueController extends BaseController {
 	 * @param req
 	 * @return
 	 */
-	@RequestMapping(value="/addIssue",method=RequestMethod.POST)
+	@RequestMapping(value="/add",method=RequestMethod.POST)
 	@ResponseBody
 	public Object addIssue(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
@@ -117,7 +117,7 @@ public class IssueController extends BaseController {
 	 * @param req
 	 * @return
 	 */
-	@RequestMapping(value="/updateIssue",method=RequestMethod.PUT)
+	@RequestMapping(value="/update",method=RequestMethod.PUT)
 	@ResponseBody
 	public Object updateIssue(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
@@ -189,7 +189,7 @@ public class IssueController extends BaseController {
 	 * @param req
 	 * @return
 	 */
-	@RequestMapping(value="/deleteIssue",method=RequestMethod.DELETE)
+	@RequestMapping(value="/delete",method=RequestMethod.DELETE)
 	@ResponseBody
 	public Object deleteIssue(@RequestBody String req){
 		JSONObject respJson = new JSONObject();

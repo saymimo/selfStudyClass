@@ -100,7 +100,7 @@ public class CommentController extends BaseController {
 	 * @param req
 	 * @return
 	 */
-	@RequestMapping(value="/publishComment",method=RequestMethod.POST)
+	@RequestMapping(value="/publish",method=RequestMethod.POST)
 	@ResponseBody
 	public Object publishComment(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
@@ -150,9 +150,9 @@ public class CommentController extends BaseController {
 	 * @param req
 	 * @return
 	 */
-	@RequestMapping(value="/updateComment",method=RequestMethod.PUT)
+	@RequestMapping(value="/update",method=RequestMethod.PUT)
 	@ResponseBody
-	public Object findAnthologyList(@RequestBody String req){
+	public Object update(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		JSONObject author = new JSONObject();
 		PageData comment = new PageData();
@@ -191,7 +191,7 @@ public class CommentController extends BaseController {
 	 * @param req
 	 * @return
 	 */
-	@RequestMapping(value="/deleteComment",method=RequestMethod.DELETE)
+	@RequestMapping(value="/delete",method=RequestMethod.DELETE)
 	@ResponseBody
 	public Object deleteComment(@RequestBody String req){
 		JSONObject respJson = new JSONObject();

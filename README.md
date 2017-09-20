@@ -1,5 +1,3 @@
-# selfStudyClass
-自习课后台项目
 ## 源码一览（source）
 ### 结构
 > src/  
@@ -59,9 +57,9 @@
 ### 后台已经写好的接口：
 ##### 用户：
 > 
-- **发送验证码:**`/api/v1/member/verificationCode`
-- **登录/注册:**`/api/v1/member/login`
-- **更新用户:**`/api/v1/member/updateUser`	
+- **发送验证码:**`/api/v1/member/verificationCode` √
+- **登录/注册:**`/api/v1/member/login`√
+- **更新用户:**`/api/v1/member/updateUser`	√
 
 ---------------
 
@@ -74,26 +72,26 @@
 
 ##### 文集
 > 
-- **批量查询文集**`/api/v1/anthology/List`
-- **查询某文集**`/api/v1/anthology/findAnthology`	
-- **新增文集**`/api/v1/anthology/add`
-- **更新文集名称**`/api/v1/anthology/update`
-- **删除文集**`/api/v1/anthology/delete`
+- **批量查询文集**`/api/v1/anthology/List`√
+- **查询某文集**`/api/v1/anthology/findAnthology`	√
+- **新增文集**`/api/v1/anthology/add`√
+- **更新文集名称**`/api/v1/anthology/update`√
+- **删除文集**`/api/v1/anthology/delete`√
 
 ----
 
 ##### 文章
 > 
-- **新建文章:**`/api/v1/article/add`
-- **更新文章:**`/api/v1/article/update`
-- **发布文章:**`/api/v1/article/publish`
-- **删除文章:**`/api/v1/article/delete`
+- **新建文章:**`/api/v1/article/add`√
+- **更新文章:**`/api/v1/article/update`√
+- **发布文章:**`/api/v1/article/publish`√
+- **删除文章:**`/api/v1/article/delete`√
 
 
 -----
 ##### 问答
 > 
-- **新增问题**`/api/v1/issue/add`
+- **新增问题**`/api/v1/issue/add`√
 - **更新问题**`/api/v1/issue/update`
 - **删除问题**`/api/v1/issue/delete`
 
