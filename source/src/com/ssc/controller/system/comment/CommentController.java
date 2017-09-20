@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ssc.controller.base.BaseController;
 import com.ssc.service.system.comment.CommentService;
@@ -35,14 +36,15 @@ public class CommentController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/findComment",method=RequestMethod.GET)
-	public Object findComment(@RequestBody String req){
+	@ResponseBody
+	public Object findComment(){
 		JSONObject respJson = new JSONObject();
 		List<PageData> discussList = new ArrayList<PageData>();
 		List<JSONObject> discussList2 = new ArrayList<JSONObject>();
 		PageData pd = new PageData();
 		PageData comment = new PageData();
 		JSONObject author = new JSONObject();
-		pd = getPdFromJson(req);
+		pd = getPageData();
 		String message = "ok";
 		int code = 200;
 		try {
@@ -99,6 +101,7 @@ public class CommentController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/publishComment",method=RequestMethod.POST)
+	@ResponseBody
 	public Object publishComment(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		JSONObject data = new JSONObject();
@@ -148,6 +151,7 @@ public class CommentController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/updateComment",method=RequestMethod.PUT)
+	@ResponseBody
 	public Object findAnthologyList(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		JSONObject author = new JSONObject();
@@ -188,6 +192,7 @@ public class CommentController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/deleteComment",method=RequestMethod.DELETE)
+	@ResponseBody
 	public Object deleteComment(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		PageData pd = new PageData();

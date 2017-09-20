@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ssc.controller.base.BaseController;
 import com.ssc.service.system.anthology.AnthologyService;
@@ -35,13 +36,14 @@ public class AnthologyController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/List",method=RequestMethod.GET)
+	@ResponseBody
 	public Object findAnthologyList(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		JSONObject data = new JSONObject();
 		List<PageData> anthologyList = new ArrayList<PageData>();
 		List<PageData> anthologyList2 = new ArrayList<PageData>();
 		PageData pd = new PageData();
-		pd = getPdFromJson(req);
+		pd = getPageData();
 		String message = "ok";
 		int code = 200;
 		pd.put("user_id", pd.getString("memberId"));
@@ -80,13 +82,14 @@ public class AnthologyController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/findAnthology",method=RequestMethod.GET)
-	public Object findAnthology(@RequestBody String req){
+	@ResponseBody
+	public Object findAnthology(){
 		JSONObject respJson = new JSONObject();
 		PageData anthology = new PageData();
 		List<PageData> articles = new ArrayList<PageData>();
 		PageData author = new PageData();
 		PageData pd = new PageData();
-		pd = getPdFromJson(req);
+		pd = getPageData();
 		String message = "ok";
 		int code = 200;
 		pd.put("anthology_id", pd.getString("anthologyId"));
@@ -120,6 +123,7 @@ public class AnthologyController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/add",method=RequestMethod.POST)
+	@ResponseBody
 	public Object addAnthology(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		JSONObject data = new JSONObject();
@@ -158,6 +162,7 @@ public class AnthologyController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/update",method=RequestMethod.PUT)
+	@ResponseBody
 	public Object updateAnthology(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		JSONObject data = new JSONObject();
@@ -194,6 +199,7 @@ public class AnthologyController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/delete",method=RequestMethod.DELETE)
+	@ResponseBody
 	public Object deleteAnthology(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		PageData pd = new PageData();

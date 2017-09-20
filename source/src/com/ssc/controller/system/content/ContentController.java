@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ssc.controller.base.BaseController;
 import com.ssc.service.system.anthology.AnthologyService;
@@ -38,13 +39,14 @@ public class ContentController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/contentList",method=RequestMethod.GET)
-	public Object contentList(@RequestBody String req){
+	@ResponseBody
+	public Object contentList(){
 		List<PageData> contentList = new ArrayList<PageData>();
 		List<JSONObject> contentList2 = new ArrayList<JSONObject>();
 		JSONObject data = new JSONObject();
 		JSONObject respJson = new JSONObject();
 		PageData pd = new PageData();
-		pd = getPdFromJson(req);
+		pd = getPageData();
 		int code = 200;
 		String message = "ok";
 		
@@ -126,7 +128,8 @@ public class ContentController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/findContent",method=RequestMethod.GET)
-	public Object findContent(@RequestBody  String req){
+	@ResponseBody
+	public Object findContent(){
 		JSONObject respJson = new JSONObject();
 		JSONObject author = new JSONObject();
 		JSONObject anthology = new JSONObject();
@@ -134,7 +137,7 @@ public class ContentController extends BaseController {
 		List<JSONObject> commentList2 = new ArrayList<JSONObject>();
 		PageData pd = new PageData();
 		PageData content = new PageData();
-		pd = getPdFromJson(req);
+		pd = getPageData();
 		String message = "ok";
 		int code = 200;
 		try {

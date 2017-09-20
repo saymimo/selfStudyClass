@@ -13,13 +13,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ssc.controller.base.BaseController;
 import com.ssc.service.system.comment.CommentService;
 import com.ssc.service.system.content.ContentService;
 import com.ssc.util.PageData;
 
-@Controller(value="/api/v1/issue")
+@Controller
+@RequestMapping(value="/api/v1/issue")
 public class IssueController extends BaseController {
 	@Resource(name="contentService")
 	private ContentService contentService;
@@ -33,7 +35,8 @@ public class IssueController extends BaseController {
 	 * @param req
 	 * @return
 	 */
-	@RequestMapping(value="/addIssue",method=RequestMethod.GET)
+	@RequestMapping(value="/addIssue",method=RequestMethod.POST)
+	@ResponseBody
 	public Object addIssue(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		JSONObject author = new JSONObject();
@@ -100,7 +103,7 @@ public class IssueController extends BaseController {
 		}
 		content.put("author", author);
 		content.put("publishType", 0);
-		content.put("praiseNum", (Integer)content.get("answers_praiseNum"));
+		content.put("praiseNum", content.get("answers_praiseNum"));
 		content.remove("answers_praiseNum");
 		content.put("comment", JSONArray.fromObject(commentList2));
 		respJson.put("code", code);
@@ -115,13 +118,14 @@ public class IssueController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/updateIssue",method=RequestMethod.PUT)
+	@ResponseBody
 	public Object updateIssue(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		PageData pd = new PageData();
 		PageData content = new PageData();
 		PageData author = new PageData();
 		List<PageData> commentList = new ArrayList<PageData>();
-		List<PageData> commentList2 = new ArrayList<PageData>();
+		List<JSONObject> commentList2 = new ArrayList<JSONObject>();
 		pd = getPdFromJson(req);
 		String message = "ok";
 		Date date = new Date();
@@ -149,7 +153,7 @@ public class IssueController extends BaseController {
 					comment.remove("name");
 					comment.remove("nickname");
 					comment.remove("unit");
-					commentList2.add(comment);
+					commentList2.add(JSONObject.fromObject(comment));
 				}
 			}
 			author.put("id", content.getString("user_id"));
@@ -170,8 +174,8 @@ public class IssueController extends BaseController {
 			code = 500;
 			message = "error";
 		}
-		content.put("author", author);
-		content.put("praiseNum", (Integer)content.get("answers_praiseNum"));
+		content.put("author", JSONObject.fromObject(author));
+		content.put("praiseNum", content.get("answers_praiseNum"));
 		content.remove("answers_praiseNum");
 		content.put("comment", JSONArray.fromObject(commentList2));
 		respJson.put("code", code);
@@ -186,6 +190,7 @@ public class IssueController extends BaseController {
 	 * @return
 	 */
 	@RequestMapping(value="/deleteIssue",method=RequestMethod.DELETE)
+	@ResponseBody
 	public Object deleteIssue(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		PageData pd = new PageData();

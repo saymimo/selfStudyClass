@@ -38,7 +38,7 @@ public class ContentService{
    * @throws Exception
    */
   public PageData findContent(PageData pd) throws Exception{
-	  return (PageData)dao.findForList("ContentMapper.findContent", pd);
+	  return (PageData)dao.findForObject("ContentMapper.findContent", pd);
   } 
   /**
    * 新增内容

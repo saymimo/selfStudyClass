@@ -47,7 +47,7 @@ public class UserController
    * @param ub
    * @return
    */
-  @RequestMapping(value="/verificationCode",method=RequestMethod.POST)
+  @RequestMapping(value="/verificationCode",method=RequestMethod.GET)
   @ResponseBody
   public Object verificationCode(@RequestBody String ub){
     PageData pd = new PageData();
@@ -164,6 +164,7 @@ public class UserController
    * @return
    */
   @RequestMapping(value="/updateUser",method=RequestMethod.PUT)
+  @ResponseBody
   public Object updateUser(@RequestBody String req){
 	  JSONObject reqJson = JSONObject.fromObject(req);
 	  JSONObject respJson = new JSONObject();
@@ -191,7 +192,7 @@ public class UserController
 	  respJson.put("code", code);
 	  respJson.put("message", message);
 	  respJson.put("data", JSONObject.fromObject(pd));
-	  return reqJson;
+	  return respJson;
   }
   
 }

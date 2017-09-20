@@ -86,6 +86,7 @@ public class ArticleController extends BaseController{
    * @return
    */
   @RequestMapping(value="/publish",method=RequestMethod.POST)
+  @ResponseBody
   public Object publish(@RequestBody String req){
 	  JSONObject respJson = new JSONObject();
 	  JSONObject data = new JSONObject();
@@ -143,6 +144,7 @@ public class ArticleController extends BaseController{
    * @return
    */
   @RequestMapping(value="/update",method=RequestMethod.PUT)
+  @ResponseBody
   public Object update(@RequestBody String req){
 	  JSONObject respJson = new JSONObject();
 	  JSONObject data = new JSONObject();
@@ -182,8 +184,8 @@ public class ArticleController extends BaseController{
       data.put("status",(Integer)article.get("status"));
       data.put("title", article.getString("title"));
       data.put("content",article.getString("content"));
-      data.put("collectNum",article.getString("collectNum"));
-      data.put("praiseNum", article.getString("praiseNum"));
+      data.put("collectNum",article.get("collectNum"));
+      data.put("praiseNum", article.get("praiseNum"));
       data.put("author", author);
       data.put("anthology", anthology);
       
@@ -194,6 +196,7 @@ public class ArticleController extends BaseController{
   }
   
   @RequestMapping(value="/delete",method=RequestMethod.DELETE)
+  @ResponseBody
 	public Object deleteArticle(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		PageData pd = new PageData();
