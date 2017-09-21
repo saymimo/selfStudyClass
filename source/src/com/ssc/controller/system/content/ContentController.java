@@ -56,13 +56,13 @@ public class ContentController extends BaseController {
 		pd.put("limit", limit);
 		try {
 			contentList = contentService.findContentList(pd);
+			int num = contentList.size();//23
+			int currentPage = offset/limit+1;
+			data.put("totalPage", num/limit+1);
+			data.put("currentPage",currentPage);
+			data.put("pageStartIndex",(currentPage-1)*limit);
+			data.put("pageEndIndex", currentPage*limit-1);
 			if (contentList!=null&&!contentList.isEmpty()) {
-				int num = contentList.size();//23
-				int currentPage = offset/limit+1;
-				data.put("totalPage", num/limit+1);
-				data.put("currentPage",currentPage);
-				data.put("pageStartIndex",(currentPage-1)*limit);
-				data.put("pageEndIndex", currentPage*limit-1);
 				for (int i = 0; i < num; i++) {
 					PageData content = new PageData();
 					content = contentList.get(i);
@@ -157,7 +157,8 @@ public class ContentController extends BaseController {
 			if ((Integer)content.get("publishType")==3) {//匿名
 				author.put("id", -1);
 			}
-			//===============文集======================
+			content.put("author", author);
+			//===============文章======================
 			if ((Integer)content.get("type")==1) {//若文章，放入文集，去掉关注数
 				anthology.put("id", content.getString("anthology_id"));
 				anthology.put("title", content.getString("anthologyTitle"));
@@ -166,12 +167,12 @@ public class ContentController extends BaseController {
 				content.remove("answers_praiseNum");
 				content.remove("answerNum");
 			}
-			//===============文集======================
+			//===============文章======================
 			
 			//===============问题======================
 			if ((Integer)content.get("type")==2) {//若问题，去掉收藏数
 				content.remove("collectNum");
-				content.put("praiseNum", (Integer)content.get("answers_praiseNum"));//这里的赞数是指该问题下所有回答赞数的总和
+				content.put("praiseNum", content.get("answers_praiseNum"));//这里的赞数是指该问题下所有回答赞数的总和
 			}
 			//===============问题======================
 

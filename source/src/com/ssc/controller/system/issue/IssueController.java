@@ -123,7 +123,7 @@ public class IssueController extends BaseController {
 		JSONObject respJson = new JSONObject();
 		PageData pd = new PageData();
 		PageData content = new PageData();
-		PageData author = new PageData();
+		JSONObject author = new JSONObject();
 		List<PageData> commentList = new ArrayList<PageData>();
 		List<JSONObject> commentList2 = new ArrayList<JSONObject>();
 		pd = getPdFromJson(req);
@@ -140,14 +140,14 @@ public class IssueController extends BaseController {
 			if (commentList!=null&&!commentList.isEmpty()) {
 				for (int i = 0; i < commentList.size(); i++) {
 					PageData comment = new PageData();
-					PageData comment_author = new PageData();
+					JSONObject comment_author = new JSONObject();
 					comment = commentList.get(i);
 					comment_author.put("id", comment.getString("user_id"));
 					comment_author.put("avatar", comment.getString("avatar"));
 					comment_author.put("name", comment.getString("name"));
 					comment_author.put("nickname", comment.getString("nickname"));
 					comment_author.put("unit", comment.getString("unit"));
-					comment.put("author", JSONObject.fromObject(comment_author));
+					comment.put("author", comment_author);
 					comment.remove("user_id");
 					comment.remove("avatar");
 					comment.remove("name");
@@ -174,7 +174,7 @@ public class IssueController extends BaseController {
 			code = 500;
 			message = "error";
 		}
-		content.put("author", JSONObject.fromObject(author));
+		content.put("author", author);
 		content.put("praiseNum", content.get("answers_praiseNum"));
 		content.remove("answers_praiseNum");
 		content.put("comment", JSONArray.fromObject(commentList2));

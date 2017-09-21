@@ -66,7 +66,9 @@
 	  		<if test="praise_num!=null">praise_num,</if>
 	  		<if test="comment_type!=null">comment_type,</if>
 	  		<if test="publish_type!=null">publish_type,</if>
-	  		<if test="publish_time!=null">publish_time</if>
+	  		<if test="publish_time!=null">publish_time,</if>
+	  		<if test="is_del!=null">is_del,</if>
+	  		<if test="is_publish!=null">is_publish</if>
 	  	</trim>
 	  	<trim prefix="values(" suffix=")" suffixOverrides=",">
 	  		<if test="comment_id!=null">#{comment_id},</if>
@@ -79,8 +81,8 @@
 	  		<if test="praise_num!=null">#{praise_num},</if>
 	  		<if test="comment_type!=null">#{comment_type},</if>
 	  		<if test="publish_type!=null">#{publish_type},</if>
-	  		<if test="publish_time!=null">#{publish_time}</if>
-	  		<if test="is_del!=null">#{is_del}</if>
+	  		<if test="publish_time!=null">#{publish_time},</if>
+	  		<if test="is_del!=null">#{is_del},</if>
 	  		<if test="is_publish!=null">#{is_publish}</if>
 	  	</trim>
 	  </insert>

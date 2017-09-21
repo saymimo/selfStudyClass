@@ -117,7 +117,7 @@ public class CommentController extends BaseController {
 		pd.put("create_by", pd.getString("authorId"));
 		pd.put("create_time", date);
 		pd.put("comment_type", (Integer)pd.get("type"));
-		pd.put("publish_type", pd.getString("publishType"));
+		pd.put("publish_type", pd.get("publishType"));
 		pd.put("publish_time", date);
 		pd.put("is_publish", 1);
 		try {

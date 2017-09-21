@@ -45,14 +45,8 @@
 ---------------
 
 ## 接口补充
-### *2017-09-18* 更新:
-之前有些接口不是很完整，比如新建文章为`/api/v1/content/article`,发布文章为`/api/v1/content/article/publish`,现在重新整理如下：
-> 
-- **新建文章:**`/api/v1/article/add`
-- **删除文章:** `/api/v1/article/delete`
-- **发布文章:** `..../publish`
-
-推荐其他业务类似以上结构。
+### *2017-09-21* 更新:
+√为本地测试通过的接口。
 
 ### 后台已经写好的接口：
 ##### 用户：
@@ -65,8 +59,8 @@
 
 ##### 内容
 > 
-- **批量查询内容**`/api/v1/content/contentList`
-- **查询某内容**`/api/v1/content/findContent`
+- **批量查询内容**`/api/v1/content/contentList`√
+- **查询某内容**`/api/v1/content/findContent`√
 
 -----------
 
@@ -92,16 +86,16 @@
 ##### 问答
 > 
 - **新增问题**`/api/v1/issue/add`√
-- **更新问题**`/api/v1/issue/update`
-- **删除问题**`/api/v1/issue/delete`
+- **更新问题**`/api/v1/issue/update`√
+- **删除问题**`/api/v1/issue/delete`√
 
 -----
 
 ##### 2级评论操作
 > 
-- **查询某评论**`/api/v1/comment/findComment`
-- **发表**`/api/v1/comment/publish`
-- **更新**`/api/v1/comment/update`
-- **删除**`/api/v1/comment/delete`
+- **查询某评论**`/api/v1/comment/findComment`√
+- **发表**`/api/v1/comment/publish`√
+- **更新**`/api/v1/comment/update`√
+- **删除**`/api/v1/comment/delete`√
 
 ----

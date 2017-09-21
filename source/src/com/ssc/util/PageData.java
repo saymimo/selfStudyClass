@@ -50,7 +50,7 @@ public class PageData extends HashMap implements Map{
 	  Iterator iterator = json.keys();
 	  while (iterator.hasNext()) {
 		  String key = String.valueOf(iterator.next());  
-          String value = (String) json.get(key);  
+          Object value =  json.get(key);  
           returnMap.put(key, value); 
 		
 	}
