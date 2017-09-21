@@ -35,8 +35,7 @@ public class UserController
   private UserService userService;
   
   @RequestMapping({"/test"})
-  public ModelAndView test()
-  {
+  public ModelAndView test(){
     ModelAndView mv = getModelAndView();
     mv.setViewName("test");
     return mv;
@@ -49,13 +48,14 @@ public class UserController
    */
   @RequestMapping(value="/verificationCode",method=RequestMethod.GET)
   @ResponseBody
-  public Object verificationCode(@RequestBody String ub){
+  public Object verificationCode(){
     PageData pd = new PageData();
+    pd = getPageData();
     PageData userPd = new PageData();
-    JSONObject uJson = JSONObject.fromObject(ub);
+    //JSONObject uJson = JSONObject.fromObject(ub);
     String message = "ok";
     String code = "200";
-    String phone = uJson.getString("mobile");
+    String phone = pd.getString("mobile");
     pd.put("phone", phone);
     try{
       userPd = userService.findByUPhone(pd);
@@ -138,13 +138,17 @@ public class UserController
       userPd = userService.findByUPhone(pd);
       if (userPd.getString("verification_code").equals(pd.getString("verificationCode"))){//验证通过
         message = "ok";
-        if ((Integer)userPd.get("state")==0){//状态为未激活
+        userPd.put("isNew", false);//默认是已注册的老用户
+        if ((Integer)userPd.get("state")==0){//状态为未激活,则注册
           pd.put("state", 1);
           pd.put("join_time", date);
           pd.put("user_id", userPd.getString("id"));
           userService.updateUserByUid(pd);
           userPd = userService.findByUPhone(pd);
+          userPd.put("isNew", true);
         }
+        userPd.remove("verification_code,");
+        userPd.remove("state,");
       }
       
     }catch (Exception e){
