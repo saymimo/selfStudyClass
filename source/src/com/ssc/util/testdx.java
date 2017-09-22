@@ -10,7 +10,6 @@ import net.sf.json.JSONObject;
 public class testdx
 {
   public static void main(String[] args) {
-	  Date date = new Date();
-	  System.out.println(date.getTime());
+	  int a = 0;
   }
 }

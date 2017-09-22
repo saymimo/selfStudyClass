@@ -3,12 +3,8 @@ package com.ssc.controller.system.user;
 import com.ssc.controller.base.BaseController;
 import com.ssc.service.system.user.UserService;
 import com.ssc.util.HttpUtils;
-import com.ssc.util.Logger;
 import com.ssc.util.PageData;
-import com.sun.star.util.DateTime;
 
-import java.io.PrintStream;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,9 +12,6 @@ import javax.annotation.Resource;
 import net.sf.json.JSONObject;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.session.Session;
-import org.apache.shiro.subject.Subject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,9 +21,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping({"/api/v1/member"})
-public class UserController
-  extends BaseController
-{
+public class UserController extends BaseController{
   @Resource(name="userService")
   private UserService userService;
   
@@ -52,9 +43,8 @@ public class UserController
     PageData pd = new PageData();
     pd = getPageData();
     PageData userPd = new PageData();
-    //JSONObject uJson = JSONObject.fromObject(ub);
     String message = "ok";
-    String code = "200";
+    int code = 200;
     String phone = pd.getString("mobile");
     pd.put("phone", phone);
     try{
@@ -62,7 +52,7 @@ public class UserController
     }catch (Exception e1){
       logger.error(e1.toString(), e1);
       message = "userService.findByUPhone(pd) ERROR!";
-      code = "500";
+      code = 500;
     }
     String verCode = getRandomCode();
     String host = "http://sms.market.alicloudapi.com";
@@ -85,7 +75,7 @@ public class UserController
     }catch (Exception e){
       logger.error(e.toString(), e);
       message = "ERROR:When Send Msg To User";
-      code = "500";
+      code = 500;
     }
     String user_id = get32UUID();
     pd.put("verification_code", verCode);
@@ -96,7 +86,7 @@ public class UserController
       }catch (Exception e){
         logger.error(e.toString(), e);
         message = "ERROR:When Update UserVerCode";
-        code = "500";
+        code = 500;
       }
     }else{
       pd.put("user_id", user_id);
@@ -106,7 +96,7 @@ public class UserController
       }catch (Exception e){
         this.logger.error(e.toString(), e);
         message = "ERROR:When Save User";
-        code = "500";
+        code = 500;
       }
     }
     JSONObject data = new JSONObject();
@@ -136,10 +126,11 @@ public class UserController
     PageData userPd = new PageData();
     try{
       userPd = userService.findByUPhone(pd);
+      userPd.put("isNew", (Integer)userPd.get("state")==0?true:false);//默认是已注册的老用户
       if (userPd.getString("verification_code").equals(pd.getString("verificationCode"))){//验证通过
         message = "验证通过";
-        userPd.put("isNew", false);//默认是已注册的老用户
-        if ((Integer)userPd.get("state")==0){//状态为未激活,则注册
+       
+        if ((Integer)userPd.get("state")==0){//注册
           pd.put("state", 1);
           pd.put("join_time", date);
           pd.put("user_id", userPd.getString("id"));
@@ -147,11 +138,8 @@ public class UserController
           userPd = userService.findByUPhone(pd);
           userPd.put("isNew", true);
         }
-        userPd.remove("verification_code,");
-        userPd.remove("state,");
-        userPd.put("joinTime", Integer.valueOf(userPd.get("joinTime").toString()));
-        userPd.put("updateTime", Integer.valueOf(userPd.get("updateTime").toString()));
-        data = JSONObject.fromObject(userPd);
+        userPd.remove("verification_code");
+        userPd.remove("state");
       }
       
     }catch (Exception e){
@@ -159,6 +147,7 @@ public class UserController
       message = "ERROR:When Check VERIFICATION_CODE";
       code = 500;
     }
+    data = JSONObject.fromObject(userPd);
     respJson.put("code", code);
     respJson.put("message", message);
     respJson.put("data", data);
@@ -186,18 +175,19 @@ public class UserController
 	  pd.put("email", reqJson.getString("email"));
 	  pd.put("update_time", date);
 	  try {
-		userService.updateUserByUid(pd);
+		  userService.updateUserByUid(pd);
+		  pd.remove("user_id");pd.remove("update_time");
+		  pd.put("id", reqJson.getString("id"));
+		  pd.put("updateTime",date.getTime());
+		  respJson.put("data", JSONObject.fromObject(pd));
 	  } catch (Exception e) {
 		 logger.error(e.toString(), e);
 	     message = "ERROR:When updateUser";
 	     code = 500;
 	  }
-	  pd.remove("user_id");pd.remove("update_time");
-	  pd.put("id", reqJson.getString("id"));
-	  pd.put("updateTime", date.getTime());
+	
 	  respJson.put("code", code);
 	  respJson.put("message", message);
-	  respJson.put("data", JSONObject.fromObject(pd));
 	  return respJson;
   }
   

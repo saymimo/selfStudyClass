@@ -5,16 +5,13 @@ import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ssc.controller.base.BaseController;
-import com.ssc.service.system.anthology.AnthologyService;
 import com.ssc.service.system.comment.CommentService;
 import com.ssc.service.system.content.ContentService;
-import com.ssc.service.system.user.UserService;
 import com.ssc.util.PageData;
 
 @Controller
@@ -26,11 +23,6 @@ public class ContentController extends BaseController {
 	@Resource(name="commentService")
 	private CommentService commentService;
 	
-	@Resource(name="userService")
-	private UserService userService;
-	
-	@Resource(name="anthologyService")
-	private AnthologyService anthologyService;
 	
 	/**
 	 * 根据日期批量查询内容
@@ -66,19 +58,17 @@ public class ContentController extends BaseController {
 				for (int i = 0; i < num; i++) {
 					PageData content = new PageData();
 					content = contentList.get(i);
-					content.put("createTime", Integer.valueOf(content.get("createTime").toString()));
-					content.put("updateTime", Integer.valueOf(content.get("updateTime").toString()));
 					//===============作者======================
 					JSONObject author = new JSONObject();
 					if ((Integer)content.get("publishType")==1) {//真名发布
 						author.put("id", content.getString("user_id"));
-						author.put("avator", content.getString("avator"));
+						author.put("avatar", content.getString("avatar"));
 						author.put("name", content.getString("name"));
 						author.put("unit", content.getString("unit"));
 					}
 					if ((Integer)content.get("publishType")==2) {//昵称
 						author.put("id", content.getString("user_id"));
-						author.put("avator", content.getString("avator"));
+						author.put("avatar", content.getString("avatar"));
 						author.put("nickname", content.getString("nickname"));
 					}
 					if ((Integer)content.get("publishType")==3) {//匿名
@@ -87,23 +77,25 @@ public class ContentController extends BaseController {
 					content.put("author",author);
 					//===============作者======================
 					
-					//===============文集======================
+					//===============文章======================
 					JSONObject anthology = new JSONObject();
 					if ((Integer)content.get("type")==1) {//若文章，放入文集，去掉关注数
 						anthology.put("id", content.getString("anthology_id"));
 						anthology.put("title", content.getString("anthologyTitle"));
 						content.put("anthology", anthology);
 						content.remove("attentionNum");
+						content.remove("answerNum");
 					}
-					//===============文集======================
+					//===============文章======================
 					
-					if ((Integer)content.get("type")==2) {//若问题，去掉收藏数和赞数
+					if ((Integer)content.get("type")==2) {//若问题，去掉收藏数和阅读数
 						content.remove("collectNum");
-						content.remove("praiseNum");
+						content.remove("readNum");
+						content.put("praiseNum", content.get("answers_praiseNum"));//这里的赞数是指该问题下所有回答赞数的总和
 					}
-					
+					content.remove("answers_praiseNum");
 					content.remove("user_id");
-					content.remove("avator");
+					content.remove("avatar");
 					content.remove("name");
 					content.remove("nickname");
 					content.remove("unit");
@@ -147,13 +139,13 @@ public class ContentController extends BaseController {
 			content = contentService.findContent(pd);
 			if ((Integer)content.get("publishType")==1) {//真名发布
 				author.put("id", content.getString("user_id"));
-				author.put("avator", content.getString("avator"));
+				author.put("avatar", content.getString("avatar"));
 				author.put("name", content.getString("name"));
 				author.put("unit", content.getString("unit"));
 			}
 			if ((Integer)content.get("publishType")==2) {//昵称
 				author.put("id", content.getString("user_id"));
-				author.put("avator", content.getString("avator"));
+				author.put("avatar", content.getString("avatar"));
 				author.put("nickname", content.getString("nickname"));
 			}
 			if ((Integer)content.get("publishType")==3) {//匿名
@@ -166,18 +158,18 @@ public class ContentController extends BaseController {
 				anthology.put("title", content.getString("anthologyTitle"));
 				content.put("anthology", anthology);
 				content.remove("attentionNum");
-				content.remove("answers_praiseNum");
 				content.remove("answerNum");
 			}
 			//===============文章======================
 			
 			//===============问题======================
-			if ((Integer)content.get("type")==2) {//若问题，去掉收藏数
+			if ((Integer)content.get("type")==2) {//若问题，去掉收藏数,阅读数
 				content.remove("collectNum");
+				content.remove("readNum");
 				content.put("praiseNum", content.get("answers_praiseNum"));//这里的赞数是指该问题下所有回答赞数的总和
 			}
 			//===============问题======================
-
+			content.remove("answers_praiseNum");
 			commentList = commentService.findCommentList(pd);//评论或者回答
 			if (commentList!=null&&!commentList.isEmpty()) {
 				for (int i = 0; i < commentList.size(); i++) {
@@ -211,7 +203,7 @@ public class ContentController extends BaseController {
 			//是否发布 1已发布
 			content.put("isPublish", (Integer)content.get("is_publish")==1?true:false);
 			content.remove("user_id");
-			content.remove("avator");
+			content.remove("avatar");
 			content.remove("name");
 			content.remove("nickname");
 			content.remove("unit");

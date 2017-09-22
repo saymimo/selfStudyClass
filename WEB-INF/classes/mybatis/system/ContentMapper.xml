@@ -91,14 +91,17 @@
 			a.type,
 			an.anthology_id,
 			an.title 'anthologyTitle',
-			IFNULL(UNIX_TIMESTAMP(a.publish_time),'') 'createTime',
-			IFNULL(UNIX_TIMESTAMP(a.update_time),'') 'updateTime',
+			IFNULL(UNIX_TIMESTAMP(a.publish_time)*1000,0) 'createTime',
+			IFNULL(UNIX_TIMESTAMP(a.update_time)*1000,0) 'updateTime',
 			a.state 'status',
 			a.title,
 			a.content,
 			(select count(1) from user_action where obj_id = a.content_id and action_type=1) as attentionNum,
 			(select count(1) from user_action where obj_id = a.content_id and action_type=2) as collectNum,
-			(select count(1) from user_action where obj_id = a.content_id and action_type=3) as praiseNum
+			(select count(1) from user_action where obj_id = a.content_id and action_type=3) as praiseNum,
+			(select count(1) from user_action where obj_id = a.content_id and action_type=5) as readNum,
+			(SELECT COUNT(1) FROM user_action WHERE `obj_parentid`=a.content_id AND action_type=3) 'answers_praiseNum',
+			(SELECT COUNT(1) FROM sys_comment WHERE parent_id = a.content_id AND comment_type=2) 'answerNum'
 			from sys_content a left join sys_user u
 			on a.create_by = u.user_id
 			left join  sys_anthology an
@@ -130,15 +133,16 @@
 			a.type,
 			an.anthology_id,
 			an.title 'anthologyTitle',
-			IFNULL(UNIX_TIMESTAMP(a.create_time),'') 'createTime',
-			IFNULL(UNIX_TIMESTAMP(a.update_time),'') 'updateTime',
+			IFNULL(UNIX_TIMESTAMP(a.create_time)*1000,0) 'createTime',
+			IFNULL(UNIX_TIMESTAMP(a.update_time)*1000,0) 'updateTime',
 			a.state 'status',
 			a.title,
 			a.content,
 			(select count(1) from user_action where obj_id = a.content_id and action_type=1) as 'attentionNum',
 			(select count(1) from user_action where obj_id = a.content_id and action_type=2) as 'collectNum',
 			(select count(1) from user_action where obj_id = a.content_id and action_type=3) as 'praiseNum',
-			(SELECT COUNT(1) FROM user_action a WHERE `obj_parentid`=a.content_id AND action_type=3) 'answers_praiseNum',
+			(select count(1) from user_action where obj_id = a.content_id and action_type=5) as 'readNum',
+			(SELECT COUNT(1) FROM user_action WHERE `obj_parentid`=a.content_id AND action_type=3) 'answers_praiseNum',
 			(SELECT COUNT(1) FROM sys_comment WHERE parent_id = a.content_id AND comment_type=2) 'answerNum'
 			from sys_content a left join sys_user u
 			on a.create_by = u.user_id

@@ -106,8 +106,6 @@ public class IssueController extends BaseController {
 		content.put("author", author);
 		content.put("publishType", (Integer)pd.get("publishType"));
 		content.put("praiseNum", content.get("answers_praiseNum"));
-		content.put("createTime",Integer.valueOf(content.get("createTime").toString()));
-		content.put("updateTime",Integer.valueOf(content.get("updateTime").toString()));
 		content.remove("answers_praiseNum");
 		content.put("comment", JSONArray.fromObject(commentList2));
 		respJson.put("code", code);
@@ -182,6 +180,7 @@ public class IssueController extends BaseController {
 		content.put("praiseNum", content.get("answers_praiseNum"));
 		content.remove("answers_praiseNum");
 		content.put("comment", JSONArray.fromObject(commentList2));
+		
 		respJson.put("code", code);
 		respJson.put("message", message);
 		respJson.put("data", JSONObject.fromObject(content));

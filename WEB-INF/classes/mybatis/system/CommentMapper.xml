@@ -24,7 +24,7 @@
 			u.name,
 			u.nickname,
 			u.unit,			
-			IFNULL(UNIX_TIMESTAMP(c.publish_time),'') 'createTime',
+			IFNULL(UNIX_TIMESTAMP(c.publish_time)*1000,0) 'createTime',
 			(select count(1) from user_action where obj_id = c.comment_id and action_type=3) as praiseNum,
 			(SELECT COUNT(1) FROM sys_comment WHERE parent_id = c.comment_id AND comment_type=3) as discussNum
 			from sys_comment c 
@@ -44,7 +44,7 @@
 			u.name,
 			u.nickname,
 			u.unit,			
-			IFNULL(UNIX_TIMESTAMP(c.publish_time),'') 'createTime',
+			IFNULL(UNIX_TIMESTAMP(c.publish_time)*1000,0) 'createTime',
 			(select count(1) from user_action where obj_id = c.comment_id and action_type=3) as praiseNum,
 			(SELECT COUNT(1) FROM sys_comment WHERE parent_id = c.comment_id AND comment_type=3) as discussNum
 			from sys_comment c 

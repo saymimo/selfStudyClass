@@ -64,8 +64,8 @@ public class ArticleController extends BaseController{
     data.put("isPublish", false);
     data.put("publishType", 0);//还没发布，没有发布类型
     data.put("type", 1);
-    data.put("createTime", date.getTime()/1000);
-    data.put("updateTime", "");
+    data.put("createTime", Integer.parseInt(String.valueOf(date.getTime())));
+    data.put("updateTime", 0);
     data.put("status", 1);
     data.put("title", pd.getString("title"));
     data.put("content", pd.getString("content"));
@@ -111,7 +111,7 @@ public class ArticleController extends BaseController{
 		message = "contentService update error";
       }
       author.put("id", article.getString("user_id"));
-      author.put("avator", article.getString("avator"));
+      author.put("avatar", article.getString("avatar"));
       author.put("name", article.getString("name"));
       author.put("nickname", article.getString("nickname"));
       author.put("unit", article.getString("unit"));
@@ -123,8 +123,8 @@ public class ArticleController extends BaseController{
 	  data.put("isPublish", true);
 	  data.put("publishType", (Integer)pd.get("publishType"));
 	  data.put("type",1);
-	  data.put("createTime",date.getTime()/100);
-	  data.put("updateTime",article.getString("updateTime"));
+	  data.put("createTime",date.getTime());
+	  data.put("updateTime",article.get("updateTime"));
 	  data.put("status",1);
 	  data.put("title",article.getString("title"));
 	  data.put("content",article.getString("content"));
@@ -167,7 +167,7 @@ public class ArticleController extends BaseController{
 		message = "update error";
       }
       author.put("id", article.getString("user_id"));
-      author.put("avator", article.getString("avator"));
+      author.put("avatar", article.getString("avatar"));
       author.put("name", article.getString("name"));
       author.put("nickname", article.getString("nickname"));
       author.put("unit", article.getString("unit"));

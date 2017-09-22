@@ -57,12 +57,12 @@ public class CommentController extends BaseController {
 					JSONObject discuss_author = new JSONObject();
 					discuss = discussList.get(i);
 					discuss_author.put("id", discuss.getString("user_id"));
-					discuss_author.put("avator", discuss.getString("avator"));
+					discuss_author.put("avatar", discuss.getString("avatar"));
 					discuss_author.put("name", discuss.getString("name"));
 					discuss_author.put("nickname", discuss.getString("nickname"));
 					discuss_author.put("unit", discuss.getString("unit"));
 					discuss.remove("user_id");
-					discuss.remove("avator");
+					discuss.remove("avatar");
 					discuss.remove("name");
 					discuss.remove("nickname");
 					discuss.remove("unit");
@@ -72,14 +72,14 @@ public class CommentController extends BaseController {
 				}
 			}
 			author.put("id", comment.getString("user_id"));
-			author.put("avator", comment.getString("avator"));
+			author.put("avatar", comment.getString("avatar"));
 			author.put("name", comment.getString("name"));
 			author.put("nickname", comment.getString("nickname"));
 			author.put("unit", comment.getString("unit"));
 			comment.put("author", author);
 			comment.put("discuss", JSONArray.fromObject(discussList2));
 			comment.remove("user_id");
-			comment.remove("avator");
+			comment.remove("avatar");
 			comment.remove("name");
 			comment.remove("nickname");
 			comment.remove("unit");
@@ -165,13 +165,13 @@ public class CommentController extends BaseController {
 			commentService.updateByid(pd);
 			comment = commentService.findComment(pd);
 			author.put("id", comment.getString("user_id"));
-			author.put("avator", comment.getString("avator"));
+			author.put("avatar", comment.getString("avatar"));
 			author.put("name", comment.getString("name"));
 			author.put("nickname", comment.getString("nickname"));
 			author.put("unit", comment.getString("unit"));
 			comment.put("author", author);
 			comment.remove("user_id");
-			comment.remove("avator");
+			comment.remove("avatar");
 			comment.remove("name");
 			comment.remove("nickname");
 			comment.remove("unit");
