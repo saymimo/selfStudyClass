@@ -130,14 +130,14 @@ public class UserController
 	JSONObject respJson = new JSONObject();
     PageData pd = new PageData();
     pd = getPdFromJson(req);
-    String message = "err";
+    String message = "验证不通过";
     Date date = new Date();
-    String code = "200";
+    int code = 200;
     PageData userPd = new PageData();
     try{
       userPd = userService.findByUPhone(pd);
       if (userPd.getString("verification_code").equals(pd.getString("verificationCode"))){//验证通过
-        message = "ok";
+        message = "验证通过";
         userPd.put("isNew", false);//默认是已注册的老用户
         if ((Integer)userPd.get("state")==0){//状态为未激活,则注册
           pd.put("state", 1);
@@ -149,14 +149,16 @@ public class UserController
         }
         userPd.remove("verification_code,");
         userPd.remove("state,");
+        userPd.put("joinTime", Integer.valueOf(userPd.get("joinTime").toString()));
+        userPd.put("updateTime", Integer.valueOf(userPd.get("updateTime").toString()));
+        data = JSONObject.fromObject(userPd);
       }
       
     }catch (Exception e){
       this.logger.error(e.toString(), e);
       message = "ERROR:When Check VERIFICATION_CODE";
-      code = "500";
+      code = 500;
     }
-    data = JSONObject.fromObject(userPd);
     respJson.put("code", code);
     respJson.put("message", message);
     respJson.put("data", data);
@@ -192,7 +194,7 @@ public class UserController
 	  }
 	  pd.remove("user_id");pd.remove("update_time");
 	  pd.put("id", reqJson.getString("id"));
-	  pd.put("updateTime", date.getTime()/1000);
+	  pd.put("updateTime", date.getTime());
 	  respJson.put("code", code);
 	  respJson.put("message", message);
 	  respJson.put("data", JSONObject.fromObject(pd));

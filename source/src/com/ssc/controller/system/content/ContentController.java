@@ -66,6 +66,8 @@ public class ContentController extends BaseController {
 				for (int i = 0; i < num; i++) {
 					PageData content = new PageData();
 					content = contentList.get(i);
+					content.put("createTime", Integer.valueOf(content.get("createTime").toString()));
+					content.put("updateTime", Integer.valueOf(content.get("updateTime").toString()));
 					//===============作者======================
 					JSONObject author = new JSONObject();
 					if ((Integer)content.get("publishType")==1) {//真名发布

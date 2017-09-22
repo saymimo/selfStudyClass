@@ -54,6 +54,8 @@ public class IssueController extends BaseController {
 		pd.put("parent_id", "");//板块ID 待定
 		pd.put("create_by", pd.getString("authorId"));
 		pd.put("create_time", date);
+		pd.put("publish_time", date);
+		pd.put("is_publish", 1);
 		pd.put("type", 2);
 		try {
 			contentService.saveContent(pd);
@@ -102,8 +104,10 @@ public class IssueController extends BaseController {
 			message = "error";
 		}
 		content.put("author", author);
-		content.put("publishType", 0);
+		content.put("publishType", (Integer)pd.get("publishType"));
 		content.put("praiseNum", content.get("answers_praiseNum"));
+		content.put("createTime",Integer.valueOf(content.get("createTime").toString()));
+		content.put("updateTime",Integer.valueOf(content.get("updateTime").toString()));
 		content.remove("answers_praiseNum");
 		content.put("comment", JSONArray.fromObject(commentList2));
 		respJson.put("code", code);

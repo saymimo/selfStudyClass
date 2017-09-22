@@ -8,10 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import com.ssc.controller.base.BaseController;
 import com.ssc.util.GetIpUtil;
-import com.ssc.util.PageData;
 
 @Controller
 @RequestMapping(value="/api/v1")

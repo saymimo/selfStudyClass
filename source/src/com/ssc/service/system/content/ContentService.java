@@ -1,7 +1,6 @@
 package com.ssc.service.system.content;
 
 import java.util.List;
-
 import com.ssc.dao.DaoSupport;
 import com.ssc.util.PageData;
 import javax.annotation.Resource;
