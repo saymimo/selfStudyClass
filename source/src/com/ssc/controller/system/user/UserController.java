@@ -141,6 +141,7 @@ public class UserController extends BaseController{
         userPd.remove("verification_code");
         userPd.remove("state");
         data = JSONObject.fromObject(userPd);
+        respJson.put("data", data);
       }
       
     }catch (Exception e){
@@ -150,7 +151,6 @@ public class UserController extends BaseController{
     }
     respJson.put("code", code);
     respJson.put("message", message);
-    respJson.put("data", data);
     return respJson;
   }
   /**
