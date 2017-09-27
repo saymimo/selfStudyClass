@@ -97,20 +97,19 @@ public class IssueController extends BaseController {
 			content.remove("anthologyTitle");
 			content.remove("collectNum");
 			
-			
+			content.put("author", author);
+			content.put("publishType", (Integer)pd.get("publishType"));
+			content.put("praiseNum", content.get("answers_praiseNum"));
+			content.remove("answers_praiseNum");
+			content.put("comment", JSONArray.fromObject(commentList2));
+			respJson.put("data", JSONObject.fromObject(content));
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 			code = 500;
 			message = "error";
 		}
-		content.put("author", author);
-		content.put("publishType", (Integer)pd.get("publishType"));
-		content.put("praiseNum", content.get("answers_praiseNum"));
-		content.remove("answers_praiseNum");
-		content.put("comment", JSONArray.fromObject(commentList2));
 		respJson.put("code", code);
 		respJson.put("message", message);
-		respJson.put("data", JSONObject.fromObject(content));
 		return respJson;
 	}
 	/**
@@ -171,19 +170,20 @@ public class IssueController extends BaseController {
 			content.remove("anthology_id");
 			content.remove("anthologyTitle");
 			content.remove("collectNum");
+			content.put("author", author);
+			content.put("praiseNum", content.get("answers_praiseNum"));
+			content.remove("answers_praiseNum");
+			content.put("comment", JSONArray.fromObject(commentList2));
+			
+			respJson.put("data", JSONObject.fromObject(content));
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 			code = 500;
 			message = "error";
 		}
-		content.put("author", author);
-		content.put("praiseNum", content.get("answers_praiseNum"));
-		content.remove("answers_praiseNum");
-		content.put("comment", JSONArray.fromObject(commentList2));
 		
 		respJson.put("code", code);
 		respJson.put("message", message);
-		respJson.put("data", JSONObject.fromObject(content));
 		return respJson;
 	}
 	/**

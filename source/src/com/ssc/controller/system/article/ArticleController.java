@@ -55,28 +55,29 @@ public class ArticleController extends BaseController{
     	pd.put("user_id", pd.getString("authorId"));
     	author = userService.findUserByUid(pd);
     	anthology = anthologyService.findAnthologyById(pd);
+    	
+    	data.put("id", content_id);
+        data.put("isPublish", false);
+        data.put("publishType", 0);//还没发布，没有发布类型
+        data.put("type", 1);
+        data.put("createTime", Integer.parseInt(String.valueOf(date.getTime())));
+        data.put("updateTime", 0);
+        data.put("status", 1);
+        data.put("title", pd.getString("title"));
+        data.put("content", pd.getString("content"));
+        data.put("collectNum", 0);
+        data.put("praiseNum", 0);
+        data.put("anthology", JSONObject.fromObject(anthology));
+        data.put("author", JSONObject.fromObject(author));
+        respJson.put("data", data);
     }catch (Exception e){
       logger.error(e.toString(), e);
       code = 500;
       message = "saveArticle error!";
     }
-    data.put("id", content_id);
-    data.put("isPublish", false);
-    data.put("publishType", 0);//还没发布，没有发布类型
-    data.put("type", 1);
-    data.put("createTime", Integer.parseInt(String.valueOf(date.getTime())));
-    data.put("updateTime", 0);
-    data.put("status", 1);
-    data.put("title", pd.getString("title"));
-    data.put("content", pd.getString("content"));
-    data.put("collectNum", 0);
-    data.put("praiseNum", 0);
-    data.put("anthology", JSONObject.fromObject(anthology));
-    data.put("author", JSONObject.fromObject(author));
     
     respJson.put("code", Integer.valueOf(code));
     respJson.put("message", message);
-    respJson.put("data", data);
     return respJson;
   }
   /**
@@ -105,37 +106,38 @@ public class ArticleController extends BaseController{
       try {
     	  contentService.updateByid(pd);
     	  article = contentService.findContent(pd);
+    	  
+    	  author.put("id", article.getString("user_id"));
+          author.put("avatar", article.getString("avatar"));
+          author.put("name", article.getString("name"));
+          author.put("nickname", article.getString("nickname"));
+          author.put("unit", article.getString("unit"));
+          
+          anthology.put("id", article.getString("anthology_id"));
+          anthology.put("title", article.getString("anthologyTitle"));
+          
+    	  data.put("id", pd.getString("id"));
+    	  data.put("isPublish", true);
+    	  data.put("publishType", (Integer)pd.get("publishType"));
+    	  data.put("type",1);
+    	  data.put("createTime",date.getTime());
+    	  data.put("updateTime",article.get("updateTime"));
+    	  data.put("status",1);
+    	  data.put("title",article.getString("title"));
+    	  data.put("content",article.getString("content"));
+    	  data.put("collectNum",0);
+    	  data.put("praiseNum",0);
+    	  data.put("author", author);
+    	  data.put("anthology", anthology);
+    	  respJson.put("data", data);
       } catch (Exception e) {
 		logger.error(e.toString(), e);
 		code = 500;
 		message = "contentService update error";
       }
-      author.put("id", article.getString("user_id"));
-      author.put("avatar", article.getString("avatar"));
-      author.put("name", article.getString("name"));
-      author.put("nickname", article.getString("nickname"));
-      author.put("unit", article.getString("unit"));
-      
-      anthology.put("id", article.getString("anthology_id"));
-      anthology.put("title", article.getString("anthologyTitle"));
-      
-	  data.put("id", pd.getString("id"));
-	  data.put("isPublish", true);
-	  data.put("publishType", (Integer)pd.get("publishType"));
-	  data.put("type",1);
-	  data.put("createTime",date.getTime());
-	  data.put("updateTime",article.get("updateTime"));
-	  data.put("status",1);
-	  data.put("title",article.getString("title"));
-	  data.put("content",article.getString("content"));
-	  data.put("collectNum",0);
-	  data.put("praiseNum",0);
-	  data.put("author", author);
-	  data.put("anthology", anthology);
 	  
 	  respJson.put("code", code);
 	  respJson.put("message", message);
-	  respJson.put("data", data);
 	  return respJson;
   }
   /**
@@ -161,37 +163,38 @@ public class ArticleController extends BaseController{
       try {
 		contentService.updateByid(pd);
 		article = contentService.findContent(pd);
+		
+		author.put("id", article.getString("user_id"));
+		author.put("avatar", article.getString("avatar"));
+		author.put("name", article.getString("name"));
+		author.put("nickname", article.getString("nickname"));
+		author.put("unit", article.getString("unit"));
+		
+		anthology.put("id", article.getString("anthology_id"));
+		anthology.put("title", article.getString("anthologyTitle"));
+		
+		data.put("id", pd.getString("id"));
+		data.put("isPublish", (Integer)article.get("is_publish")==1?true:false);
+		data.put("publishType", (Integer)article.get("publishType"));
+		data.put("type", (Integer)article.get("type"));
+		data.put("createTime",article.getString("createTime"));
+		data.put("updateTime",article.getString("updateTime"));
+		data.put("status",(Integer)article.get("status"));
+		data.put("title", article.getString("title"));
+		data.put("content",article.getString("content"));
+		data.put("collectNum",article.get("collectNum"));
+		data.put("praiseNum", article.get("praiseNum"));
+		data.put("author", author);
+		data.put("anthology", anthology);
+		respJson.put("data", data);
       } catch (Exception e) {
 		logger.error(e.toString(),e);
 		code = 500;
 		message = "update error";
       }
-      author.put("id", article.getString("user_id"));
-      author.put("avatar", article.getString("avatar"));
-      author.put("name", article.getString("name"));
-      author.put("nickname", article.getString("nickname"));
-      author.put("unit", article.getString("unit"));
-      
-      anthology.put("id", article.getString("anthology_id"));
-      anthology.put("title", article.getString("anthologyTitle"));
-      
-      data.put("id", pd.getString("id"));
-      data.put("isPublish", (Integer)article.get("is_publish")==1?true:false);
-      data.put("publishType", (Integer)article.get("publishType"));
-      data.put("type", (Integer)article.get("type"));
-      data.put("createTime",article.getString("createTime"));
-      data.put("updateTime",article.getString("updateTime"));
-      data.put("status",(Integer)article.get("status"));
-      data.put("title", article.getString("title"));
-      data.put("content",article.getString("content"));
-      data.put("collectNum",article.get("collectNum"));
-      data.put("praiseNum", article.get("praiseNum"));
-      data.put("author", author);
-      data.put("anthology", anthology);
       
       respJson.put("code", code);
       respJson.put("message", message);
-      respJson.put("data", data);
       return respJson;
   }
   

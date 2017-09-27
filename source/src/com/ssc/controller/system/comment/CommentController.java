@@ -83,6 +83,7 @@ public class CommentController extends BaseController {
 			comment.remove("name");
 			comment.remove("nickname");
 			comment.remove("unit");
+			respJson.put("data", JSONObject.fromObject(comment));
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 			code = 500;
@@ -91,7 +92,6 @@ public class CommentController extends BaseController {
 		
 		respJson.put("code", code);
 		respJson.put("message", message);
-		respJson.put("data", JSONObject.fromObject(comment));
 		return respJson;
 	}
 	/**
@@ -133,6 +133,7 @@ public class CommentController extends BaseController {
 			data.put("praiseNum", 0);
 			data.put("discussNum", 0);
 			data.put("publishType", (Integer)pd.get("publishType"));
+			respJson.put("data", data);
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 			code = 500;
@@ -141,7 +142,6 @@ public class CommentController extends BaseController {
 		
 		respJson.put("code", code);
 		respJson.put("message", message);
-		respJson.put("data", data);
 		return respJson;
 	}
 	/**
@@ -175,6 +175,7 @@ public class CommentController extends BaseController {
 			comment.remove("name");
 			comment.remove("nickname");
 			comment.remove("unit");
+			respJson.put("data", JSONObject.fromObject(comment));
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 			code = 500;
@@ -182,7 +183,6 @@ public class CommentController extends BaseController {
 		}
 		respJson.put("code", code);
 		respJson.put("message", message);
-		respJson.put("data", JSONObject.fromObject(comment));
 		return respJson;
 	}
 	/**

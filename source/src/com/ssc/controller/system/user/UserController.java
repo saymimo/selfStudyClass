@@ -122,14 +122,14 @@ public class UserController extends BaseController{
     pd = getPdFromJson(req);
     String message = "验证不通过";
     Date date = new Date();
-    int code = 200;
+    int code = 403;
     PageData userPd = new PageData();
     try{
       userPd = userService.findByUPhone(pd);
       userPd.put("isNew", (Integer)userPd.get("state")==0?true:false);//默认是已注册的老用户
       if (userPd.getString("verification_code").equals(pd.getString("verificationCode"))){//验证通过
         message = "验证通过";
-       
+        code = 200;
         if ((Integer)userPd.get("state")==0){//注册
           pd.put("state", 1);
           pd.put("join_time", date);
@@ -140,6 +140,7 @@ public class UserController extends BaseController{
         }
         userPd.remove("verification_code");
         userPd.remove("state");
+        data = JSONObject.fromObject(userPd);
       }
       
     }catch (Exception e){
@@ -147,7 +148,6 @@ public class UserController extends BaseController{
       message = "ERROR:When Check VERIFICATION_CODE";
       code = 500;
     }
-    data = JSONObject.fromObject(userPd);
     respJson.put("code", code);
     respJson.put("message", message);
     respJson.put("data", data);

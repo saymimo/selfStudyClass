@@ -44,8 +44,8 @@ public class AnthologyController extends BaseController {
 		List<PageData> anthologyList2 = new ArrayList<PageData>();
 		PageData pd = new PageData();
 		pd = getPageData();
-		String message = "ok";
-		int code = 200;
+		String message = "用户没有文集";
+		int code = 205;
 		pd.put("user_id", pd.getString("memberId"));
 		try {
 			anthologyList = anthologyService.findAnthologyListByUid(pd);
@@ -63,16 +63,19 @@ public class AnthologyController extends BaseController {
 					anthology.put("author", author);
 					anthologyList2.add(anthology);
 				}
+				code = 200;
+				message = "ok";
+				data.put("anthologies", JSONArray.fromObject(anthologyList2));
+				respJson.put("data", data);
 			}
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 			code = 500;
-			message = "error";
+			message = "程序异常";
 		}
-		data.put("anthologies", JSONArray.fromObject(anthologyList2));
+		
 		respJson.put("code", code);
 		respJson.put("message", message);
-		respJson.put("data", data);
 		return respJson;
 	}
 	/**
@@ -106,6 +109,8 @@ public class AnthologyController extends BaseController {
 			
 			anthology.put("author", author);
 			anthology.put("article", JSONArray.fromObject(articles));
+			
+			respJson.put("data", JSONObject.fromObject(anthology));
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 			code = 500;
@@ -113,7 +118,6 @@ public class AnthologyController extends BaseController {
 		}
 		respJson.put("code", code);
 		respJson.put("message", message);
-		respJson.put("data", JSONObject.fromObject(anthology));
 		return respJson;
 	}
 	/**
@@ -145,6 +149,7 @@ public class AnthologyController extends BaseController {
 			data.put("id", anthology_id);
 			data.put("title", pd.getString("title"));
 			data.put("author", JSONObject.fromObject(author));
+			respJson.put("data", data);
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 			code = 500;
@@ -152,7 +157,6 @@ public class AnthologyController extends BaseController {
 		}
 		respJson.put("code", code);
 		respJson.put("message", message);
-		respJson.put("data", data);
 		return respJson;
 	}
 	/**
@@ -182,6 +186,7 @@ public class AnthologyController extends BaseController {
 			data.put("id", pd.getString("id"));
 			data.put("title", pd.getString("title"));
 			data.put("author", JSONObject.fromObject(author));
+			respJson.put("data", data);
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 			code = 500;
@@ -189,7 +194,6 @@ public class AnthologyController extends BaseController {
 		}
 		respJson.put("code", code);
 		respJson.put("message", message);
-		respJson.put("data", data);
 		return respJson;
 	}
 	/**

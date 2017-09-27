@@ -39,8 +39,8 @@ public class ContentController extends BaseController {
 		JSONObject respJson = new JSONObject();
 		PageData pd = new PageData();
 		pd = getPageData();
-		int code = 200;
-		String message = "ok";
+		int code = 205;
+		String message = "没找到对应内容";
 		
 		int offset = (Integer)pd.get("offset")==null?0:(Integer)pd.get("offset");
 		int limit = (Integer)pd.get("limit")==null?10:(Integer)pd.get("limit");
@@ -54,6 +54,7 @@ public class ContentController extends BaseController {
 			data.put("currentPage",currentPage);
 			data.put("pageStartIndex",(currentPage-1)*limit);
 			data.put("pageEndIndex", currentPage*limit-1);
+			
 			if (contentList!=null&&!contentList.isEmpty()) {
 				for (int i = 0; i < num; i++) {
 					PageData content = new PageData();
@@ -103,7 +104,11 @@ public class ContentController extends BaseController {
 					content.remove("anthologyTitle");
 					contentList2.add(JSONObject.fromObject(content));
 				}
+				
 				data.put("content", JSONArray.fromObject(contentList2));
+				respJson.put("data", data);
+				code = 200;
+				message = "ok";
 			}
 		} catch (Exception e) {
 			logger.error(e.toString(),e);
@@ -112,7 +117,6 @@ public class ContentController extends BaseController {
 		}
 		respJson.put("code", code);
 		respJson.put("message", message);
-		respJson.put("data", data);
 		return respJson;
 	}
 	
@@ -210,6 +214,7 @@ public class ContentController extends BaseController {
 			content.remove("anthology_id");
 			content.remove("anthologyTitle");
 			content.remove("is_publish");
+			respJson.put("data", JSONObject.fromObject(content));
 		} catch (Exception e) {
 			logger.error(e.toString(), e);
 			code = 500;
@@ -217,7 +222,6 @@ public class ContentController extends BaseController {
 		}
 		respJson.put("code", code);
 		respJson.put("message", message);
-		respJson.put("data", JSONObject.fromObject(content));
 		return respJson;
 	}
 	
