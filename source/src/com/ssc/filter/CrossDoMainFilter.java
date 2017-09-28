@@ -24,7 +24,7 @@ public class CrossDoMainFilter
     HttpServletResponse response = (HttpServletResponse)res;
     res.setContentType("application/json; charset=utf-8");
     response.setHeader("Access-Control-Allow-Origin", "*");
-    response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+    response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE,PUT");
     response.setHeader("Access-Control-Max-Age", "0");
     response.setHeader("Access-Control-Allow-Headers", "Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With,userId,token");
     response.setHeader("Access-Control-Allow-Credentials", "true");
