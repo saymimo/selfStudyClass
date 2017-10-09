@@ -4,9 +4,14 @@ import com.ssc.controller.base.BaseController;
 import com.ssc.service.system.anthology.AnthologyService;
 import com.ssc.service.system.content.ContentService;
 import com.ssc.service.system.user.UserService;
+import com.ssc.service.system.userAction.UserActionService;
 import com.ssc.util.PageData;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import javax.annotation.Resource;
 import net.sf.json.JSONObject;
 import org.springframework.stereotype.Controller;
@@ -27,6 +32,7 @@ public class ArticleController extends BaseController{
 	
   @Resource(name="anthologyService")
   private AnthologyService anthologyService;
+  
   /**
    * 新建文章
    * 2017-9-11 zxk_senNy
@@ -100,6 +106,7 @@ public class ArticleController extends BaseController{
       String message = "ok";
       Date date = new Date();
       pd.put("content_id", pd.getString("id"));
+      pd.put("parent_id", "");//话题ID 待传
       pd.put("is_publish", 1);
       pd.put("publish_time", date);
       pd.put("publish_type", (Integer)pd.get("publishType"));
@@ -159,6 +166,7 @@ public class ArticleController extends BaseController{
       int code = 200;
       String message = "ok";
       pd.put("content_id", pd.getString("id"));
+      pd.put("anthology_id", pd.getString("anthologyId"));
       pd.put("update_time", date);
       try {
 		contentService.updateByid(pd);
@@ -197,9 +205,14 @@ public class ArticleController extends BaseController{
       respJson.put("message", message);
       return respJson;
   }
-  
-  @RequestMapping(value="/delete",method=RequestMethod.DELETE)
-  @ResponseBody
+	  /**
+	   * 删除文章
+	   * 2017-9-30 zxk_senNy
+	   * @param req
+	   * @return
+	   */
+  	@RequestMapping(value="/delete",method=RequestMethod.DELETE)
+  	@ResponseBody
 	public Object deleteArticle(@RequestBody String req){
 		JSONObject respJson = new JSONObject();
 		PageData pd = new PageData();
@@ -219,5 +232,7 @@ public class ArticleController extends BaseController{
 		respJson.put("message", message);
 		return respJson;
 	}
+  	
+  	
   
 }

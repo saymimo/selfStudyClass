@@ -1,7 +1,11 @@
 package com.ssc.controller.system.content;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.stereotype.Controller;
@@ -12,7 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ssc.controller.base.BaseController;
 import com.ssc.service.system.comment.CommentService;
 import com.ssc.service.system.content.ContentService;
+import com.ssc.service.system.userAction.UserActionService;
 import com.ssc.util.PageData;
+import com.sun.org.apache.bcel.internal.generic.NEW;
 
 @Controller
 @RequestMapping(value="/api/v1/content")
@@ -23,7 +29,9 @@ public class ContentController extends BaseController {
 	@Resource(name="commentService")
 	private CommentService commentService;
 	
-	
+
+	  @Resource(name="userActionService")
+	  private UserActionService userActionService;
 	/**
 	 * 根据日期批量查询内容
 	 * 2017-9-14 zxk_senNy
@@ -127,7 +135,7 @@ public class ContentController extends BaseController {
 	 */
 	@RequestMapping(value="/findContent",method=RequestMethod.GET)
 	@ResponseBody
-	public Object findContent(){
+	public Object findContent(HttpServletRequest request){
 		JSONObject respJson = new JSONObject();
 		JSONObject author = new JSONObject();
 		JSONObject anthology = new JSONObject();
@@ -139,6 +147,16 @@ public class ContentController extends BaseController {
 		String message = "ok";
 		int code = 200;
 		try {
+			//新增一条阅读记录
+			HttpSession session = request.getSession();
+			PageData user = (PageData)session.getAttribute("user");
+			pd.put("user_action_id", get32UUID());
+			pd.put("obj_id", pd.getString("contentId"));
+			pd.put("user_id", user.getString("user_id"));
+			pd.put("action_type", 5);
+			pd.put("creat_time",new Date());
+			userActionService.saveUserAction(pd);
+			
 			pd.put("content_id", pd.getString("contentId"));
 			content = contentService.findContent(pd);
 			if ((Integer)content.get("publishType")==1) {//真名发布

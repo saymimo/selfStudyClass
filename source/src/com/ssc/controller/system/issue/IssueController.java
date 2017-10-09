@@ -51,7 +51,7 @@ public class IssueController extends BaseController {
 		int code = 200;
 		
 		pd.put("content_id", content_id);
-		pd.put("parent_id", "");//板块ID 待定
+		pd.put("parent_id", "");//话题ID 待传
 		pd.put("create_by", pd.getString("authorId"));
 		pd.put("create_time", date);
 		pd.put("publish_time", date);

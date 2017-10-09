@@ -18,12 +18,13 @@
 	    	u.nickname
     	from sys_anthology a left join sys_user u
     	on a.create_by = u.user_id
-    	where anthology_id = #{anthology_id}
+    	where a.anthology_id = #{anthology_id}
     </select>
     <select id="findArticlesByAnthologyId" parameterType="pd" resultType="pd">
     	select 
 	    	c.content_id 'id',
-	    	c.title
+	    	c.title,
+	    	c.is_publish
     	from  sys_content c
     	where c.anthology_id = #{anthology_id}
     </select>
@@ -36,6 +37,7 @@
     	from sys_anthology a left join sys_user u
     	on a.create_by = u.user_id
     	where a.create_by = #{user_id}
+    	and a.is_del=0
     </select>
     
     

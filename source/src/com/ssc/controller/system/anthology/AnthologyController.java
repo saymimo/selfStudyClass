@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.apache.shiro.session.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,36 +45,52 @@ public class AnthologyController extends BaseController {
 		List<PageData> anthologyList2 = new ArrayList<PageData>();
 		PageData pd = new PageData();
 		pd = getPageData();
-		String message = "用户没有文集";
-		int code = 205;
 		pd.put("user_id", pd.getString("memberId"));
-		try {
-			anthologyList = anthologyService.findAnthologyListByUid(pd);
-			if (anthologyList!=null&&!anthologyList.isEmpty()) {
-				for (int i = 0; i < anthologyList.size(); i++) {
-					PageData anthology = new PageData();
-					JSONObject author = new JSONObject();
-					anthology = anthologyList.get(i);
-					author.put("id", anthology.getString("user_id"));
-					author.put("name", anthology.getString("name"));
-					author.put("nickname", anthology.getString("nickname"));
-					anthology.remove("user_id");
-					anthology.remove("name");
-					anthology.remove("nickname");
-					anthology.put("author", author);
-					anthologyList2.add(anthology);
-				}
-				code = 200;
-				message = "ok";
-				data.put("anthologies", JSONArray.fromObject(anthologyList2));
-				respJson.put("data", data);
-			}
-		} catch (Exception e) {
-			logger.error(e.toString(), e);
-			code = 500;
-			message = "程序异常";
-		}
+		String message = "token为空";
+		int code = 401;
 		
+		String token = pd.getString("token");//客户端发来的token
+		long time = 0;
+		if (token!=null) {//token存在，开始校验token是否过期
+			try {
+				message = "token已过期";//假设已过期  
+				pd.put("phone", token.split("-")[0]);
+				PageData user = userService.findUserByUPhone(pd);//根据token中的手机信息识别出用户
+				String userToken = user.getString("token");//用户的实际token
+				time = Long.valueOf(token.split("-")[1]);//获取时间戳
+				long now = new Date().getTime();
+				long hours = (now-time)/1000/3600;
+				
+				if (hours<(24*30)&&token.equals(userToken)) {//不超过30天且客户端和服务端token一致，未过期
+					//===================业务逻辑==================================
+					code = 205;message = "用户没有文集";
+					anthologyList = anthologyService.findAnthologyListByUid(pd);
+					if (anthologyList!=null&&!anthologyList.isEmpty()) {//文集存在
+						for (int i = 0; i < anthologyList.size(); i++) {
+							PageData anthology = new PageData();
+							JSONObject author = new JSONObject();
+							anthology = anthologyList.get(i);
+							author.put("id", anthology.getString("user_id"));
+							author.put("name", anthology.getString("name"));
+							author.put("nickname", anthology.getString("nickname"));
+							anthology.remove("user_id");
+							anthology.remove("name");
+							anthology.remove("nickname");
+							anthology.put("author", author);
+							anthologyList2.add(anthology);
+						}
+						code = 200;message = "ok";
+						data.put("anthologies", JSONArray.fromObject(anthologyList2));
+						respJson.put("data", data);
+					}
+					//===================业务逻辑==================================
+				}
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+				code = 500;
+				message = "程序异常";
+			}
+		  }
 		respJson.put("code", code);
 		respJson.put("message", message);
 		return respJson;
@@ -90,32 +107,62 @@ public class AnthologyController extends BaseController {
 		JSONObject respJson = new JSONObject();
 		PageData anthology = new PageData();
 		List<PageData> articles = new ArrayList<PageData>();
+		List<PageData> articles2 = new ArrayList<PageData>();
 		PageData author = new PageData();
 		PageData pd = new PageData();
 		pd = getPageData();
-		String message = "ok";
-		int code = 200;
 		pd.put("anthology_id", pd.getString("anthologyId"));
-		try {
-			anthology = anthologyService.findAnthologyAndAuthorById(pd);
-			articles = anthologyService.findArticlesByAnthologyId(pd);
-			
-			author.put("id", anthology.getString("create_by"));
-			author.put("name", anthology.getString("name"));
-			author.put("nickname", anthology.getString("nickname"));
-			anthology.remove("create_by");
-			anthology.remove("name");
-			anthology.remove("nickname");
-			
-			anthology.put("author", author);
-			anthology.put("article", JSONArray.fromObject(articles));
-			
-			respJson.put("data", JSONObject.fromObject(anthology));
-		} catch (Exception e) {
-			logger.error(e.toString(), e);
-			code = 500;
-			message = "error";
-		}
+		
+		
+		
+		String message = "token为空";
+		int code = 401;
+		String token = pd.getString("token");//客户端发来的token
+		long time = 0;
+		if (token!=null) {//token存在，开始校验token是否过期
+			try {
+				message = "token已过期";//假设已过期  
+				pd.put("phone", token.split("-")[0]);
+				PageData user = userService.findUserByUPhone(pd);//根据token中的手机信息识别出用户
+				String userToken = user.getString("token");//用户的实际token
+				time = Long.valueOf(token.split("-")[1]);//获取时间戳
+				long now = new Date().getTime();
+				long hours = (now-time)/1000/3600;
+				
+				if (hours<(24*30)&&token.equals(userToken)) {//不超过30天且客户端和服务端token一致，未过期
+					//===================业务逻辑==================================
+					anthology = anthologyService.findAnthologyAndAuthorById(pd);
+					articles = anthologyService.findArticlesByAnthologyId(pd);
+					
+					author.put("id", anthology.getString("create_by"));
+					author.put("name", anthology.getString("name"));
+					author.put("nickname", anthology.getString("nickname"));
+					anthology.remove("create_by");
+					anthology.remove("name");
+					anthology.remove("nickname");
+					
+					anthology.put("author", author);
+					if (articles!=null&&!articles.isEmpty()) {
+						for (int i = 0; i < articles.size(); i++) {
+							PageData article = new PageData();
+							article = articles.get(i);
+							article.put("isPublish", (Integer)article.get("is_publish")==1?true:false);
+							article.remove("is_publish");
+							articles2.add(article);
+						}
+					}
+					code = 200;message="ok";
+					anthology.put("article", JSONArray.fromObject(articles2));
+					respJson.put("data", JSONObject.fromObject(anthology));
+					//===================业务逻辑==================================
+				}
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+				code = 500;
+				message = "程序异常";
+			}
+		  }
+		
 		respJson.put("code", code);
 		respJson.put("message", message);
 		return respJson;
@@ -136,25 +183,44 @@ public class AnthologyController extends BaseController {
 		pd = getPdFromJson(req);
 		String anthology_id = get32UUID();
 		Date date = new Date();
-		String message = "ok";
-		int code = 200;
 		pd.put("anthology_id", anthology_id);
 		pd.put("create_by", pd.getString("authorId"));
 		pd.put("create_time", date);
 		pd.put("is_del", 0);
-		try {
-			anthologyService.saveAnthology(pd);
-			pd.put("user_id", pd.getString("authorId"));
-			author = userService.findUserByUid(pd);
-			data.put("id", anthology_id);
-			data.put("title", pd.getString("title"));
-			data.put("author", JSONObject.fromObject(author));
-			respJson.put("data", data);
-		} catch (Exception e) {
-			logger.error(e.toString(), e);
-			code = 500;
-			message = "error";
-		}
+		
+		String token = pd.getString("token");//客户端发来的token
+		String message = "token为空";
+		int code = 401;
+		long time = 0;
+		if (token!=null) {//token存在，开始校验token是否过期
+			try {
+				message = "token已过期";//假设已过期  
+				pd.put("phone", token.split("-")[0]);
+				PageData user = userService.findUserByUPhone(pd);//根据token中的手机信息识别出用户
+				String userToken = user.getString("token");//用户的实际token
+				time = Long.valueOf(token.split("-")[1]);//获取时间戳
+				long now = new Date().getTime();
+				long hours = (now-time)/1000/3600;
+				
+				if (hours<(24*30)&&token.equals(userToken)) {//不超过30天且客户端和服务端token一致，未过期
+					code = 200;message="ok";
+					//===================业务逻辑==================================
+					anthologyService.saveAnthology(pd);
+					pd.put("user_id", pd.getString("authorId"));
+					author = userService.findUserByUid(pd);
+					data.put("id", anthology_id);
+					data.put("title", pd.getString("title"));
+					data.put("author", JSONObject.fromObject(author));
+					respJson.put("data", data);
+					//===================业务逻辑==================================
+				}
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+				code = 500;
+				message = "程序异常";
+			}
+		  }
+		
 		respJson.put("code", code);
 		respJson.put("message", message);
 		return respJson;
@@ -173,25 +239,44 @@ public class AnthologyController extends BaseController {
 		PageData author = new PageData();
 		PageData pd = new PageData();
 		pd = getPdFromJson(req);
-		String message = "ok";
-		int code = 200;
 		pd.put("anthology_id", pd.getString("id"));
-		try {
-			anthologyService.updateAnthologyById(pd);
-			author = anthologyService.findAnthologyAndAuthorById(pd);
-			author.put("id", author.getString("create_by"));
-			author.remove("id");
-			author.remove("title");
-			author.remove("create_by");
-			data.put("id", pd.getString("id"));
-			data.put("title", pd.getString("title"));
-			data.put("author", JSONObject.fromObject(author));
-			respJson.put("data", data);
-		} catch (Exception e) {
-			logger.error(e.toString(), e);
-			code = 500;
-			message = "error";
-		}
+		
+		String message = "token为空";
+		int code = 401;
+		String token = pd.getString("token");//客户端发来的token
+		long time = 0;
+		if (token!=null) {//token存在，开始校验token是否过期
+			try {
+				message = "token已过期";//假设已过期  
+				pd.put("phone", token.split("-")[0]);
+				PageData user = userService.findUserByUPhone(pd);//根据token中的手机信息识别出用户
+				String userToken = user.getString("token");//用户的实际token
+				time = Long.valueOf(token.split("-")[1]);//获取时间戳
+				long now = new Date().getTime();
+				long hours = (now-time)/1000/3600;
+				
+				if (hours<(24*30)&&token.equals(userToken)) {//不超过30天且客户端和服务端token一致，未过期
+					//===================业务逻辑==================================
+					anthologyService.updateAnthologyById(pd);
+					author = anthologyService.findAnthologyAndAuthorById(pd);
+					author.put("id", author.getString("create_by"));
+					author.remove("id");
+					author.remove("title");
+					author.remove("create_by");
+					data.put("id", pd.getString("id"));
+					data.put("title", pd.getString("title"));
+					data.put("author", JSONObject.fromObject(author));
+					respJson.put("data", data);
+					code = 200;message="ok";
+					//===================业务逻辑==================================
+				}
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+				code = 500;
+				message = "程序异常";
+			}
+		  }
+		
 		respJson.put("code", code);
 		respJson.put("message", message);
 		return respJson;
@@ -208,17 +293,36 @@ public class AnthologyController extends BaseController {
 		JSONObject respJson = new JSONObject();
 		PageData pd = new PageData();
 		pd = getPdFromJson(req);
-		String message = "ok";
-		int code = 200;
 		pd.put("anthology_id", pd.getString("id"));
 		pd.put("is_del", 1);
-		try {
-			anthologyService.updateAnthologyById(pd);
-		} catch (Exception e) {
-			logger.error(e.toString(), e);
-			code = 500;
-			message = "error";
-		}
+		
+		String token = pd.getString("token");//客户端发来的token
+		String message = "token为空";
+		int code = 401;
+		long time = 0;
+		if (token!=null) {//token存在，开始校验token是否过期
+			try {
+				message = "token已过期";//假设已过期  
+				pd.put("phone", token.split("-")[0]);
+				PageData user = userService.findUserByUPhone(pd);//根据token中的手机信息识别出用户
+				String userToken = user.getString("token");//用户的实际token
+				time = Long.valueOf(token.split("-")[1]);//获取时间戳
+				long now = new Date().getTime();
+				long hours = (now-time)/1000/3600;
+				
+				if (hours<(24*30)&&token.equals(userToken)) {//不超过30天且客户端和服务端token一致，未过期
+					code = 200;message="ok";
+					//===================业务逻辑==================================
+					anthologyService.deleteAnthology(pd);// 删除文集和文集下的文章 （非物理删除，实为更新）
+					//===================业务逻辑==================================
+				}
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+				code = 500;
+				message = "程序异常";
+			}
+		  }
+		
 		respJson.put("code", code);
 		respJson.put("message", message);
 		return respJson;

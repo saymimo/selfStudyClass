@@ -16,6 +16,9 @@ public class UserService{
   public PageData findByUPhone(PageData pd)throws Exception{
     return (PageData)this.dao.findForObject("UserMapper.findByUPhone", pd);
   }
+  public PageData findUserByUPhone(PageData pd)throws Exception{
+	  return (PageData)this.dao.findForObject("UserMapper.findUserByUPhone", pd);
+  }
   
   public void updateUserByUid(PageData pd)throws Exception{
     this.dao.findForObject("UserMapper.updateUserByUid", pd);

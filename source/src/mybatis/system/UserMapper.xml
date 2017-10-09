@@ -37,6 +37,11 @@
 		from sys_user u 
 		where u.phone = #{phone}
 	</select>
+	<select id="findUserByUPhone" parameterType="pd" resultType="pd" useCache="false">
+		SELECT *
+		from sys_user u 
+		where u.phone = #{phone}
+	</select>
 	
 	<update id="updateUserByUid" parameterType="pd">
 		update sys_user 
@@ -79,6 +84,9 @@
 			</if>
 			<if test="avatar!=null">
 				avatar = #{avatar},
+			</if>
+			<if test="token!=null">
+				avatar = #{token},
 			</if>
 		</set> 
 		where user_id=#{user_id}

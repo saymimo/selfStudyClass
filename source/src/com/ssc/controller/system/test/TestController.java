@@ -1,6 +1,7 @@
 package com.ssc.controller.system.test;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSONObject;
 
@@ -34,4 +35,5 @@ public class TestController extends BaseController {
 		respJson.put("data", data);
 		return  respJson;
 	}
+	
 }

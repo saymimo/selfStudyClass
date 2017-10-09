@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="UserActionMapper">
+	
+    <cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>  
+   <insert id="saveUserAction" parameterType="pd">
+   	insert into user_action 
+   	<trim prefix="(" suffix=")" suffixOverrides=",">
+   		<if test="user_action_id!=null">user_action_id,</if>
+   		<if test="obj_id!=null">obj_id,</if>
+   		<if test="user_id!=null">user_id,</if>
+   		<if test="creat_time!=null">creat_time,</if>
+   		<if test="obj_parentid!=null">obj_parentid,</if>
+   		<if test="obj_belong!=null">obj_belong,</if>
+   	</trim>
+   	<trim prefix="values(" suffix=")" suffixOverrides=",">
+   		<if test="user_action_id!=null">#{user_action_id},</if>
+   		<if test="obj_id!=null">#{obj_id},</if>
+   		<if test="user_id!=null">#{user_id},</if>
+   		<if test="creat_time!=null">#{creat_time},</if>
+   		<if test="obj_parentid!=null">#{obj_parentid},</if>
+   		<if test="obj_belong!=null">#{obj_belong},</if>
+   	</trim>
+   </insert>
+</mapper>

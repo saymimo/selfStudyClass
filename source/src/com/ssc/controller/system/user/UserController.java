@@ -1,6 +1,7 @@
 package com.ssc.controller.system.user;
 
 import com.ssc.controller.base.BaseController;
+import com.ssc.entity.Page;
 import com.ssc.service.system.user.UserService;
 import com.ssc.util.HttpUtils;
 import com.ssc.util.PageData;
@@ -9,6 +10,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import net.sf.json.JSONObject;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -115,9 +119,11 @@ public class UserController extends BaseController{
    */
   @RequestMapping(value="/login",method=RequestMethod.POST)
   @ResponseBody
-  public Object login(@RequestBody String req){
+  public Object login(@RequestBody String req,
+		  HttpServletRequest request){
 	JSONObject data = new JSONObject();
 	JSONObject respJson = new JSONObject();
+	HttpSession session = request.getSession();
     PageData pd = new PageData();
     pd = getPdFromJson(req);
     String message = "验证不通过";
@@ -138,6 +144,13 @@ public class UserController extends BaseController{
           userPd = userService.findByUPhone(pd);
           userPd.put("isNew", true);
         }
+        //如果登录成功，存下用户的token和session
+        session.setAttribute("user", userService.findUserByUPhone(pd));
+        PageData pd2 = new PageData();
+        pd2.put("token", date.getTime());
+        pd2.put("user_id", userPd.getString("id"));
+        userService.updateUserByUid(pd2);
+        
         userPd.remove("verification_code");
         userPd.remove("state");
         data = JSONObject.fromObject(userPd);
@@ -157,6 +170,7 @@ public class UserController extends BaseController{
    * 更新用户
    * 2017-9-11 zxk_senNy
    * @return
+ * @throws Exception 
    */
   @RequestMapping(value="/updateUser",method=RequestMethod.PUT)
   @ResponseBody
@@ -167,28 +181,83 @@ public class UserController extends BaseController{
 	  int code = 200;
 	  String message = "ok";
 	  //后续做30天更改判断
-	  Date date = new Date();
-	  pd.put("user_id", reqJson.getString("id"));
-	  pd.put("nickname", reqJson.getString("nickname"));
-	  pd.put("name", reqJson.getString("name"));
-	  pd.put("unit", reqJson.getString("unit"));
-	  pd.put("email", reqJson.getString("email"));
-	  pd.put("update_time", date);
-	  try {
-		  userService.updateUserByUid(pd);
-		  pd.remove("user_id");pd.remove("update_time");
-		  pd.put("id", reqJson.getString("id"));
-		  pd.put("updateTime",date.getTime());
-		  respJson.put("data", JSONObject.fromObject(pd));
-	  } catch (Exception e) {
-		 logger.error(e.toString(), e);
-	     message = "ERROR:When updateUser";
-	     code = 500;
+	  
+	  String token = pd.getString("token");//客户端发来的token
+	  long time = 0;
+	  if (token==null) {
+		code = 401;
+		message = "token为空";
+	  }else {
+		  try {
+			pd.put("phone", token.split("-")[0]);
+			PageData user = userService.findUserByUPhone(pd);//根据token中的手机信息识别出用户
+			String userToken = user.getString("token");//用户的实际token
+			time = Long.valueOf(token.split("-")[1]);//获取时间戳
+			long now = new Date().getTime();
+			long hours = (now-time)/1000/3600;
+			code = 401;
+			message = "token已过期";
+			if (hours<(24*30)||!token.equals(userToken)) {//不超过30天
+			  code = 200;
+			  message = "ok";
+			  Date date = new Date();
+			  pd.put("user_id", reqJson.getString("id"));
+			  pd.put("nickname", reqJson.getString("nickname"));
+			  pd.put("name", reqJson.getString("name"));
+			  pd.put("unit", reqJson.getString("unit"));
+			  pd.put("email", reqJson.getString("email"));
+			  pd.put("update_time", date);
+			 
+			  userService.updateUserByUid(pd);
+			  pd.remove("user_id");pd.remove("update_time");
+			  pd.put("id", reqJson.getString("id"));
+			  pd.put("updateTime",date.getTime());
+			  respJson.put("data", JSONObject.fromObject(pd));
+			}
+		  } catch (Exception e) {
+			 logger.error(e.toString(), e);
+		     message = "ERROR:When updateUser";
+		     code = 500;
+		  }
 	  }
 	
 	  respJson.put("code", code);
 	  respJson.put("message", message);
 	  return respJson;
   }
-  
+  /**
+   * 进入app时的免登陆判断
+   * 2017-10-4 zxk_senNy
+   * @return
+ * @throws Exception 
+   */
+  @RequestMapping(value="/intoApp",method=RequestMethod.POST)
+  @ResponseBody
+  public Object intoApp(@RequestBody String req) throws Exception{
+	  JSONObject respJson = new JSONObject();
+	  PageData pd = new PageData();
+	  pd = getPdFromJson(req);
+	  String message = "ok";
+	  int code = 200;
+	  String token = pd.getString("token");//客户端发来的token
+	  long time = 0;
+	  if (token==null) {
+		code = 401;
+		message = "token为空";
+	  }else {
+		pd.put("phone", token.split("-")[0]);
+		PageData user = userService.findUserByUPhone(pd);//根据token中的手机信息识别出用户
+		String userToken = user.getString("token");//用户的实际token
+		time = Long.valueOf(token.split("-")[1]);//获取时间戳
+		long now = new Date().getTime();
+		long hours = (now-time)/1000/3600;
+		if (hours>=(24*30)||!token.equals(userToken)) {//超过30天
+			code = 401;
+			message = "token已过期";
+			}
+	  }
+	  respJson.put("code", code);
+	  respJson.put("message", message);
+	  return respJson;
+  }
 }

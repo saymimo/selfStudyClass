@@ -77,6 +77,12 @@
 	  		</set>
 	  		WHERE content_id=#{content_id}
 	  </update>
+	  <!-- 删除某文集下的文章 -->
+	  <update id="updateArticleIsDelByAnthologyById" parameterType="pd">
+	  		UPDATE sys_content
+	  		set is_del=1
+	  		WHERE anthology_id=#{anthology_id}
+	  </update>
 	  
 	  <select id="findContentList" parameterType="pd" resultType="pd">
 			SELECT 

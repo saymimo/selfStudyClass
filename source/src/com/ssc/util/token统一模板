@@ -1,0 +1,25 @@
+	String token = pd.getString("token");//客户端发来的token
+	String message = "token为空";
+	int code = 401;
+	long time = 0;
+	if (token!=null) {//token存在，开始校验token是否过期
+		try {
+			message = "token已过期";//假设已过期  
+			pd.put("phone", token.split("-")[0]);
+			PageData user = userService.findUserByUPhone(pd);//根据token中的手机信息识别出用户
+			String userToken = user.getString("token");//用户的实际token
+			time = Long.valueOf(token.split("-")[1]);//获取时间戳
+			long now = new Date().getTime();
+			long hours = (now-time)/1000/3600;
+			
+			if (hours<(24*30)&&token.equals(userToken)) {//不超过30天且客户端和服务端token一致，未过期
+				code = 200;message="ok";
+				//===================业务逻辑==================================
+				//===================业务逻辑==================================
+			}
+		} catch (Exception e) {
+			logger.error(e.toString(), e);
+			code = 500;
+			message = "程序异常";
+		}
+	  }

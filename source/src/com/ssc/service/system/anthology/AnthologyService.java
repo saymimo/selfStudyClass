@@ -72,4 +72,14 @@ public class AnthologyService {
 	public void updateAnthologyById(PageData pd) throws Exception{
 		dao.update("AnthologyMapper.updateAnthologyById", pd);
 	}
+	/**
+	 *  删除文集和文集下的文章（非物理删除，实为更新）
+	 * 2017-9-30 zxk_senNy
+	 * @param pd
+	 * @throws Exception
+	 */
+	public void deleteAnthology(PageData pd) throws Exception{
+		dao.update("AnthologyMapper.updateAnthologyById", pd);//删除该文集
+		dao.update("ContentMapper.updateArticleIsDelByAnthologyById",pd);//删除该文集下的文章
+	}
 }
