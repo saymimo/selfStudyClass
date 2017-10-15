@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ssc.controller.base.BaseController;
 import com.ssc.service.system.comment.CommentService;
 import com.ssc.service.system.content.ContentService;
+import com.ssc.service.system.user.UserService;
 import com.ssc.service.system.userAction.UserActionService;
 import com.ssc.util.PageData;
 import com.sun.org.apache.bcel.internal.generic.NEW;
@@ -28,6 +29,9 @@ public class ContentController extends BaseController {
 	
 	@Resource(name="commentService")
 	private CommentService commentService;
+	
+	@Resource(name="userService")
+	private UserService userService;
 	
 
 	  @Resource(name="userActionService")
@@ -47,82 +51,101 @@ public class ContentController extends BaseController {
 		JSONObject respJson = new JSONObject();
 		PageData pd = new PageData();
 		pd = getPageData();
-		int code = 205;
-		String message = "没找到对应内容";
 		
 		int offset = (Integer)pd.get("offset")==null?0:(Integer)pd.get("offset");
 		int limit = (Integer)pd.get("limit")==null?10:(Integer)pd.get("limit");
 		pd.put("offset", offset);
 		pd.put("limit", limit);
-		try {
-			contentList = contentService.findContentList(pd);
-			int num = contentList.size();//23
-			int currentPage = offset/limit+1;
-			data.put("totalPage", num/limit+1);
-			data.put("currentPage",currentPage);
-			data.put("pageStartIndex",(currentPage-1)*limit);
-			data.put("pageEndIndex", currentPage*limit-1);
-			
-			if (contentList!=null&&!contentList.isEmpty()) {
-				for (int i = 0; i < num; i++) {
-					PageData content = new PageData();
-					content = contentList.get(i);
-					//===============作者======================
-					JSONObject author = new JSONObject();
-					if ((Integer)content.get("publishType")==1) {//真名发布
-						author.put("id", content.getString("user_id"));
-						author.put("avatar", content.getString("avatar"));
-						author.put("name", content.getString("name"));
-						author.put("unit", content.getString("unit"));
-					}
-					if ((Integer)content.get("publishType")==2) {//昵称
-						author.put("id", content.getString("user_id"));
-						author.put("avatar", content.getString("avatar"));
-						author.put("nickname", content.getString("nickname"));
-					}
-					if ((Integer)content.get("publishType")==3) {//匿名
-						author.put("id", -1);
-					}
-					content.put("author",author);
-					//===============作者======================
-					
-					//===============文章======================
-					JSONObject anthology = new JSONObject();
-					if ((Integer)content.get("type")==1) {//若文章，放入文集，去掉关注数
-						anthology.put("id", content.getString("anthology_id"));
-						anthology.put("title", content.getString("anthologyTitle"));
-						content.put("anthology", anthology);
-						content.remove("attentionNum");
-						content.remove("answerNum");
-					}
-					//===============文章======================
-					
-					if ((Integer)content.get("type")==2) {//若问题，去掉收藏数和阅读数
-						content.remove("collectNum");
-						content.remove("readNum");
-						content.put("praiseNum", content.get("answers_praiseNum"));//这里的赞数是指该问题下所有回答赞数的总和
-					}
-					content.remove("answers_praiseNum");
-					content.remove("user_id");
-					content.remove("avatar");
-					content.remove("name");
-					content.remove("nickname");
-					content.remove("unit");
-					content.remove("anthology_id");
-					content.remove("anthologyTitle");
-					contentList2.add(JSONObject.fromObject(content));
-				}
+		
+		String token = pd.getString("token");//客户端发来的token
+		String message = "token为空";
+		int code = 401;
+		long time = 0;
+		if (token!=null) {//token存在，开始校验token是否过期
+			try {
+				message = "token已过期";//假设已过期  
+				pd.put("phone", token.split("-")[0]);
+				PageData user = userService.findUserByUPhone(pd);//根据token中的手机信息识别出用户
+				String userToken = user.getString("token");//用户的实际token
+				time = Long.valueOf(token.split("-")[1]);//获取时间戳
+				long now = new Date().getTime();
+				long hours = (now-time)/1000/3600;
 				
-				data.put("content", JSONArray.fromObject(contentList2));
-				respJson.put("data", data);
-				code = 200;
-				message = "ok";
+				if (hours<(24*30)&&token.equals(userToken)) {//不超过30天且客户端和服务端token一致，未过期
+					code = 205;message="没找到对应内容";
+					//===================业务逻辑==================================
+					contentList = contentService.findContentList(pd);
+					int num = contentList.size();//23
+					int currentPage = offset/limit+1;
+					data.put("totalPage", num/limit+1);
+					data.put("currentPage",currentPage);
+					data.put("pageStartIndex",(currentPage-1)*limit);
+					data.put("pageEndIndex", currentPage*limit-1);
+					
+					if (contentList!=null&&!contentList.isEmpty()) {
+						for (int i = 0; i < num; i++) {
+							PageData content = new PageData();
+							content = contentList.get(i);
+							//===============作者======================
+							JSONObject author = new JSONObject();
+							if ((Integer)content.get("publishType")==1) {//真名发布
+								author.put("id", content.getString("user_id"));
+								author.put("avatar", content.getString("avatar"));
+								author.put("name", content.getString("name"));
+								author.put("unit", content.getString("unit"));
+							}
+							if ((Integer)content.get("publishType")==2) {//昵称
+								author.put("id", content.getString("user_id"));
+								author.put("avatar", content.getString("avatar"));
+								author.put("nickname", content.getString("nickname"));
+							}
+							if ((Integer)content.get("publishType")==3) {//匿名
+								author.put("id", -1);
+							}
+							content.put("author",author);
+							//===============作者======================
+							
+							//===============文章======================
+							JSONObject anthology = new JSONObject();
+							if ((Integer)content.get("type")==1) {//若文章，放入文集，去掉关注数
+								anthology.put("id", content.getString("anthology_id"));
+								anthology.put("title", content.getString("anthologyTitle"));
+								content.put("anthology", anthology);
+								content.remove("attentionNum");
+								content.remove("answerNum");
+							}
+							//===============文章======================
+							
+							if ((Integer)content.get("type")==2) {//若问题，去掉收藏数和阅读数
+								content.remove("collectNum");
+								content.remove("readNum");
+								content.put("praiseNum", content.get("answers_praiseNum"));//这里的赞数是指该问题下所有回答赞数的总和
+							}
+							content.remove("answers_praiseNum");
+							content.remove("user_id");
+							content.remove("avatar");
+							content.remove("name");
+							content.remove("nickname");
+							content.remove("unit");
+							content.remove("anthology_id");
+							content.remove("anthologyTitle");
+							contentList2.add(JSONObject.fromObject(content));
+						}
+						
+						data.put("content", JSONArray.fromObject(contentList2));
+						respJson.put("data", data);
+						code = 200;
+						message = "ok";
+					}
+					//===================业务逻辑==================================
+				}
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+				code = 500;
+				message = "程序异常";
 			}
-		} catch (Exception e) {
-			logger.error(e.toString(),e);
-			message = "error";
-			code = 500;
 		}
+		
 		respJson.put("code", code);
 		respJson.put("message", message);
 		return respJson;
@@ -144,99 +167,116 @@ public class ContentController extends BaseController {
 		PageData pd = new PageData();
 		PageData content = new PageData();
 		pd = getPageData();
-		String message = "ok";
-		int code = 200;
-		try {
-			//新增一条阅读记录
-			HttpSession session = request.getSession();
-			PageData user = (PageData)session.getAttribute("user");
-			pd.put("user_action_id", get32UUID());
-			pd.put("obj_id", pd.getString("contentId"));
-			pd.put("user_id", user.getString("user_id"));
-			pd.put("action_type", 5);
-			pd.put("creat_time",new Date());
-			userActionService.saveUserAction(pd);
-			
-			pd.put("content_id", pd.getString("contentId"));
-			content = contentService.findContent(pd);
-			if ((Integer)content.get("publishType")==1) {//真名发布
-				author.put("id", content.getString("user_id"));
-				author.put("avatar", content.getString("avatar"));
-				author.put("name", content.getString("name"));
-				author.put("unit", content.getString("unit"));
-			}
-			if ((Integer)content.get("publishType")==2) {//昵称
-				author.put("id", content.getString("user_id"));
-				author.put("avatar", content.getString("avatar"));
-				author.put("nickname", content.getString("nickname"));
-			}
-			if ((Integer)content.get("publishType")==3) {//匿名
-				author.put("id", -1);
-			}
-			content.put("author", author);
-			//===============文章======================
-			if ((Integer)content.get("type")==1) {//若文章，放入文集，去掉关注数
-				anthology.put("id", content.getString("anthology_id"));
-				anthology.put("title", content.getString("anthologyTitle"));
-				content.put("anthology", anthology);
-				content.remove("attentionNum");
-				content.remove("answerNum");
-			}
-			//===============文章======================
-			
-			//===============问题======================
-			if ((Integer)content.get("type")==2) {//若问题，去掉收藏数,阅读数
-				content.remove("collectNum");
-				content.remove("readNum");
-				content.put("praiseNum", content.get("answers_praiseNum"));//这里的赞数是指该问题下所有回答赞数的总和
-			}
-			//===============问题======================
-			content.remove("answers_praiseNum");
-			commentList = commentService.findCommentList(pd);//评论或者回答
-			if (commentList!=null&&!commentList.isEmpty()) {
-				for (int i = 0; i < commentList.size(); i++) {
-					PageData comment = new PageData();
-					JSONObject c_author = new JSONObject();//评论回答的作者
-					comment = commentList.get(i);
+		
+		String token = pd.getString("token");//客户端发来的token
+		String message = "token为空";
+		int code = 401;
+		long time = 0;
+		if (token!=null) {//token存在，开始校验token是否过期
+			try {
+				message = "token已过期";//假设已过期  
+				pd.put("phone", token.split("-")[0]);
+				PageData user = userService.findUserByUPhone(pd);//根据token中的手机信息识别出用户
+				String userToken = user.getString("token");//用户的实际token
+				time = Long.valueOf(token.split("-")[1]);//获取时间戳
+				long now = new Date().getTime();
+				long hours = (now-time)/1000/3600;
+				
+				if (hours<(24*30)&&token.equals(userToken)) {//不超过30天且客户端和服务端token一致，未过期
+					code = 200;message="ok";
+					//===================业务逻辑==================================
+					//新增一条阅读记录
+					HttpSession session = request.getSession();
+					pd.put("user_action_id", get32UUID());
+					pd.put("obj_id", pd.getString("contentId"));
+					pd.put("user_id", user.getString("user_id"));
+					pd.put("action_type", 5);
+					pd.put("creat_time",new Date());
+					userActionService.saveUserAction(pd);
 					
-					if ((Integer)comment.get("publishType")==1) {
-						c_author.put("id", comment.getString("user_id"));
-						c_author.put("avatar", comment.getString("avatar"));
-						c_author.put("name", comment.getString("name"));
-						c_author.put("unit", comment.getString("unit"));
+					pd.put("content_id", pd.getString("contentId"));
+					content = contentService.findContent(pd);
+					if ((Integer)content.get("publishType")==1) {//真名发布
+						author.put("id", content.getString("user_id"));
+						author.put("avatar", content.getString("avatar"));
+						author.put("name", content.getString("name"));
+						author.put("unit", content.getString("unit"));
 					}
-					if ((Integer)comment.get("publishType")==2) {
-						c_author.put("id", comment.getString("user_id"));
-						c_author.put("avatar", comment.getString("avatar"));
-						c_author.put("nickname", comment.getString("nickname"));
+					if ((Integer)content.get("publishType")==2) {//昵称
+						author.put("id", content.getString("user_id"));
+						author.put("avatar", content.getString("avatar"));
+						author.put("nickname", content.getString("nickname"));
 					}
-					if ((Integer)comment.get("publishType")==3) {
-						c_author.put("id",-1);
+					if ((Integer)content.get("publishType")==3) {//匿名
+						author.put("id", -1);
 					}
-					comment.put("author", c_author);
-					comment.remove("user_id");
-					comment.remove("avatar");
-					comment.remove("name");
-					comment.remove("unit");
-					commentList2.add(JSONObject.fromObject(comment));
+					content.put("author", author);
+					//===============文章======================
+					if ((Integer)content.get("type")==1) {//若文章，放入文集，去掉关注数
+						anthology.put("id", content.getString("anthology_id"));
+						anthology.put("title", content.getString("anthologyTitle"));
+						content.put("anthology", anthology);
+						content.remove("attentionNum");
+						content.remove("answerNum");
+					}
+					//===============文章======================
+					
+					//===============问题======================
+					if ((Integer)content.get("type")==2) {//若问题，去掉收藏数,阅读数
+						content.remove("collectNum");
+						content.remove("readNum");
+						content.put("praiseNum", content.get("answers_praiseNum"));//这里的赞数是指该问题下所有回答赞数的总和
+					}
+					//===============问题======================
+					content.remove("answers_praiseNum");
+					commentList = commentService.findCommentList(pd);//评论或者回答
+					if (commentList!=null&&!commentList.isEmpty()) {
+						for (int i = 0; i < commentList.size(); i++) {
+							PageData comment = new PageData();
+							JSONObject c_author = new JSONObject();//评论回答的作者
+							comment = commentList.get(i);
+							
+							if ((Integer)comment.get("publishType")==1) {
+								c_author.put("id", comment.getString("user_id"));
+								c_author.put("avatar", comment.getString("avatar"));
+								c_author.put("name", comment.getString("name"));
+								c_author.put("unit", comment.getString("unit"));
+							}
+							if ((Integer)comment.get("publishType")==2) {
+								c_author.put("id", comment.getString("user_id"));
+								c_author.put("avatar", comment.getString("avatar"));
+								c_author.put("nickname", comment.getString("nickname"));
+							}
+							if ((Integer)comment.get("publishType")==3) {
+								c_author.put("id",-1);
+							}
+							comment.put("author", c_author);
+							comment.remove("user_id");
+							comment.remove("avatar");
+							comment.remove("name");
+							comment.remove("unit");
+							commentList2.add(JSONObject.fromObject(comment));
+						}
+					}
+					content.put("comment", JSONArray.fromObject(commentList2));
+					//是否发布 1已发布
+					content.put("isPublish", (Integer)content.get("is_publish")==1?true:false);
+					content.remove("user_id");
+					content.remove("avatar");
+					content.remove("name");
+					content.remove("nickname");
+					content.remove("unit");
+					content.remove("anthology_id");
+					content.remove("anthologyTitle");
+					content.remove("is_publish");
+					respJson.put("data", JSONObject.fromObject(content));
+					//===================业务逻辑==================================
 				}
+			} catch (Exception e) {
+				logger.error(e.toString(), e);
+				code = 500;
+				message = "程序异常";
 			}
-			content.put("comment", JSONArray.fromObject(commentList2));
-			//是否发布 1已发布
-			content.put("isPublish", (Integer)content.get("is_publish")==1?true:false);
-			content.remove("user_id");
-			content.remove("avatar");
-			content.remove("name");
-			content.remove("nickname");
-			content.remove("unit");
-			content.remove("anthology_id");
-			content.remove("anthologyTitle");
-			content.remove("is_publish");
-			respJson.put("data", JSONObject.fromObject(content));
-		} catch (Exception e) {
-			logger.error(e.toString(), e);
-			code = 500;
-			message = "error";
 		}
 		respJson.put("code", code);
 		respJson.put("message", message);
